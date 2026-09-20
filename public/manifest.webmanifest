@@ -1,0 +1,13 @@
+{
+  "name": "B&M HomeKeeper",
+  "short_name": "HomeKeeper",
+  "description": "One number for your home.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1B2A4A",
+  "theme_color": "#1B2A4A",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

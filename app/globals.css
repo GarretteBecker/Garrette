@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   B&M HomeKeeper brand tokens
+   Navy #1B2A4A, green #2E5E3A, white. Clean, premium, trustworthy.
+   ===================================================================== */
+@theme {
+  --color-navy-50:  #f2f4f8;
+  --color-navy-100: #e2e7f0;
+  --color-navy-200: #c7d0e1;
+  --color-navy-300: #9aabc8;
+  --color-navy-400: #6079a6;
+  --color-navy-500: #3d5586;
+  --color-navy-600: #2b3f68;
+  --color-navy-700: #1B2A4A;
+  --color-navy-800: #16223c;
+  --color-navy-900: #111a2e;
+
+  --color-brandgreen-50:  #f1f6f2;
+  --color-brandgreen-100: #dcebe0;
+  --color-brandgreen-200: #bad8c3;
+  --color-brandgreen-300: #8dbd9c;
+  --color-brandgreen-400: #5c9a70;
+  --color-brandgreen-500: #3d7a51;
+  --color-brandgreen-600: #2E5E3A;
+  --color-brandgreen-700: #254b2f;
+  --color-brandgreen-800: #1e3c26;
+  --color-brandgreen-900: #17301e;
+
+  /* Finding status colors — labels are fixed by CLAUDE.md */
+  --color-status-good:        #2E5E3A;
+  --color-status-monitor:     #1d4ed8;
+  --color-status-plan:        #b45309;
+  --color-status-action:      #b91c1c;
+  --color-status-improvement: #6d28d9;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #111a2e;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Field app is used one-handed, outdoors, in gloves. Keep tap targets big
+   and stop iOS zooming the page when an input is focused. */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+
+/* Respect the phone's notch / home indicator. */
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+.safe-top {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Report pages print to US Letter with real margins. */
+@page {
+  size: letter;
+  margin: 0.5in;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  /* Keep the brand colors when printing — this is a sales document. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
