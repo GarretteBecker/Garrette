@@ -462,6 +462,64 @@ honest "as soon as we can during business hours".
   code, key location or combination. A shutoff is a valve anyone in the room
   can see; a key location is not.
 
+### Phase 16 — Warranty watch
+
+The app has stored a warranty expiry date on every Home Record item since
+day one and never once used it. That was money sitting on the floor: a
+member whose water heater fails ten weeks after the cover quietly lapsed
+paid for a tank they did not have to.
+
+**What the member sees**
+
+> **Ends in about 2 months — Smart Thermostat**
+> Your smart thermostat (ecobee Smart Thermostat Premium EB-STATE6) comes
+> out of warranty in about 2 months. If anything is wrong with it, it is far
+> cheaper to find out now than after.
+> **[Have a look while it is covered]** · No thanks
+
+Tapping it opens an ordinary job against that item, carrying the warranty
+date across so whoever prices it knows the clock is running.
+
+- **"No thanks" genuinely stops it** for that warranty period. A reminder
+  somebody has already declined is a nag, and a nag is worse than silence.
+  It goes through the same narrow SECURITY DEFINER route as estimate
+  approval, so the member can do it from their phone without ringing anyone.
+- **A later, genuinely new warranty period is not silenced by an old
+  decline** — notices are keyed on the item *and* the date.
+- **It sits under the hero, not above it.** The headline is still "is my
+  home alright?"; a reminder that pushed that answer off the screen would be
+  selling rather than serving.
+
+**What the office sees**
+
+`/admin/warranties` — everything coming out of cover in the next 120 days,
+soonest first, in three groups: **nobody has told them** (today's work),
+**told, waiting on them** (no chasing twice), and **they asked us to look**
+(a job already exists). Anything declined drops off.
+
+Pressing *Tell them* sends the reminder through a new GoHighLevel event —
+`member_message` arrives already written — and records the date, method and
+sender. "Did we tell them?" stops being a memory.
+
+**One definition of "ending soon."** It reuses `warrantyInfo()` from
+`lib/member/portal.ts`, which the Home Record already uses for its warranty
+chips, so a card cannot say "ending soon" while the chip beside it says
+"under warranty". 120 days, in one place.
+
+**Also**
+
+- New table `warranty_notices` and view `warranty_watch` (migration `0014`).
+  Verified on PostgreSQL 16 across every boundary the window draws — 58 and
+  119 days in, 121 days out, expired-yesterday out, six lifetime warranties
+  correctly excluded — plus the decline being idempotent, refused for staff,
+  and refused across a property boundary against a fixture confirmed to hold
+  the other home's item.
+- The seed and the demo fixture now carry two warranties dated **relative to
+  today**. The hard-coded dates had already gone stale, which meant the
+  feature would have looked broken on the demo home the day it shipped.
+- 9 unit tests on the selection logic, including that an old decline does
+  not silence a new warranty period.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

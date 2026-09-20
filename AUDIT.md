@@ -32,6 +32,10 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > PRESENT, and item 3's missing property-level Home Record fields — water
 > source, sewer type, service size, construction, roof, and the main shutoff
 > with a photograph — are in.
+>
+> **And after warranty watch.** The warranty dates item 3 already stored are
+> finally used: a member is told before cover runs out, and the office has a
+> worklist of everything expiring in the next 120 days.
 
 ---
 

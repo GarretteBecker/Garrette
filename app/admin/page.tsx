@@ -102,6 +102,9 @@ export default async function AdminHomePage() {
             <LinkButton href="/admin/trade-partners" variant="secondary">
               Trades
             </LinkButton>
+            <LinkButton href="/admin/warranties" variant="secondary">
+              Warranties
+            </LinkButton>
             <LinkButton href="/admin/compliance" variant="secondary">
               Compliance
             </LinkButton>

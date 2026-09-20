@@ -608,3 +608,18 @@ values
    'Basement floor, three feet from the base of the soil stack. Black cap, flush with the slab.',
    null, 50)
 on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------
+-- 12. Two warranties genuinely running out
+--
+-- Relative to today rather than fixed dates, so warranty watch is never
+-- dead on the demo home. Without this the feature would look broken the
+-- moment the seed's hard-coded dates went stale — which they already had.
+-- ---------------------------------------------------------------------
+update public.assets
+   set warranty_expires = current_date + 58
+ where id = 'e0000000-0000-4000-8000-00000000000f';   -- ecobee thermostat
+
+update public.assets
+   set warranty_expires = current_date + 112
+ where id = 'e0000000-0000-4000-8000-000000000012';   -- Culligan water softener

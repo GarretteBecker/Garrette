@@ -17,7 +17,10 @@ export type GhlEventType =
   // Compliance. The renewal reminder is a disclosure with a deadline on it,
   // so it is sent from a workflow rather than left to someone remembering.
   | 'membership.renewal_notice'
-  | 'membership.rescinded';
+  | 'membership.rescinded'
+  // Warranty watch. The one event that puts money back in a member's
+  // pocket, so it is worth its own workflow.
+  | 'warranty.expiring';
 
 export interface GhlContact {
   first_name: string | null;

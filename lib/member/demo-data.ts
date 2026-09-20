@@ -129,9 +129,12 @@ const ASSETS: Asset[] = [
     make: 'Aprilaire', model: '700M', serial: 'AP-700-1190338', installed: '2014-10-02',
     life: 15, serviced: '2026-09-08', where: 'Furnace supply plenum',
     notes: 'Water panel changed each fall visit.' }),
+  // Relative to today so warranty watch is never dead on the demo home —
+  // fixed dates go stale, and a feature that looks broken in a sales demo
+  // may as well not exist.
   asset({ id: 'a12', roomId: null, category: 'HVAC', name: 'Smart Thermostat',
     make: 'ecobee', model: 'Smart Thermostat Premium EB-STATE6', serial: 'EB-STATE6-1192840',
-    installed: '2023-02-14', warranty: '2026-02-14', life: 10,
+    installed: '2023-02-14', warranty: daysFromNow(58).slice(0, 10), life: 10,
     where: 'Living room, interior wall', notes: 'Remote sensor in the primary bedroom.' }),
   asset({ id: 'a13', roomId: 'r6', category: 'Electrical', name: 'Main Electrical Panel — 200A',
     make: 'Square D', model: 'QO140M200 Homeline 200A', serial: 'SQ-QO140-9928471',
@@ -147,7 +150,7 @@ const ASSETS: Asset[] = [
     notes: 'IMPORTANT: this is the valve to close in a plumbing emergency. Turns clockwise.' }),
   asset({ id: 'a16', roomId: 'r6', category: 'Plumbing', name: 'Water Softener',
     make: 'Culligan', model: 'HE Twin 1.5', serial: 'CU-HET-4429183',
-    installed: '2020-07-15', warranty: '2025-07-15', life: 15, serviced: '2026-09-08',
+    installed: '2020-07-15', warranty: daysFromNow(112).slice(0, 10), life: 15, serviced: '2026-09-08',
     where: 'Basement, beside the water entry' }),
   asset({ id: 'a17', roomId: 'r1', category: 'Appliance', name: 'Dishwasher',
     make: 'Bosch', model: '800 Series SHPM88Z75N', serial: 'BS-SHPM-FD9812774',

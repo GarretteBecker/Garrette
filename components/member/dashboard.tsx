@@ -3,6 +3,8 @@ import { FINDING_STATUS_STYLES, FINDING_STATUS_HEX } from '@/lib/types/finding-s
 import { formatMoneyRange } from '@/components/ui';
 import { PortalSection } from './shell';
 import QuickActions from './quick-actions';
+import WarrantyWatch from './warranty-watch';
+import { expiringWarranties } from '@/lib/warranty';
 import {
   computeHomeStatus, buildActivity, nextVisit, investmentRange,
   type PortalData,
@@ -38,10 +40,16 @@ function timeOf(value: string | null): string {
 export default function MemberDashboard({
   data,
   hrefPrefix = '/home',
+  demo = false,
 }: {
   data: PortalData;
   hrefPrefix?: string;
+  demo?: boolean;
 }) {
+  // Money on the table. Sits under the hero rather than above it: the
+  // headline is still "is my home alright?", and a warranty reminder that
+  // pushed that answer off the screen would be selling, not serving.
+  const expiring = expiringWarranties(data.assets, data.warrantyNotices ?? []);
   const status = computeHomeStatus(data.findings);
   const activity = buildActivity(data);
   const visit = nextVisit(data.visits);
@@ -114,6 +122,9 @@ export default function MemberDashboard({
           </div>
         </div>
       </div>
+
+      {/* ---------------------------------------------- warranty watch */}
+      <WarrantyWatch items={expiring} hrefPrefix={hrefPrefix} demo={demo} />
 
       {/* ---------------------------------------------- open requests */}
       {data.openRequests.length > 0 ? (

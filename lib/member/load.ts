@@ -35,6 +35,7 @@ export async function loadPortalData(
     { data: reports },
     { data: documents },
     { data: requests },
+    { data: warrantyNotices },
     { data: photoRows },
   ] = await Promise.all([
     supabase.from('members').select('*').eq('property_id', property.id),
@@ -69,6 +70,10 @@ export async function loadPortalData(
       .eq('property_id', property.id)
       .not('stage', 'eq', 'CLOSED')
       .order('created_at', { ascending: false }),
+    supabase
+      .from('warranty_notices')
+      .select('id, asset_id, warranty_expires, notified_at, response')
+      .eq('property_id', property.id),
     supabase
       .from('photos')
       .select('id, asset_id, finding_id, storage_path, caption')
@@ -115,5 +120,6 @@ export async function loadPortalData(
     documents: (documents ?? []) as PortalDocument[],
     photos,
     openRequests: (requests ?? []) as PortalData['openRequests'],
+    warrantyNotices: (warrantyNotices ?? []) as PortalData['warrantyNotices'],
   };
 }

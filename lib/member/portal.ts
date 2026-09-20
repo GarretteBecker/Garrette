@@ -12,6 +12,7 @@
  *      rather than being scattered through JSX.
  */
 
+import type { WarrantyNotice } from '@/lib/warranty';
 import type {
   Asset, Finding, FindingStatus, PlanItem, Property, Room,
   ServiceRequestStage, Visit,
@@ -59,6 +60,8 @@ export interface PortalData {
     /** Set when the job was raised off a Home Plan item. */
     finding_id?: string | null;
   }[];
+  /** What we have already told them about a warranty, so we do not nag. */
+  warrantyNotices?: WarrantyNotice[];
 }
 
 /**

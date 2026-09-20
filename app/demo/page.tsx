@@ -16,7 +16,7 @@ export default function DemoDashboardPage() {
       showSignOut={false}
     >
       <DemoBanner />
-      <MemberDashboard data={data} hrefPrefix="/demo" />
+      <MemberDashboard data={data} hrefPrefix="/demo" demo />
     </PortalShell>
   );
 }

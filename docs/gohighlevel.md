@@ -172,6 +172,7 @@ GHL_WEBHOOK_URL_REQUEST_STAGE=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_VISIT_SCHEDULED=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_RENEWAL_NOTICE=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_MEMBERSHIP_RESCINDED=https://services.leadconnectorhq.com/hooks/...
+GHL_WEBHOOK_URL_WARRANTY_EXPIRING=https://services.leadconnectorhq.com/hooks/...
 ```
 
 Each workflow then has one trigger and one message, with no branching.
@@ -186,6 +187,12 @@ The last two are the compliance events:
 - **`membership.rescinded`** fires the moment a member cancels inside their
   three-business-day window. Point this one at *yourself*, not the member —
   it is the office that needs to know today.
+- **`warranty.expiring`** fires when you press *Tell them* on the warranty
+  worklist. `member_message` is written for you, and the payload carries the
+  item, make, model, serial, expiry date and days left. This is the highest
+  value workflow in the list: it costs an email and can save a member a few
+  thousand dollars, which is the most concrete answer your product has to
+  "what am I paying for?"
 
 **One workflow.** Set only `GHL_WEBHOOK_URL` and every event goes there; add
 an **If/Else** on the `event` field at the top and branch into a path each.
