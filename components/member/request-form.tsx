@@ -1,7 +1,7 @@
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useActionState, useEffect, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import { createClient } from '@/lib/supabase/client';
 import { compressImage, formatBytes } from '@/lib/media/compress';
@@ -36,19 +36,34 @@ export default function RequestForm({
   propertyId,
   rooms,
   assets,
+  demo = false,
 }: {
   propertyId: string;
   rooms: Room[];
   assets: Asset[];
+  /** Sales demo: show the real form, but send nothing. */
+  demo?: boolean;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const openCameraOnLoad = searchParams.get('camera') === '1';
   const [roomId, setRoomId] = useState('');
   const [urgency, setUrgency] = useState<PriorityLevel>('MEDIUM');
   const [picked, setPicked] = useState<Picked[]>([]);
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [queued, setQueued] = useState(false);
+  const [demoSent, setDemoSent] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraOpened = useRef(false);
+
+  // Arriving from the dashboard camera button: open the camera straight away
+  // so the member is photographing the problem, not reading a form.
+  useEffect(() => {
+    if (!openCameraOnLoad || cameraOpened.current) return;
+    cameraOpened.current = true;
+    fileRef.current?.click();
+  }, [openCameraOnLoad]);
 
   // Items in the chosen room first — that is how a homeowner thinks.
   const relevantAssets = roomId
@@ -57,6 +72,12 @@ export default function RequestForm({
 
   const [state, formAction] = useActionState<RequestActionState, FormData>(
     async (prev, fd) => {
+      // Sales demo: everything above is real, but nothing leaves the phone.
+      if (demo) {
+        setDemoSent(true);
+        return { ok: true };
+      }
+
       // No signal: queue the whole submission — the request row first, then
       // its media — and let the outbox drain it in order when signal returns.
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -172,6 +193,28 @@ export default function RequestForm({
     if (fileRef.current) fileRef.current.value = '';
   }
 
+  if (demoSent) {
+    return (
+      <div className="rounded-2xl bg-brandgreen-50 p-5 text-center ring-1 ring-brandgreen-600/20">
+        <p className="text-lg font-semibold text-brandgreen-800">
+          That is what your member would send
+        </p>
+        <p className="mt-2 text-[14px] leading-relaxed text-brandgreen-900/80">
+          In the real app this lands on the B&amp;M request board straight
+          away, and the homeowner can follow it through every stage from their
+          phone.
+        </p>
+        <button
+          type="button"
+          onClick={() => setDemoSent(false)}
+          className="mt-4 h-12 w-full rounded-lg bg-white font-semibold text-navy-700 ring-1 ring-slate-300"
+        >
+          Try it again
+        </button>
+      </div>
+    );
+  }
+
   if (queued) {
     return (
       <div className="rounded-2xl bg-amber-50 p-5 text-center ring-1 ring-amber-600/20">
@@ -198,6 +241,76 @@ export default function RequestForm({
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="property_id" value={propertyId} />
       <input type="hidden" name="priority" value={urgency} />
+
+      {/* ------------------------------------- photos, first and biggest */}
+      <div>
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          className="flex w-full flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-brandgreen-600/40 bg-brandgreen-50 px-4 py-7 transition active:scale-[0.99]"
+        >
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brandgreen-600 text-white shadow-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+                 className="h-8 w-8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4z" />
+              <circle cx="12" cy="13" r="3.5" />
+            </svg>
+          </span>
+          <span className="text-center">
+            <span className="block text-[17px] font-bold text-brandgreen-800">
+              {picked.length > 0 ? 'Add another photo' : 'Take a photo or video'}
+            </span>
+            <span className="mt-1 block text-[13px] leading-snug text-brandgreen-700/80">
+              A ten-second clip of the noise it makes beats a paragraph of
+              describing it.
+            </span>
+          </span>
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*,video/*"
+          capture="environment"
+          multiple
+          hidden
+          onChange={(e) => addFiles(e.target.files)}
+        />
+
+        {picked.length > 0 ? (
+          <ul className="mt-3 grid grid-cols-3 gap-2">
+            {picked.map((p, i) => (
+              <li key={p.preview} className="relative">
+                {p.isVideo ? (
+                  <div className="flex aspect-square w-full flex-col items-center justify-center rounded-lg bg-navy-700 text-white">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                    <span className="mt-1 text-[10px]">{formatBytes(p.file.size)}</span>
+                  </div>
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={p.preview}
+                    alt="Attached"
+                    className="aspect-square w-full rounded-lg object-cover ring-1 ring-slate-200"
+                  />
+                )}
+                <button
+                  type="button"
+                  aria-label="Remove"
+                  onClick={() => setPicked((prev) => prev.filter((_, j) => j !== i))}
+                  className="absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 text-white"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                       className="h-4 w-4" strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
 
       <Field label="What kind of problem is it?" htmlFor="category">
         <select id="category" name="category" required defaultValue="" className={inputClass}>
@@ -264,72 +377,6 @@ export default function RequestForm({
           className={textareaClass}
         />
       </Field>
-
-      {/* ---------------------------------------------- media */}
-      <div>
-        <p className="mb-1 block text-sm font-medium text-navy-800">Photos or a video</p>
-        <p className="mb-2 text-xs text-slate-500">
-          A ten-second clip of the noise it makes is worth a paragraph of
-          description.
-        </p>
-
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          className="flex h-14 w-full items-center justify-center gap-2.5 rounded-xl bg-white text-base font-semibold text-navy-700 ring-1 ring-slate-300 active:scale-[0.99]"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-               className="h-5 w-5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14.5 4h-5L8 6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4z" />
-            <circle cx="12" cy="13" r="3.5" />
-          </svg>
-          {picked.length > 0 ? 'Add another' : 'Add a photo or video'}
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*,video/*"
-          capture="environment"
-          multiple
-          hidden
-          onChange={(e) => addFiles(e.target.files)}
-        />
-
-        {picked.length > 0 ? (
-          <ul className="mt-3 grid grid-cols-3 gap-2">
-            {picked.map((p, i) => (
-              <li key={p.preview} className="relative">
-                {p.isVideo ? (
-                  <div className="flex aspect-square w-full flex-col items-center justify-center rounded-lg bg-navy-700 text-white">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    <span className="mt-1 text-[10px]">{formatBytes(p.file.size)}</span>
-                  </div>
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={p.preview}
-                    alt="Attached"
-                    className="aspect-square w-full rounded-lg object-cover ring-1 ring-slate-200"
-                  />
-                )}
-                <button
-                  type="button"
-                  aria-label="Remove"
-                  onClick={() => setPicked((prev) => prev.filter((_, j) => j !== i))}
-                  className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-slate-800 text-white"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                       className="h-3.5 w-3.5" strokeLinecap="round">
-                    <path d="M18 6 6 18M6 6l12 12" />
-                  </svg>
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </div>
 
       {/* ---------------------------------------------- urgency */}
       <div>

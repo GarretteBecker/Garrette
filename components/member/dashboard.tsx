@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { FINDING_STATUS_STYLES, FINDING_STATUS_HEX } from '@/lib/types/finding-status';
 import { formatMoneyRange } from '@/components/ui';
 import { PortalSection } from './shell';
+import QuickActions from './quick-actions';
 import {
   computeHomeStatus, buildActivity, nextVisit, investmentRange,
   type PortalData,
@@ -63,6 +64,8 @@ export default function MemberDashboard({
 
   return (
     <>
+      <QuickActions hrefPrefix={hrefPrefix} />
+
       {/* ---------------------------------------- hero: the one statement */}
       <div className={`mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${accent.ring}`}>
         <div className={`h-1.5 w-full ${accent.bar}`} />
@@ -112,29 +115,6 @@ export default function MemberDashboard({
         </div>
       </div>
 
-      {/* ------------------------------------------- request service */}
-      <Link
-        href={`${hrefPrefix}/requests/new`}
-        className="mb-6 flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
-      >
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brandgreen-600 text-white">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-               className="h-5 w-5" strokeLinecap="round">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-semibold text-navy-800">Something not right?</span>
-          <span className="block text-[13px] leading-snug text-slate-500">
-            Tell us about it and follow it the whole way through.
-          </span>
-        </span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-             className="h-4 w-4 shrink-0 text-slate-300" strokeLinecap="round" strokeLinejoin="round">
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </Link>
-
       {/* ---------------------------------------------- open requests */}
       {data.openRequests.length > 0 ? (
         <PortalSection
@@ -146,21 +126,29 @@ export default function MemberDashboard({
           }
         >
           <ul className="space-y-2">
-            {data.openRequests.slice(0, 3).map((req) => (
-              <li key={req.id}>
-                <Link
-                  href={`${hrefPrefix}/requests/${req.id}`}
-                  className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium text-navy-800">{req.title}</span>
-                    <span className="block text-[12px] text-slate-500">
-                      {STAGE_META[req.stage as ServiceRequestStage]?.memberLabel ?? req.stage}
-                    </span>
+            {data.openRequests.slice(0, 3).map((req) => {
+              const body = (
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium text-navy-800">{req.title}</span>
+                  <span className="block text-[12px] text-slate-500">
+                    {STAGE_META[req.stage as ServiceRequestStage]?.memberLabel ?? req.stage}
                   </span>
-                </Link>
-              </li>
-            ))}
+                </span>
+              );
+              const shell = 'flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-slate-200';
+              return (
+                <li key={req.id}>
+                  {/* The demo has no per-request page, so these are not links there. */}
+                  {hrefPrefix === '/home' ? (
+                    <Link href={`${hrefPrefix}/requests/${req.id}`} className={`${shell} active:bg-slate-50`}>
+                      {body}
+                    </Link>
+                  ) : (
+                    <div className={shell}>{body}</div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </PortalSection>
       ) : null}
