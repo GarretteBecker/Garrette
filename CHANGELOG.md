@@ -328,6 +328,75 @@ then stopped. There was no way to say yes to any of it.
   on a fresh database and on one upgraded through `CATCH-UP.sql`, which is
   still safe to run twice.
 
+### Phase 14 — Pennsylvania compliance
+
+⚠ **Not legal advice, and the wording has not been near a lawyer.** This
+phase builds the machinery. `docs/pa-compliance.md` says what was verified,
+what was not, and what an attorney still has to settle — read it before
+signing anyone up.
+
+**The three-business-day right to cancel — verified law**
+
+Pennsylvania's Home Improvement Consumer Protection Act (73 P.S. § 517.1
+et seq.) gives a homeowner three business days from signing to rescind, and
+a non-conforming contract is unenforceable against them. B&M is a registered
+PA contractor, so this one is not optional.
+
+- **A real button, not a paragraph.** While the window is open the member's
+  Membership screen leads with a countdown and **Cancel my membership**. A
+  statutory right that depends on catching someone at a desk during office
+  hours is a right with a handbrake on it.
+- **The database sets the deadline**, from the signing date — not the form.
+  A three-business-day right that rests on someone's mental arithmetic on a
+  Friday afternoon is not a right.
+- Cancelling goes through one narrow SECURITY DEFINER function. Tested from
+  six angles: inside the window, after it closed, already cancelled, an
+  admin, a technician, and a member from another property — against a
+  fixture confirmed to hold two live agreements, so the refusals mean
+  something.
+- The right is stated whether or not it is still open, so a member finds the
+  same sentence later that they signed.
+- ⚠ **Weekends only — PA legal holidays are not modelled.** The error is
+  always in the member's favour: a holiday inside the window makes the real
+  deadline later than the one shown, never earlier.
+
+**The renewal notice — could NOT be verified**
+
+The spec asks for a notice 10–20 days before renewal. **I could not confirm
+that is currently Pennsylvania law.** PA's own auto-renewal statute appears
+to be narrow (health clubs and similar); broader bills are proposed, not
+enacted. So the window is stored **per agreement** rather than hard-coded,
+and counsel can change it without a code change. My advice is to send it
+anyway — a member surprised by a renewal charge is a member lost, whatever
+the statute says.
+
+**Everything else**
+
+- **The agreement lives in the app.** What they signed, when, at what price,
+  for how long — with the signed document attached and readable from their
+  phone. Prices are copied in at signing, so putting the price up next year
+  cannot rewrite what somebody agreed to.
+- **Auto-renewal disclosure and opt-out in plain English.** That it renews,
+  when, at what price, and how to stop it. Opting out is any service request,
+  email or phone call — no hoops.
+- **A compliance desk** at `/admin/compliance`: reminders due, reminders
+  **late**, who is still inside their cancellation window, whose signed copy
+  was never filed, and which properties have no agreement at all. A late
+  notice stays on the list rather than quietly dropping off.
+- **Sending a reminder sends it and records it** — date, method and who —
+  firing a GoHighLevel event so the message itself goes from GHL. Proof of
+  notice is worth having regardless of which way the law lands.
+- Two new webhook events: `GHL_WEBHOOK_URL_RENEWAL_NOTICE` and
+  `GHL_WEBHOOK_URL_MEMBERSHIP_RESCINDED`.
+- 16 unit tests on the date logic (window edges, notice states, countdown
+  wording) and the business-day arithmetic verified on PostgreSQL 16 across
+  weekday, Friday and weekend signings.
+
+**Not built:** no signup flow, so there is nowhere yet to show the
+disclosures *before* someone commits — if you add online signup, they must
+appear before the payment step. No e-signature. No holiday calendar. No
+retention policy.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

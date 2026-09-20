@@ -14,9 +14,11 @@ import { FINDING_STATUSES, stageLabel } from '@/lib/types/finding-status';
 import RoomEditor from '@/components/admin/room-editor';
 import AssetEditor from '@/components/admin/asset-editor';
 import DocumentManager, { type DocRow } from '@/components/admin/document-manager';
+import AgreementEditor from '@/components/admin/agreement-editor';
 import { scheduleVisit } from '@/lib/actions/visits';
 import { saveMembership } from '@/lib/actions/properties';
 import { TIERS, money, type MembershipTier } from '@/lib/membership';
+import type { Agreement } from '@/lib/agreements';
 import { inputClass, Field } from '@/components/ui';
 import type { AssetPhoto } from '@/components/admin/asset-photos';
 import type {
@@ -61,6 +63,7 @@ export default async function PropertyDetailPage({
     { data: planItems },
     { data: requests },
     { data: documents },
+    { data: agreements },
     { data: photoRows },
   ] = await Promise.all([
     supabase.from('properties').select('*').eq('id', id).maybeSingle(),
@@ -76,6 +79,11 @@ export default async function PropertyDetailPage({
       .select('id, title, doc_type, storage_path, size_bytes, created_at')
       .eq('property_id', id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('membership_agreements')
+      .select('*')
+      .eq('property_id', id)
+      .order('term_start', { ascending: false }),
     supabase
       .from('photos')
       .select('id, asset_id, storage_path, caption, note, kind, scan_status')
@@ -95,6 +103,12 @@ export default async function PropertyDetailPage({
   const requestRows = (requests ?? []) as ServiceRequest[];
   const memberRows = (members ?? []) as Member[];
   const documentRows = (documents ?? []) as DocRow[];
+
+  // The agreement in force. Rescinded and superseded ones stay in the table
+  // as history; the Overview tab is about the one that is live.
+  const agreementRows = (agreements ?? []) as Agreement[];
+  const liveAgreement =
+    agreementRows.find((a) => a.status === 'ACTIVE' || a.status === 'PENDING_SIGNATURE') ?? null;
 
   // Sign each asset photo once, on the server. The bucket is private, so a
   // raw storage path is useless without one of these.
@@ -240,6 +254,26 @@ export default async function PropertyDetailPage({
                   Save membership
                 </button>
               </form>
+            </Card>
+
+            <Card className="p-4">
+              <h2 className="mb-1 font-semibold text-navy-800">Agreement</h2>
+              <p className="mb-3 text-[13px] leading-relaxed text-slate-500">
+                What they signed, when, and when it renews. The three-business-day
+                cancellation deadline is worked out from the signing date — you
+                do not type it in.{' '}
+                <Link href="/admin/compliance" className="font-semibold text-brandgreen-600">
+                  Compliance desk
+                </Link>
+              </p>
+              <AgreementEditor
+                propertyId={id}
+                agreement={liveAgreement}
+                documents={documentRows
+                  .filter((d) => d.doc_type === 'CONTRACT')
+                  .map((d) => ({ id: d.id, title: d.title }))}
+                defaultTier={(p as unknown as { tier?: MembershipTier }).tier ?? 'CORE'}
+              />
             </Card>
 
             <Card className="p-4">

@@ -1,7 +1,8 @@
 import PortalShell from '@/components/member/shell';
 import MembershipPanel from '@/components/member/membership-panel';
 import DemoBanner from '@/components/member/demo-banner';
-import { DEMO_PORTAL_DATA } from '@/lib/member/demo-data';
+import AgreementPanel from '@/components/member/agreement-panel';
+import { DEMO_PORTAL_DATA, DEMO_AGREEMENT } from '@/lib/member/demo-data';
 
 export default function DemoMembershipPage() {
   return (
@@ -13,6 +14,7 @@ export default function DemoMembershipPage() {
       showSignOut={false}
     >
       <DemoBanner />
+      <AgreementPanel agreement={DEMO_AGREEMENT} demo />
       {/* Read from the fixture rather than hard-coded, so flipping `tier` in
           lib/member/demo-data.ts switches the whole demo — this screen and
           the Reports screen together — between Core and Response. */}

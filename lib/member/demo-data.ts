@@ -15,6 +15,7 @@ import type {
   Asset, Finding, PlanItem, PriorityLevel, Room, ServiceRequestStage, Visit,
 } from '@/lib/types/database';
 import type { StatusEvent } from '@/components/member/request-status';
+import type { Agreement } from '@/lib/agreements';
 
 const PROPERTY_ID = 'demo-property';
 
@@ -442,6 +443,53 @@ export const DEMO_REQUESTS: DemoRequest[] = [
     ],
   },
 ];
+
+/**
+ * The demo home's agreement.
+ *
+ * Signed today, so the three-business-day cancellation window is OPEN and
+ * the demo shows the Cancel button rather than describing it. Nothing is
+ * written anywhere when it is pressed.
+ */
+export const DEMO_AGREEMENT: Agreement = {
+  id: 'demo-agreement',
+  property_id: PROPERTY_ID,
+  tier: 'RESPONSE',
+  billing_cycle: 'ANNUAL_PREPAID',
+  price_monthly: 299,
+  price_annual: 3289,
+  commitment_months: 12,
+  signed_at: daysFromNow(0),
+  signed_by_name: 'Sarah Miller',
+  term_start: daysFromNow(0).slice(0, 10),
+  term_end: daysFromNow(365).slice(0, 10),
+  auto_renew: true,
+  renewal_notice_days_before_max: 20,
+  renewal_notice_days_before_min: 10,
+  renewal_notice_sent_at: null,
+  renewal_notice_method: null,
+  // Third business day from today — computed the same way the database does,
+  // so the demo cannot quietly disagree with the real thing.
+  rescission_deadline: addBusinessDays(new Date(), 3),
+  rescinded_at: null,
+  cancelled_at: null,
+  cancellation_reason: null,
+  document_id: null,
+  status: 'ACTIVE',
+  notes: null,
+};
+
+/** Weekends only, matching public.add_business_days in migration 0012. */
+function addBusinessDays(from: Date, n: number): string {
+  const d = new Date(from);
+  let left = n;
+  while (left > 0) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) left -= 1;
+  }
+  return d.toISOString().slice(0, 10);
+}
 
 export const DEMO_PORTAL_DATA: PortalData = {
   property: {

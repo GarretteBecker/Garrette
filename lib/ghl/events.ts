@@ -13,7 +13,11 @@
 export type GhlEventType =
   | 'report.released'
   | 'service_request.stage_changed'
-  | 'visit.scheduled';
+  | 'visit.scheduled'
+  // Compliance. The renewal reminder is a disclosure with a deadline on it,
+  // so it is sent from a workflow rather than left to someone remembering.
+  | 'membership.renewal_notice'
+  | 'membership.rescinded';
 
 export interface GhlContact {
   first_name: string | null;

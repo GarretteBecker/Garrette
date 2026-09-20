@@ -39,7 +39,11 @@ function urlFor(event: GhlEventType): string | undefined {
         ? process.env.GHL_WEBHOOK_URL_REQUEST_STAGE
         : event === 'visit.scheduled'
           ? process.env.GHL_WEBHOOK_URL_VISIT_SCHEDULED
-          : undefined;
+          : event === 'membership.renewal_notice'
+            ? process.env.GHL_WEBHOOK_URL_RENEWAL_NOTICE
+            : event === 'membership.rescinded'
+              ? process.env.GHL_WEBHOOK_URL_MEMBERSHIP_RESCINDED
+              : undefined;
 
   return specific || process.env.GHL_WEBHOOK_URL;
 }
@@ -51,7 +55,9 @@ export function ghlConfigured(event?: GhlEventType): boolean {
     process.env.GHL_WEBHOOK_URL ||
       process.env.GHL_WEBHOOK_URL_REPORT_RELEASED ||
       process.env.GHL_WEBHOOK_URL_REQUEST_STAGE ||
-      process.env.GHL_WEBHOOK_URL_VISIT_SCHEDULED,
+      process.env.GHL_WEBHOOK_URL_VISIT_SCHEDULED ||
+      process.env.GHL_WEBHOOK_URL_RENEWAL_NOTICE ||
+      process.env.GHL_WEBHOOK_URL_MEMBERSHIP_RESCINDED,
   );
 }
 

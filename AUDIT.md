@@ -22,6 +22,11 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > **And after the Home Plan phase.** The Home Plan is no longer read-only: a
 > member can ask for a firm price on any actionable item, it becomes a normal
 > job, and finishing that job resolves the finding and closes the plan item.
+>
+> **And after the PA compliance phase.** Item 15 is substantially closed —
+> agreement storage, auto-renewal disclosure, opt-out, renewal-notice
+> tracking and a working three-business-day cancellation. What remains there
+> is a lawyer's job, not a developer's.
 
 ---
 
@@ -217,15 +222,23 @@ card. The schema carries an explicit comment recording that this is
 deliberate. The data-plate scanner is instructed to omit anything of that
 kind if it appears in a photograph.
 
-## 15. PA compliance — **PARTIAL**
+## 15. PA compliance — ~~PARTIAL~~ → **PARTIAL, substantially closed**
 
-**Present:** PA Lic. #154223 on member-facing pages and on every report
-footer.
+**At audit:** only the licence number. No stored agreement, no auto-renewal
+disclosure, no opt-out, no renewal notice, no cancellation right.
 
-**Missing:** the membership agreement is not stored or viewable in the
-portal. No auto-renewal disclosure, no opt-out procedure, no renewal notice
-at 10–20 days. No three-business-day cancellation right in any signup flow —
-there is no signup flow at all.
+**Now present:** the agreement is stored and readable in the portal; the
+auto-renewal disclosure and opt-out are on the member's Membership screen in
+plain English; the renewal notice is tracked, sent and logged from a
+compliance desk; and the three-business-day cancellation right is a working
+button whose deadline the database sets from the signing date.
+
+**Still open:** no signup flow, so there is nowhere to present the
+disclosures *before* someone commits; no e-signature; PA legal holidays are
+not modelled in the business-day maths (erring in the member's favour); and
+**none of the wording has been reviewed by a Pennsylvania attorney.** The
+10–20 day renewal window could not be verified as current PA law. See
+`docs/pa-compliance.md`.
 
 ## 16. Security — **PRESENT**
 
@@ -257,9 +270,11 @@ exercise it.
    Water Protect, and the real cap figures.*
 2. ~~**Exclusions visible in-app (item 13).**~~ **DONE.** Eight exclusions on
    the membership screen, each explained.
-3. **PA compliance (item 15).** Auto-renewal disclosure, renewal notice
-   window and the three-day cancellation right are statutory, not optional.
-   *Now the top open item.*
+3. ~~**PA compliance (item 15).**~~ **LARGELY DONE.** Disclosure, opt-out,
+   notice tracking and a working cancellation button are all in. *What
+   remains is not code: a Pennsylvania attorney has to read the wording, and
+   settle whether a membership is a "home improvement contract" under HICPA
+   at all.*
 4. ~~**Member pricing not shown.**~~ **DONE.** The member sees the standard
    price struck through, their price and their saving on every quote, and
    how much of their annual cap is left.

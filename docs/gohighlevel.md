@@ -163,19 +163,32 @@ would say it out loud.
 
 Both work — pick whichever you find easier to maintain.
 
-**Three workflows (recommended).** Build a separate workflow per event, each
-with its own Inbound Webhook trigger, and set one variable per URL:
+**A workflow per event (recommended).** Build a separate workflow per event,
+each with its own Inbound Webhook trigger, and set one variable per URL:
 
 ```
 GHL_WEBHOOK_URL_REPORT_RELEASED=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_REQUEST_STAGE=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_VISIT_SCHEDULED=https://services.leadconnectorhq.com/hooks/...
+GHL_WEBHOOK_URL_RENEWAL_NOTICE=https://services.leadconnectorhq.com/hooks/...
+GHL_WEBHOOK_URL_MEMBERSHIP_RESCINDED=https://services.leadconnectorhq.com/hooks/...
 ```
 
 Each workflow then has one trigger and one message, with no branching.
 
+The last two are the compliance events:
+
+- **`membership.renewal_notice`** fires when you press *Send the reminder* on
+  the compliance desk. Its `member_message` field is the renewal disclosure,
+  already written — drop it straight into the email or text. This is the one
+  workflow worth building first: it is a notice with a deadline on it, and
+  the app records the date it went.
+- **`membership.rescinded`** fires the moment a member cancels inside their
+  three-business-day window. Point this one at *yourself*, not the member —
+  it is the office that needs to know today.
+
 **One workflow.** Set only `GHL_WEBHOOK_URL` and every event goes there; add
-an **If/Else** on the `event` field at the top and branch into three paths.
+an **If/Else** on the `event` field at the top and branch into a path each.
 
 **Mixing is fine.** A per-event URL wins where it is set, and
 `GHL_WEBHOOK_URL` catches everything else — so you can split one event out
