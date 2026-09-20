@@ -1,0 +1,20 @@
+# Netlify build configuration for B&M HomeKeeper.
+#
+# Netlify usually detects Next.js on its own; this pins it so the first
+# deploy does not depend on that detection working.
+#
+# Environment variables are NOT set here — they are secrets and belong in
+# the Netlify UI (Site configuration → Environment variables):
+#   NEXT_PUBLIC_SUPABASE_URL
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY
+# and, optionally, ANTHROPIC_API_KEY and the GHL_* webhook URLs.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
