@@ -43,6 +43,17 @@ export default async function AdminRequestDetailPage({
       supabase.from('properties').select('name, address_line1, city').eq('id', r.property_id).maybeSingle(),
     ]);
 
+  // A job raised off the Home Plan carries our own recommendation with it.
+  // Whoever prices it should be looking at what we told the member, not at
+  // a title they have to go and look up.
+  const { data: planFinding } = r.finding_id
+    ? await supabase
+        .from('findings')
+        .select('id, title, status, recommendation, estimated_cost_low, estimated_cost_high')
+        .eq('id', r.finding_id)
+        .maybeSingle()
+    : { data: null };
+
   const roomRows = (rooms ?? []) as Room[];
   const assetRows = (assets ?? []) as Asset[];
   const partnerRows = (partners ?? []) as TradePartner[];
@@ -134,6 +145,40 @@ export default async function AdminRequestDetailPage({
                 : 'They are waiting on a date from us. Book it in below.'}
             </p>
           </div>
+        ) : null}
+
+        {/* ------------------------------------------- from the Home Plan */}
+        {planFinding ? (
+          <Card className="p-4">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-navy-500">
+              From the Home Plan
+            </p>
+            <p className="mt-1 font-semibold text-navy-800">
+              {(planFinding as { title: string }).title}
+            </p>
+            {(planFinding as { recommendation: string | null }).recommendation ? (
+              <p className="mt-1.5 text-[14px] leading-relaxed text-slate-700">
+                {(planFinding as { recommendation: string }).recommendation}
+              </p>
+            ) : null}
+            <p className="mt-2 text-[13px] text-slate-500">
+              We estimated{' '}
+              <span className="font-semibold text-navy-800">
+                {formatMoneyRange(
+                  (planFinding as { estimated_cost_low: number | null }).estimated_cost_low,
+                  (planFinding as { estimated_cost_high: number | null }).estimated_cost_high,
+                ) ?? 'no figure'}
+              </span>
+              . They have asked for a firm price — closing this job out will
+              also clear the item from their plan.
+            </p>
+            <Link
+              href={`/admin/properties/${r.property_id}?tab=plan`}
+              className="mt-2 inline-block text-[13px] font-semibold text-brandgreen-600"
+            >
+              Open their Home Plan
+            </Link>
+          </Card>
         ) : null}
 
         {/* ------------------------------------------- what they said */}

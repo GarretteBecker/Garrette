@@ -283,7 +283,9 @@ const FINDINGS: Finding[] = [
 const PLAN_ITEMS: PlanItem[] = [
   { id: 'p1', property_id: PROPERTY_ID, finding_id: 'f4', title: 'Add sump pump battery backup',
     description: null, category: 'Plumbing', target_year: new Date().getFullYear(),
-    target_season: 'Fall', priority: 'HIGH', status: 'APPROVED',
+    // Its job (sr2) is booked in, and in the live app a trigger keeps these
+    // two in step. The fixture has to agree or the demo contradicts itself.
+    target_season: 'Fall', priority: 'HIGH', status: 'SCHEDULED',
     estimated_cost_low: 850, estimated_cost_high: 1250, sort_order: 10 },
   { id: 'p2', property_id: PROPERTY_ID, finding_id: 'f3', title: 'Install gutter guards',
     description: null, category: 'Exterior', target_year: new Date().getFullYear() + 1,
@@ -335,6 +337,8 @@ export interface DemoRequest {
   id: string;
   title: string;
   stage: ServiceRequestStage;
+  /** Set when the job came off the Home Plan. */
+  finding_id: string | null;
   priority: PriorityLevel;
   category: string | null;
   roomName: string | null;
@@ -365,6 +369,7 @@ export const DEMO_REQUESTS: DemoRequest[] = [
     id: 'sr1',
     title: 'Hall bath toilet running between flushes',
     stage: 'AWAITING_APPROVAL',
+    finding_id: null,
     priority: 'MEDIUM',
     category: 'Plumbing',
     roomName: 'Hall Bathroom',
@@ -391,6 +396,7 @@ export const DEMO_REQUESTS: DemoRequest[] = [
     id: 'sr2',
     title: 'Sump pump battery backup install',
     stage: 'SCHEDULED',
+    finding_id: 'f4',
     priority: 'MEDIUM',
     category: 'Plumbing',
     roomName: 'Basement',
@@ -405,7 +411,7 @@ export const DEMO_REQUESTS: DemoRequest[] = [
     work_performed: null,
     parts_used: null,
     events: [
-      ev('sr2e1', null, 'NEW', 'Raised from the homeowner portal.', -11),
+      ev('sr2e1', null, 'NEW', 'Asked for from the Home Plan.', -11),
       ev('sr2e2', 'NEW', 'TRIAGE', 'Matched to the Home Plan item from the spring visit.', -10),
       ev('sr2e3', 'TRIAGE', 'ESTIMATING', 'Pricing a 75Ah backup system with alarm.', -8),
       ev('sr2e4', 'ESTIMATING', 'AWAITING_APPROVAL', 'Price sent to the homeowner.', -6),
@@ -417,6 +423,7 @@ export const DEMO_REQUESTS: DemoRequest[] = [
     id: 'sr3',
     title: 'Kitchen disposal humming but not spinning',
     stage: 'TRIAGE',
+    finding_id: null,
     priority: 'MEDIUM',
     category: 'Appliance',
     roomName: 'Kitchen',
@@ -498,5 +505,6 @@ export const DEMO_PORTAL_DATA: PortalData = {
     title: r.title,
     stage: r.stage,
     created_at: r.created_at,
+    finding_id: r.finding_id,
   })),
 };

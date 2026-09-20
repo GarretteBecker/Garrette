@@ -13,7 +13,8 @@
  */
 
 import type {
-  Asset, Finding, FindingStatus, PlanItem, Property, Room, Visit,
+  Asset, Finding, FindingStatus, PlanItem, Property, Room,
+  ServiceRequestStage, Visit,
 } from '@/lib/types/database';
 
 export interface PortalReport {
@@ -53,7 +54,28 @@ export interface PortalData {
   reports: PortalReport[];
   documents: PortalDocument[];
   photos: PortalPhoto[];
-  openRequests: { id: string; title: string; stage: string; created_at: string }[];
+  openRequests: {
+    id: string; title: string; stage: string; created_at: string;
+    /** Set when the job was raised off a Home Plan item. */
+    finding_id?: string | null;
+  }[];
+}
+
+/**
+ * The open jobs that came off the Home Plan, keyed by the finding that asked
+ * for them. The plan card uses this to show progress instead of a button, so
+ * the plan and the request can never say different things.
+ */
+export function planRequests(
+  openRequests: PortalData['openRequests'],
+): { finding_id: string; id: string; stage: ServiceRequestStage }[] {
+  return openRequests
+    .filter((r) => r.finding_id)
+    .map((r) => ({
+      finding_id: r.finding_id!,
+      id: r.id,
+      stage: r.stage as ServiceRequestStage,
+    }));
 }
 
 // ---------------------------------------------------------------- status

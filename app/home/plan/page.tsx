@@ -3,6 +3,7 @@ import { loadPortalData } from '@/lib/member/load';
 import PortalShell from '@/components/member/shell';
 import HomePlan from '@/components/member/home-plan';
 import NoHomeLinked from '@/components/member/no-home-linked';
+import { planRequests } from '@/lib/member/portal';
 
 export default async function HomePlanPage() {
   const profile = await requireRole('member');
@@ -16,7 +17,11 @@ export default async function HomePlanPage() {
       title="Your Home Plan"
       subtitle="What is coming, and roughly when"
     >
-      <HomePlan findings={data.findings} planItems={data.planItems} />
+      <HomePlan
+        findings={data.findings}
+        planItems={data.planItems}
+        requests={planRequests(data.openRequests)}
+      />
     </PortalShell>
   );
 }

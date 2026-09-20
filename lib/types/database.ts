@@ -203,6 +203,9 @@ export interface ServiceRequest {
   category: string | null;
   room_id: string | null;
   asset_id: string | null;
+  /** Set when the job came off the Home Plan. */
+  finding_id: string | null;
+  plan_item_id: string | null;
   // 0006 — what was done, written back to the linked asset on completion
   work_performed: string | null;
   parts_used: string | null;

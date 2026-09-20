@@ -18,6 +18,10 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > the office on the board and the admin home screen, and B&M can photograph
 > a job before and after — the photos travel to the Home Record on close-out.
 > Item 7 remains PARTIAL for the reasons already listed under it.
+>
+> **And after the Home Plan phase.** The Home Plan is no longer read-only: a
+> member can ask for a firm price on any actionable item, it becomes a normal
+> job, and finishing that job resolves the finding and closes the plan item.
 
 ---
 

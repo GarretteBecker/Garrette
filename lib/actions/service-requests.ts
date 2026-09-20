@@ -113,6 +113,109 @@ export async function createServiceRequest(
   return { ok: true, requestId: data.id };
 }
 
+/**
+ * "Get me a price" on a Home Plan item.
+ *
+ * The plan carries a cost RANGE, and a range is not something anyone can
+ * meaningfully approve. So this does not approve anything: it opens an
+ * ordinary service request carrying the recommendation across, and the
+ * normal pipeline takes over — we price it firmly, they approve that firm
+ * number on their phone with their member discount applied, we book it.
+ *
+ * It runs as the member, through the same RLS door as any request they
+ * raise, and the database refuses a finding that is not on their property.
+ */
+export async function requestPlanWork(
+  _prev: RequestActionState,
+  formData: FormData,
+): Promise<RequestActionState> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: 'Please sign in again.' };
+
+  const findingId = text(formData, 'finding_id');
+  if (!findingId) return { error: 'Missing the plan item.' };
+
+  // Read the finding rather than trusting the form: the title, the money and
+  // the room all come from our own recommendation, not from the browser.
+  const { data: finding, error: findingError } = await supabase
+    .from('findings')
+    .select('id, property_id, room_id, asset_id, title, description, recommendation, priority, estimated_cost_low, estimated_cost_high')
+    .eq('id', findingId)
+    .maybeSingle();
+
+  if (findingError) return { error: findingError.message };
+  if (!finding) return { error: 'We could not find that item on your plan.' };
+
+  // One open job per plan item. Tapping twice should not raise two jobs.
+  const { data: existing } = await supabase
+    .from('service_requests')
+    .select('id')
+    .eq('finding_id', findingId)
+    .neq('stage', 'CLOSED')
+    .maybeSingle();
+  if (existing) return { ok: true, requestId: existing.id };
+
+  const { data: planItem } = await supabase
+    .from('plan_items')
+    .select('id')
+    .eq('finding_id', findingId)
+    .maybeSingle();
+
+  const { data: member } = await supabase
+    .from('members')
+    .select('id')
+    .eq('property_id', finding.property_id)
+    .eq('profile_id', user.id)
+    .maybeSingle();
+
+  const note = text(formData, 'note');
+  const description = [
+    'Asked for from the Home Plan.',
+    finding.recommendation ? `What we recommended: ${finding.recommendation}` : finding.description,
+    note ? `They added: ${note}` : null,
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+  const { data, error } = await supabase
+    .from('service_requests')
+    .insert({
+      property_id: finding.property_id,
+      member_id: member?.id ?? null,
+      created_by: user.id,
+      finding_id: finding.id,
+      plan_item_id: planItem?.id ?? null,
+      room_id: finding.room_id,
+      asset_id: finding.asset_id,
+      title: finding.title,
+      description,
+      category: 'Home Plan work',
+      priority: finding.priority,
+      stage: 'NEW',
+    })
+    .select('id')
+    .single();
+
+  if (error) return { error: error.message };
+
+  await notifyStage(finding.property_id, data.id, finding.title, null, 'NEW', {
+    category: 'Home Plan work',
+    from_home_plan: 'yes',
+    estimate_low: finding.estimated_cost_low,
+    estimate_high: finding.estimated_cost_high,
+  });
+
+  revalidatePath('/home/plan');
+  revalidatePath('/home/requests');
+  revalidatePath('/admin/requests');
+
+  return { ok: true, requestId: data.id };
+}
+
 // -------------------------------------------------------------- staff
 
 /** Move a request one step along (or back), logging who and why. */

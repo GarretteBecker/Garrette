@@ -288,6 +288,46 @@ Meanwhile an approval arrived in the office with nothing to mark it.
   Record item along with the write-up, parts, service date and condition, and
   the member can see them on their own request.
 
+### Phase 13 — Saying yes to the Home Plan
+
+The Home Plan told a member what we recommend and roughly what it costs, and
+then stopped. There was no way to say yes to any of it.
+
+- **"Get me a price" on every actionable plan item.** Deliberately not an
+  Approve button: the plan quotes a *range*, and approving a range is not an
+  approval, it is an argument about the final invoice deferred to later. The
+  button opens an ordinary job carrying our own recommendation across, and
+  the pipeline you already have takes it from there — we price it firmly,
+  they approve that firm number on the same screen they already know, with
+  their member discount on it, and we book it.
+- **MONITOR and GOOD items get no button.** Those are things we are watching,
+  not work we are offering.
+- **The card shows the job, not the button, once one exists** — where it has
+  got to, in the member's own language, tapping through to the full request.
+  A plan item and its job can never tell them two different things.
+- **The office sees where it came from.** A job raised off the plan leads
+  with our own recommendation and what we estimated, so whoever prices it is
+  not working from a title alone.
+- **Finishing the work clears it off the plan, by itself.** The finding
+  resolves and the plan item goes to DONE. Without this the Home Plan would
+  go on recommending a repair the member has already paid for.
+- **The plan item follows its job automatically** — approved, scheduled,
+  done — driven by a database trigger rather than by each code path that
+  moves a stage, so the plan cannot drift out of step with reality.
+- **No new permission was opened.** A member could already raise a request on
+  their own property; the same trigger that strips a forged stage off a
+  member's request strips it off this one.
+- **A link cannot cross a property boundary.** Nothing previously stopped a
+  hand-crafted request naming another property's finding. A trigger now
+  refuses it — verified against a second property confirmed to actually hold
+  the finding being reached for.
+- Verified end to end on PostgreSQL 16: member asks (their forged
+  `stage: APPROVED` is stripped back to NEW), office prices, member approves,
+  plan item goes APPROVED → SCHEDULED, close-out resolves the finding and
+  marks the item DONE, and it disappears from the member's open plan. Tested
+  on a fresh database and on one upgraded through `CATCH-UP.sql`, which is
+  still safe to run twice.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

@@ -1,7 +1,15 @@
 import { FINDING_STATUS_STYLES } from '@/lib/types/finding-status';
 import { formatMoneyRange } from '@/components/ui';
 import { groupPlan, investmentRange } from '@/lib/member/portal';
-import type { Finding, PlanItem } from '@/lib/types/database';
+import PlanItemAction from '@/components/member/plan-item-action';
+import type { Finding, PlanItem, ServiceRequestStage } from '@/lib/types/database';
+
+/** A job already raised against a plan item, keyed by finding. */
+export interface PlanRequestLink {
+  finding_id: string;
+  id: string;
+  stage: ServiceRequestStage;
+}
 
 /**
  * The Home Plan, grouped exactly as the brief names it: Action, Plan,
@@ -11,9 +19,16 @@ import type { Finding, PlanItem } from '@/lib/types/database';
 export default function HomePlan({
   findings,
   planItems,
+  requests = [],
+  hrefPrefix = '/home',
+  demo = false,
 }: {
   findings: Finding[];
   planItems: PlanItem[];
+  /** Jobs already raised off the plan, so a card shows progress not a button. */
+  requests?: PlanRequestLink[];
+  hrefPrefix?: string;
+  demo?: boolean;
 }) {
   const groups = groupPlan(findings);
   const actionable = findings.filter(
@@ -24,6 +39,7 @@ export default function HomePlan({
   const planByFinding = new Map(
     planItems.filter((p) => p.finding_id).map((p) => [p.finding_id!, p]),
   );
+  const requestByFinding = new Map(requests.map((r) => [r.finding_id, r]));
 
   if (groups.length === 0) {
     return (
@@ -67,6 +83,7 @@ export default function HomePlan({
               <ul className="space-y-2.5">
                 {group.findings.map((f) => {
                   const plan = planByFinding.get(f.id);
+                  const job = requestByFinding.get(f.id) ?? null;
                   return (
                     <li key={f.id} id={f.id}>
                       <article
@@ -107,10 +124,27 @@ export default function HomePlan({
                                 <span className="text-navy-700">
                                   {[plan.target_season, plan.target_year].filter(Boolean).join(' ')}
                                 </span>
-                                {plan.status !== 'PROPOSED' ? ` · ${plan.status.toLowerCase()}` : ''}
+                                {/* The job's own status card sits right below;
+                                    printing the plan status too would give the
+                                    same card two answers. */}
+                                {plan.status !== 'PROPOSED' && !job
+                                  ? ` · ${plan.status.toLowerCase()}`
+                                  : ''}
                               </p>
                             ) : null}
                           </div>
+
+                          {/* MONITOR and GOOD are things we are watching, not
+                              work we are offering — a button there would be
+                              selling something nobody needs. */}
+                          {f.status === 'ACTION' || f.status === 'PLAN' || f.status === 'IMPROVEMENT' ? (
+                            <PlanItemAction
+                              findingId={f.id}
+                              existingRequest={job}
+                              hrefPrefix={hrefPrefix}
+                              demo={demo}
+                            />
+                          ) : null}
                         </div>
                       </article>
                     </li>

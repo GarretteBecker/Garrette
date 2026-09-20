@@ -2,6 +2,7 @@ import PortalShell from '@/components/member/shell';
 import HomePlan from '@/components/member/home-plan';
 import DemoBanner from '@/components/member/demo-banner';
 import { DEMO_PORTAL_DATA } from '@/lib/member/demo-data';
+import { planRequests } from '@/lib/member/portal';
 
 export default function DemoPlanPage() {
   const data = DEMO_PORTAL_DATA;
@@ -14,7 +15,13 @@ export default function DemoPlanPage() {
       showSignOut={false}
     >
       <DemoBanner />
-      <HomePlan findings={data.findings} planItems={data.planItems} />
+      <HomePlan
+        findings={data.findings}
+        planItems={data.planItems}
+        requests={planRequests(data.openRequests)}
+        hrefPrefix="/demo"
+        demo
+      />
     </PortalShell>
   );
 }

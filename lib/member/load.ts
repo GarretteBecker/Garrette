@@ -65,7 +65,7 @@ export async function loadPortalData(
       .order('created_at', { ascending: false }),
     supabase
       .from('service_requests')
-      .select('id, title, stage, created_at')
+      .select('id, title, stage, created_at, finding_id')
       .eq('property_id', property.id)
       .not('stage', 'eq', 'CLOSED')
       .order('created_at', { ascending: false }),
