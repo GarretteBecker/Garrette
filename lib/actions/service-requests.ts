@@ -98,12 +98,9 @@ export async function createServiceRequest(
 
   if (error) return { error: error.message };
 
-  await supabase.from('service_request_events').insert({
-    service_request_id: data.id,
-    to_stage: 'NEW',
-    note: 'Submitted through the member portal.',
-    actor_id: user.id,
-  });
+  // The opening event is written by a database trigger
+  // (service_requests_log_created). A member must not be able to write their
+  // own stage history, so the app deliberately does not insert it here.
 
   await notifyStage(propertyId, data.id, title, null, 'NEW', {
     category: text(formData, 'category'),

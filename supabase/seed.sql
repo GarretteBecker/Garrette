@@ -552,11 +552,14 @@ insert into public.documents (id, property_id, asset_id, title, doc_type, storag
    'b0000000-0000-4000-8000-000000000001/demo/2021-kitchen-permit.pdf', 'application/pdf', 'a0000000-0000-4000-8000-000000000001')
 on conflict (id) do nothing;
 
-insert into public.reports (id, property_id, visit_id, title, report_type, period_start, period_end, storage_path, generated_by, generated_at) values
+-- status is set explicitly: migration 0004's backfill runs before this seed,
+-- so a report inserted here would otherwise stay DRAFT and be invisible to
+-- the demo member.
+insert into public.reports (id, property_id, visit_id, title, report_type, period_start, period_end, storage_path, generated_by, generated_at, status, released_at) values
   ('66660000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001', '11110000-0000-4000-8000-000000000001',
    'Spring 2026 Visit Summary', 'VISIT_SUMMARY', '2026-04-14', '2026-04-14',
-   'b0000000-0000-4000-8000-000000000001/demo/spring-2026-visit.pdf', 'a0000000-0000-4000-8000-000000000001', '2026-04-14 16:00:00-04'),
+   'b0000000-0000-4000-8000-000000000001/demo/spring-2026-visit.pdf', 'a0000000-0000-4000-8000-000000000001', '2026-04-14 16:00:00-04', 'RELEASED', '2026-04-14 16:00:00-04'),
   ('66660000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001', '11110000-0000-4000-8000-000000000002',
    'Fall 2026 Visit Summary', 'VISIT_SUMMARY', '2026-09-08', '2026-09-08',
-   'b0000000-0000-4000-8000-000000000001/demo/fall-2026-visit.pdf', 'a0000000-0000-4000-8000-000000000001', '2026-09-08 18:30:00-04')
+   'b0000000-0000-4000-8000-000000000001/demo/fall-2026-visit.pdf', 'a0000000-0000-4000-8000-000000000001', '2026-09-08 18:30:00-04', 'RELEASED', '2026-09-08 18:30:00-04')
 on conflict (id) do nothing;
