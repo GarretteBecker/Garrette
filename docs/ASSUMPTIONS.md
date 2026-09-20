@@ -149,6 +149,39 @@ embossed metal panel, and a faded sticker. If the serials come back right,
 it works. If they come back wrong rather than blank, tell me: that means the
 prompt needs tightening, and a wrong serial is worse than none.
 
+## 10. GoHighLevel — **never fired at a real account**
+
+Same caveat as the scanner: no GHL credentials here, so the webhook has
+never actually posted to GoHighLevel.
+
+**Verified:** it compiles; it no-ops cleanly with no URL configured; a
+failure is swallowed so it can never break the action it describes; the
+payloads are built from real data through RLS.
+
+**Not verified:** that GHL accepts the payload shape and that the merge
+fields land where you expect. `docs/gohighlevel.md` has a "when it is not
+working" section for exactly this.
+
+Invented, pending your review:
+
+- **The three events.** Report released, stage changed, visit scheduled —
+  those are what you asked for. You may want more (a finding marked ACTION,
+  a warranty about to lapse) or fewer.
+- **Every stage change fires an event.** Twelve stages could mean twelve
+  texts per job. I put `waiting_on` in the payload so you can filter in GHL,
+  but the sensible default is probably to message on three or four stages
+  only. Your call — it is a filter in the workflow, not a code change.
+- **The member-facing wording** in `lib/service-requests.ts` — "Waiting on
+  you", "We are putting a price together for you". That is your voice going
+  to your customers.
+
+## 11. Request categories and urgency wording
+
+`REQUEST_CATEGORIES` and `URGENCY_OPTIONS` in `lib/service-requests.ts` are
+my guesses at what a Lancaster County remodeler gets called about, and at
+how a homeowner would describe urgency. Category is stored as free text, so
+changing the list needs no migration.
+
 ---
 
 ## What I'd most like corrected

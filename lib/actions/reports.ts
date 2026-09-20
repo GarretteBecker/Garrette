@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { notify } from '@/lib/ghl/notify';
 
 /** Admin releases a drafted report to the homeowner. */
 export async function releaseReport(formData: FormData): Promise<void> {
@@ -20,6 +21,24 @@ export async function releaseReport(formData: FormData): Promise<void> {
       released_by: user?.id ?? null,
     })
     .eq('id', reportId);
+
+  // Tell GHL so it can send the member their "your report is ready" message.
+  const { data: report } = await supabase
+    .from('reports')
+    .select('property_id, title, report_type, period_start, period_end')
+    .eq('id', reportId)
+    .maybeSingle();
+
+  if (report) {
+    await notify('report.released', report.property_id, {
+      report_id: reportId,
+      report_title: report.title,
+      report_type: report.report_type,
+      period_start: report.period_start,
+      period_end: report.period_end,
+      report_path: `/reports/${reportId}`,
+    });
+  }
 
   revalidatePath('/admin/reports');
   revalidatePath(`/reports/${reportId}`);

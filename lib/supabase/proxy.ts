@@ -10,6 +10,8 @@ const PUBLIC_PATHS = [
   // The no-login sales demo. Renders fixture data only (lib/member/demo-data.ts)
   // and never touches the database, so there is nothing here to leak.
   '/demo',
+  // Shown by the service worker when there is no connection.
+  '/offline',
 ];
 
 function isPublic(pathname: string) {

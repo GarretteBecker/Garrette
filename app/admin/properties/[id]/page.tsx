@@ -14,6 +14,8 @@ import { FINDING_STATUSES, stageLabel } from '@/lib/types/finding-status';
 import RoomEditor from '@/components/admin/room-editor';
 import AssetEditor from '@/components/admin/asset-editor';
 import DocumentManager, { type DocRow } from '@/components/admin/document-manager';
+import { scheduleVisit } from '@/lib/actions/visits';
+import { inputClass } from '@/components/ui';
 import type { AssetPhoto } from '@/components/admin/asset-photos';
 import type {
   Property, Room, Asset, Visit, Finding, PlanItem, ServiceRequest, Member,
@@ -266,7 +268,34 @@ export default async function PropertyDetailPage({
         ) : null}
 
         {active === 'visits' ? (
-          visitRows.length === 0 ? (
+          <>
+          <Card className="mb-4 p-4">
+            <h2 className="mb-3 font-semibold text-navy-800">Schedule a visit</h2>
+            <form action={scheduleVisit} className="space-y-3">
+              <input type="hidden" name="property_id" value={id} />
+              <input
+                name="scheduled_for"
+                type="datetime-local"
+                required
+                aria-label="Date and time"
+                className={inputClass}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <select name="visit_type" defaultValue="SEASONAL" aria-label="Visit type" className={inputClass}>
+                  <option value="SEASONAL">Seasonal</option>
+                  <option value="ANNUAL">Annual</option>
+                  <option value="ONBOARDING">Onboarding</option>
+                  <option value="SERVICE">Service</option>
+                  <option value="FOLLOW_UP">Follow-up</option>
+                </select>
+                <input name="title" placeholder="Title (optional)" aria-label="Title" className={inputClass} />
+              </div>
+              <button type="submit" className="h-12 w-full rounded-lg bg-brandgreen-600 font-semibold text-white">
+                Schedule &amp; notify the member
+              </button>
+            </form>
+          </Card>
+          {visitRows.length === 0 ? (
             <EmptyState title="No visits yet" />
           ) : (
             <ul className="space-y-2">
@@ -294,7 +323,8 @@ export default async function PropertyDetailPage({
                 </li>
               ))}
             </ul>
-          )
+          )}
+          </>
         ) : null}
 
         {active === 'plan' ? (

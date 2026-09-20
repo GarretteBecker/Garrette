@@ -38,6 +38,9 @@ export type PriorityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
 export type DocumentType =
   | 'MANUAL' | 'WARRANTY' | 'RECEIPT' | 'PERMIT' | 'INSPECTION'
   | 'INSURANCE' | 'CONTRACT' | 'ESTIMATE' | 'INVOICE' | 'REPORT' | 'OTHER';
+export type PhotoKind = 'GENERAL' | 'DATA_PLATE' | 'DOCUMENT' | 'BEFORE' | 'AFTER';
+export type ScanStatus = 'NOT_REQUESTED' | 'PENDING' | 'DONE' | 'FAILED';
+
 export type ReportType = 'VISIT_SUMMARY' | 'ANNUAL_REVIEW' | 'HOME_RECORD' | 'HOME_PLAN';
 
 export interface Profile {
@@ -189,6 +192,18 @@ export interface ServiceRequest {
   completed_at: string | null;
   closed_at: string | null;
   created_at: string;
+  // 0006 — what and where
+  category: string | null;
+  room_id: string | null;
+  asset_id: string | null;
+  // 0006 — what was done, written back to the linked asset on completion
+  work_performed: string | null;
+  parts_used: string | null;
+  completion_model: string | null;
+  completion_serial: string | null;
+  completion_condition: AssetCondition | null;
+  completed_by: string | null;
+  record_updated_at: string | null;
 }
 
 export interface TradePartner {
@@ -232,6 +247,17 @@ export interface Photo {
   taken_at: string | null;
   uploaded_by: string | null;
   created_at: string;
+  // 0005 — capture & scan
+  kind: PhotoKind;
+  note: string | null;
+  scan_status: ScanStatus;
+  scan_data: unknown | null;
+  scan_error: string | null;
+  scan_applied_at: string | null;
+  scan_applied_by: string | null;
+  // 0006 — request media
+  service_request_id: string | null;
+  mime_type: string | null;
 }
 
 export interface Report {

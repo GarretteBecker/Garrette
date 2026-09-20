@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import PwaRegister from '@/components/pwa-register';
 
 export const metadata: Metadata = {
   title: 'B&M HomeKeeper',
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-dvh bg-slate-50 text-navy-900 antialiased">
         {children}
+        <PwaRegister />
       </body>
     </html>
   );

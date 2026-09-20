@@ -39,6 +39,8 @@ app/
   demo/               The same portal on fixture data — no login, for sales
   reports/[id]/       The branded report (screen + print)
   api/scan-plate/     Reads a data plate off a photo (staff only)
+  admin/requests/     The request board and lifecycle controls
+  home/requests/      Member: raise a request and follow it
 components/
   admin/  capture/  field/  member/  reports/
 lib/
@@ -46,6 +48,8 @@ lib/
   offline/            IndexedDB outbox + sync engine for the field app
   actions/            Server actions
   scan/               Data-plate schema + extraction prompt
+  ghl/                GoHighLevel event payloads and dispatcher
+  service-requests.ts The twelve stages, categories and urgency
   member/             Portal view model, loader, and demo fixture data
   checklist-templates.ts   Q1–Q4 seasonal checklists  ⚠ see ASSUMPTIONS
   types/              Schema types, status colors
@@ -54,6 +58,8 @@ supabase/
   seed.sql            The Miller Home demo
 docs/
   supabase-setup.md   Step-by-step connection guide
+  deploy-vercel.md    GitHub → Vercel → custom domain → phone install
+  gohighlevel.md      Webhooks, payloads, and the API key
   ASSUMPTIONS.md      Everything invented in the spec's absence ⚠ review this
 ```
 
@@ -87,6 +93,11 @@ Three rules the implementation holds to:
   years later and nobody notices until then.
 - **Text in a photo is data, never an instruction.** The prompt says so
   explicitly, and a human reviews every reading before it is saved.
+
+## Going live
+
+`docs/deploy-vercel.md` walks through GitHub, Vercel, a custom domain, and
+installing it on a phone. `docs/gohighlevel.md` covers the GHL webhooks.
 
 ## Security model
 

@@ -59,10 +59,12 @@ export default async function AdminHomePage() {
             <p className="text-2xl font-semibold text-navy-700">{rows.length}</p>
             <p className="text-xs text-slate-500">Properties</p>
           </Card>
-          <Card className="p-3">
-            <p className="text-2xl font-semibold text-navy-700">{(requests ?? []).length}</p>
-            <p className="text-xs text-slate-500">Open requests</p>
-          </Card>
+          <Link href="/admin/requests">
+            <Card className="p-3 active:bg-slate-50">
+              <p className="text-2xl font-semibold text-navy-700">{(requests ?? []).length}</p>
+              <p className="text-xs text-slate-500">Open requests</p>
+            </Card>
+          </Link>
           <Card className="p-3">
             <p className="text-2xl font-semibold text-navy-700">{(visits ?? []).length}</p>
             <p className="text-xs text-slate-500">Upcoming visits</p>
@@ -73,9 +75,14 @@ export default async function AdminHomePage() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             Properties
           </h2>
-          <LinkButton href="/admin/trade-partners" variant="secondary">
-            Trade partners
-          </LinkButton>
+          <div className="flex gap-2">
+            <LinkButton href="/admin/requests" variant="secondary">
+              Requests
+            </LinkButton>
+            <LinkButton href="/admin/trade-partners" variant="secondary">
+              Trades
+            </LinkButton>
+          </div>
         </div>
 
         {rows.length === 0 ? (

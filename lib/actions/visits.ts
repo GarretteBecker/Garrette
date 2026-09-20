@@ -3,6 +3,61 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { CHECKLIST_TEMPLATES, quarterFor, type Quarter } from '@/lib/checklist-templates';
+import { notify } from '@/lib/ghl/notify';
+import type { VisitType } from '@/lib/types/database';
+
+/**
+ * Put a visit on the calendar.
+ *
+ * Fires the GHL event so the member gets a text or email about the booking
+ * without anyone typing one.
+ */
+export async function scheduleVisit(formData: FormData): Promise<void> {
+  const propertyId = String(formData.get('property_id'));
+  const scheduledFor = String(formData.get('scheduled_for') ?? '').trim();
+  const visitType = (String(formData.get('visit_type') ?? 'SEASONAL')) as VisitType;
+  const title = String(formData.get('title') ?? '').trim() || null;
+
+  if (!propertyId || !scheduledFor) return;
+
+  const supabase = await createClient();
+  const quarter = quarterFor(new Date(scheduledFor));
+  const template = CHECKLIST_TEMPLATES[quarter];
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: visit, error } = await supabase
+    .from('visits')
+    .insert({
+      property_id: propertyId,
+      tech_id: String(formData.get('tech_id') ?? '') || null,
+      visit_type: visitType,
+      status: 'SCHEDULED',
+      scheduled_for: scheduledFor,
+      title: title ?? `${template.quarter} ${template.season} Visit`,
+    })
+    .select('id, title, scheduled_for')
+    .single();
+
+  if (error || !visit) return;
+
+  await notify('visit.scheduled', propertyId, {
+    visit_id: visit.id,
+    visit_title: visit.title,
+    visit_type: visitType,
+    scheduled_for: visit.scheduled_for,
+    scheduled_for_readable: new Date(scheduledFor).toLocaleString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric',
+      hour: 'numeric', minute: '2-digit',
+    }),
+    booked_by: user?.id ?? null,
+  });
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath('/field');
+}
 
 /**
  * Start a visit: mark it in progress and, if it has no checklist yet, stamp

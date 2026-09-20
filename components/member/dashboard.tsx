@@ -6,7 +6,8 @@ import {
   computeHomeStatus, buildActivity, nextVisit, investmentRange,
   type PortalData,
 } from '@/lib/member/portal';
-import type { FindingStatus } from '@/lib/types/database';
+import { STAGE_META } from '@/lib/service-requests';
+import type { FindingStatus, ServiceRequestStage } from '@/lib/types/database';
 
 const STATUS_ORDER: FindingStatus[] = ['ACTION', 'PLAN', 'MONITOR', 'IMPROVEMENT', 'GOOD'];
 
@@ -110,6 +111,59 @@ export default function MemberDashboard({
           </div>
         </div>
       </div>
+
+      {/* ------------------------------------------- request service */}
+      <Link
+        href={`${hrefPrefix}/requests/new`}
+        className="mb-6 flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
+      >
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brandgreen-600 text-white">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+               className="h-5 w-5" strokeLinecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold text-navy-800">Something not right?</span>
+          <span className="block text-[13px] leading-snug text-slate-500">
+            Tell us about it and follow it the whole way through.
+          </span>
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+             className="h-4 w-4 shrink-0 text-slate-300" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </Link>
+
+      {/* ---------------------------------------------- open requests */}
+      {data.openRequests.length > 0 ? (
+        <PortalSection
+          title="Your open requests"
+          action={
+            <Link href={`${hrefPrefix}/requests`} className="text-[13px] font-semibold text-brandgreen-600">
+              See all
+            </Link>
+          }
+        >
+          <ul className="space-y-2">
+            {data.openRequests.slice(0, 3).map((req) => (
+              <li key={req.id}>
+                <Link
+                  href={`${hrefPrefix}/requests/${req.id}`}
+                  className="flex items-center gap-3 rounded-2xl bg-white p-3.5 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-medium text-navy-800">{req.title}</span>
+                    <span className="block text-[12px] text-slate-500">
+                      {STAGE_META[req.stage as ServiceRequestStage]?.memberLabel ?? req.stage}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </PortalSection>
+      ) : null}
 
       {/* ---------------------------------------------- next visit */}
       {visit ? (

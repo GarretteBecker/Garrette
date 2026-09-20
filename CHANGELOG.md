@@ -111,6 +111,47 @@ First working build. Four phases, in the order they were asked for.
   `scan_error`, `scan_applied_at`, plus `apply_scan_to_asset()`.
 - A visit now has its own Photos tab for general shots.
 
+### Phase 7 — Request Service, GoHighLevel, and going live
+
+**Request Service, end to end**
+- Member form: category, room, the Home Record item it concerns, a
+  description, photos **and video**, and urgency in plain words
+  (Emergency / Soon / Normal / Whenever)
+- Office board grouped by stage down the page rather than across in
+  columns, so it works on a phone; filter by any of the twelve stages
+- Triage, dispatch to a trade partner, price it, book it, move the stage —
+  each step logged with who did it and when
+- Member sees live status the whole way through: the stage in their own
+  language, who the ball is with, a progress rail and the full history
+- **Closing out a job updates the Home Record by itself.** Work performed,
+  parts, model and serial go onto the linked item, the job photos move
+  across to it, and the stage advances to HOME RECORD UPDATED — in one
+  transaction. Completion is the only route to COMPLETED, so a job cannot
+  be marked done while the record quietly goes stale.
+- Filling blanks only: a serial typed at the end of a long day never
+  overwrites one already on the record.
+- Members can now attach media to their own request — one new RLS door,
+  scoped to their own property and their own request, tested from four
+  angles.
+
+**GoHighLevel**
+- Events sent on report released, service request stage changed, and visit
+  scheduled
+- Each payload carries the contact, the property and flat merge-field data,
+  including `member_status`, a ready-written `member_message`, and
+  `waiting_on` so you can message only when the ball is in the member's court
+- Sends run after the response and can never block or break the action they
+  describe; with no URL configured the integration is simply off
+- Visits can now be scheduled from the property page, which is what fires
+  the visit event
+
+**Installable phone app**
+- Service worker, offline page, and a generated iOS touch icon
+- Deliberately never caches authenticated pages — a cached Home Record
+  served to the wrong person is exactly what rule 2 exists to prevent
+- `docs/deploy-vercel.md` — GitHub, Vercel, custom domain, phone install
+- `docs/gohighlevel.md` — webhook setup, payloads, and the API key
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
@@ -127,3 +168,10 @@ First working build. Four phases, in the order they were asked for.
   not. See `docs/ASSUMPTIONS.md` §9.
 - No rate limiting on the scan endpoint (it is staff-only, but a stuck
   client could still loop)
+- **The GHL webhook has never been fired at a real GHL account** — no
+  credentials here. See `docs/ASSUMPTIONS.md` §10.
+- Member approval of an estimate is by phone or text; there is no Approve
+  button in the portal yet
+- One GHL webhook URL, so one workflow with branching rather than three
+- Request media uploads are not queued for offline the way field capture is:
+  a member submitting with no signal gets an upload error
