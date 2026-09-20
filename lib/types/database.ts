@@ -68,6 +68,13 @@ export interface Property {
   bathrooms: number | null;
   lot_size_acres: number | null;
   plan_tier: string | null;
+  // 0010 — membership
+  tier: 'CORE' | 'RESPONSE';
+  billing_cycle: 'MONTHLY' | 'ANNUAL_PREPAID';
+  commitment_start: string | null;
+  commitment_months: number;
+  member_discount_used_ytd: number;
+  member_discount_year_start: string | null;
   member_since: string | null;
   notes: string | null;
   created_at: string;

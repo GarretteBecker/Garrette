@@ -278,6 +278,22 @@ export default function MemberDashboard({
         </PortalSection>
       ) : null}
 
+      <Link
+        href={`${hrefPrefix}/membership`}
+        className="mt-2 flex items-center gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold text-navy-800">Your membership</span>
+          <span className="block text-[13px] leading-snug text-slate-500">
+            What is included, what is not, and your member pricing.
+          </span>
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+             className="h-4 w-4 shrink-0 text-slate-300" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </Link>
+
       <p className="mt-8 text-center text-[11px] text-slate-400">
         B&amp;M Home Improvement Solutions LLC • PA Lic. #154223
       </p>

@@ -7,6 +7,7 @@ import RequestStatus, { type StatusEvent } from '@/components/member/request-sta
 import EstimateResponse from '@/components/member/estimate-response';
 import { formatDate } from '@/components/ui';
 import type { ServiceRequest, Asset, Room } from '@/lib/types/database';
+import type { MembershipTier } from '@/lib/membership';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +34,7 @@ export default async function MemberRequestDetailPage({
     parts_used: string | null;
   };
 
-  const [{ data: events }, { data: asset }, { data: room }, { data: media }] = await Promise.all([
+  const [{ data: events }, { data: asset }, { data: room }, { data: media }, { data: prop }] = await Promise.all([
     supabase
       .from('service_request_events')
       .select('id, from_stage, to_stage, note, created_at')
@@ -50,6 +51,11 @@ export default async function MemberRequestDetailPage({
       .select('id, storage_path, mime_type')
       .eq('service_request_id', id)
       .order('created_at'),
+    supabase
+      .from('properties')
+      .select('tier, member_discount_used_ytd')
+      .eq('id', r.property_id)
+      .maybeSingle(),
   ]);
 
   // Private bucket — sign each attachment on the server.
@@ -83,7 +89,14 @@ export default async function MemberRequestDetailPage({
       />
 
       {r.stage === 'AWAITING_APPROVAL' ? (
-        <EstimateResponse requestId={r.id} amount={r.estimate_amount} />
+        <EstimateResponse
+          requestId={r.id}
+          amount={r.estimate_amount}
+          tier={(prop as { tier?: MembershipTier } | null)?.tier ?? null}
+          discountUsed={Number(
+            (prop as { member_discount_used_ytd?: number } | null)?.member_discount_used_ytd ?? 0,
+          )}
+        />
       ) : null}
 
       {r.scheduled_for ? (

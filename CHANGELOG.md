@@ -199,23 +199,62 @@ and attacked as each role.
   sees 0 draft attachments, the released one, and their ordinary documents;
   an admin sees all.
 
+### Phase 11 — Memberships: tiers, exclusions and member pricing
+
+- **Two tiers, one source of truth** (`lib/membership.ts`): HomeKeeper Core
+  at $69/month or $759 prepaid, HomeKeeper Response at $299/month or $3,289
+  prepaid. Prices, inclusions, exclusions and the member discount all live
+  in that one file, so a price shown on a quote and a price shown on the
+  membership screen cannot drift apart.
+- **The tier gates the product in the database, not the page.** A Core
+  member who guessed a report address would otherwise have read a quarterly
+  report they never paid for. The reports read policy now asks
+  `property_has_feature()`, so the gate holds whatever the browser asks for.
+  Tested: on a Core home the member sees 0 quarterly reports and still sees
+  their annual one, while the office sees all of them.
+- **A membership screen the member can actually read** (`/home/membership`,
+  and `/demo/membership` for sales). What they pay, what they get with a
+  tick against each item, what prepaying saves them, how much of their
+  discount they have used this year, and — on Core — exactly what upgrading
+  to Response would add.
+- **What membership does not cover is on screen, in plain words.** Eight
+  exclusions, each with a sentence explaining it. A member who believes
+  repairs are included will argue the first invoice; a screen they can look
+  at any time settles it better than a contract signed once.
+- **Member pricing appears on the quote itself.** When the office prices a
+  job, the member sees the standard price struck through, their member
+  price, and what they saved — 5% on Core, 10% on Response, against an
+  annual cap that is tracked across jobs rather than per job. When the cap
+  limits the saving, it says so rather than quietly giving less than the
+  headline rate.
+- **The office sets tier, billing cycle and commitment** on the property
+  Overview tab.
+- New columns on `properties`: `tier`, `billing_cycle`, `commitment_start`,
+  `commitment_months`, `member_discount_used_ytd`, `member_discount_year_start`
+  (migration `0010`). `supabase/CATCH-UP.sql` applies it to a database that
+  is already live, and is safe to run twice — verified, including that a
+  re-run leaves a tier the office set by hand alone.
+
+⚠ **The two discount caps are invented.** The spec says both tiers should
+have an annual dollar cap on member pricing but gives no figures, so
+`$500` (Core) and `$1,500` (Response) are placeholders standing in until
+you set them. They are two constants in `lib/membership.ts`; changing them
+changes every quote in the app. See `docs/ASSUMPTIONS.md`.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
 - `docs/homekeeper-spec.md` is referenced by `CLAUDE.md` but does not exist;
   everything I had to invent in its absence is listed in `docs/ASSUMPTIONS.md`
 - Trade portal is a placeholder (later phase, per the brief)
-- Service request stages are stored and displayed but nothing advances them
-- GoHighLevel integration not started (later phase, per the brief)
 - No automated tests yet
-- The portal reads data but does not yet write: submitting a service request
-  from the member side is still to come
 - **The scan's actual Claude call has never been run** — this environment has
   no API credentials. Everything around it is verified; the call itself is
   not. See `docs/ASSUMPTIONS.md` §9.
-- No rate limiting on the scan endpoint (it is staff-only, but a stuck
-  client could still loop)
 - **The GHL webhook has never been fired at a real GHL account** — no
   credentials here. See `docs/ASSUMPTIONS.md` §10.
 - Reads are not audited anywhere; writes are. See `SECURITY-REVIEW.md` item 12
 - No rate limiting on the scan endpoint or member media upload
+- Membership billing is not wired to anything — the tier, cycle and
+  commitment are recorded, nothing charges a card. GoHighLevel handles
+  billing, per the brief.

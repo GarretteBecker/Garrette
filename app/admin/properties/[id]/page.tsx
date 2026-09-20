@@ -15,7 +15,9 @@ import RoomEditor from '@/components/admin/room-editor';
 import AssetEditor from '@/components/admin/asset-editor';
 import DocumentManager, { type DocRow } from '@/components/admin/document-manager';
 import { scheduleVisit } from '@/lib/actions/visits';
-import { inputClass } from '@/components/ui';
+import { saveMembership } from '@/lib/actions/properties';
+import { TIERS, money, type MembershipTier } from '@/lib/membership';
+import { inputClass, Field } from '@/components/ui';
 import type { AssetPhoto } from '@/components/admin/asset-photos';
 import type {
   Property, Room, Asset, Visit, Finding, PlanItem, ServiceRequest, Member,
@@ -169,7 +171,7 @@ export default async function PropertyDetailPage({
                 <Detail label="Bedrooms" value={p.bedrooms?.toString() ?? '—'} />
                 <Detail label="Bathrooms" value={p.bathrooms?.toString() ?? '—'} />
                 <Detail label="Lot" value={p.lot_size_acres ? `${p.lot_size_acres} acres` : '—'} />
-                <Detail label="Plan" value={p.plan_tier ?? '—'} />
+                <Detail label="Tier" value={TIERS[((p as unknown as { tier?: MembershipTier }).tier ?? 'CORE')].name} />
                 <Detail label="Member since" value={formatDate(p.member_since)} />
                 <Detail label="Items tracked" value={assetRows.length.toString()} />
               </dl>
@@ -188,6 +190,56 @@ export default async function PropertyDetailPage({
                   </div>
                 ))}
               </div>
+            </Card>
+
+            <Card className="p-4">
+              <h2 className="mb-1 font-semibold text-navy-800">Membership</h2>
+              <p className="mb-3 text-[13px] text-slate-500">
+                Tier gates quarterly visits, quarterly reports, the Hub and
+                urgent help — enforced in the database, not just here.
+              </p>
+              <form action={saveMembership} className="space-y-3">
+                <input type="hidden" name="property_id" value={id} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Tier" htmlFor="tier">
+                    <select
+                      id="tier"
+                      name="tier"
+                      defaultValue={(p as unknown as { tier?: MembershipTier }).tier ?? 'CORE'}
+                      className={inputClass}
+                    >
+                      {(['CORE', 'RESPONSE'] as MembershipTier[]).map((t) => (
+                        <option key={t} value={t}>
+                          {TIERS[t].name} — {money(TIERS[t].monthly)}/mo
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label="Billing" htmlFor="billing_cycle">
+                    <select
+                      id="billing_cycle"
+                      name="billing_cycle"
+                      defaultValue={(p as unknown as { billing_cycle?: string }).billing_cycle ?? 'MONTHLY'}
+                      className={inputClass}
+                    >
+                      <option value="MONTHLY">Monthly</option>
+                      <option value="ANNUAL_PREPAID">Annual prepaid</option>
+                    </select>
+                  </Field>
+                </div>
+                <Field label="Agreement started" htmlFor="commitment_start" hint="12-month initial term.">
+                  <input
+                    id="commitment_start"
+                    name="commitment_start"
+                    type="date"
+                    defaultValue={(p as unknown as { commitment_start?: string }).commitment_start ?? ''}
+                    className={inputClass}
+                  />
+                </Field>
+                <button type="submit" className="h-12 w-full rounded-lg bg-navy-700 font-semibold text-white">
+                  Save membership
+                </button>
+              </form>
             </Card>
 
             <Card className="p-4">

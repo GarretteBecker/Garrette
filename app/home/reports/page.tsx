@@ -12,7 +12,7 @@ export default async function MemberReportsPage() {
 
   return (
     <PortalShell active="reports" title="Reports" subtitle="A record of every visit">
-      <ReportsList reports={data.reports} />
+      <ReportsList reports={data.reports} tier={data.property.tier} />
     </PortalShell>
   );
 }

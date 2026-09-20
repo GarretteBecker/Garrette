@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { respondToEstimate, type RequestActionState } from '@/lib/actions/service-requests';
 import { textareaClass } from '@/components/ui';
+import { memberPrice, money, TIERS, type MembershipTier } from '@/lib/membership';
 
 function Button({ approve, label }: { approve: boolean; label: string }) {
   const { pending } = useFormStatus();
@@ -28,25 +29,52 @@ function Button({ approve, label }: { approve: boolean; label: string }) {
 export default function EstimateResponse({
   requestId,
   amount,
+  tier,
+  discountUsed = 0,
 }: {
   requestId: string;
   amount: number | null;
+  tier: MembershipTier | null;
+  /** Member benefit already used this membership year, for the cap. */
+  discountUsed?: number;
 }) {
   const [showDecline, setShowDecline] = useState(false);
   const [state, formAction] = useActionState<RequestActionState, FormData>(respondToEstimate, {});
 
-  const money =
-    amount != null
-      ? amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
-      : null;
+  // The member benefit is a headline reason to be a member, so it is shown
+  // on the quote rather than quietly applied.
+  const priced = amount != null ? memberPrice(amount, tier, discountUsed) : null;
 
   return (
     <div className="mb-5 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-600/20">
       <p className="text-[11px] font-bold uppercase tracking-widest text-amber-800">
         Your approval needed
       </p>
-      {money ? (
-        <p className="mt-1 text-3xl font-semibold text-navy-800">{money}</p>
+      {priced ? (
+        priced.saving > 0 ? (
+          <>
+            <p className="mt-1 flex items-baseline gap-2">
+              <span className="text-3xl font-semibold text-navy-800">
+                {money(priced.memberPrice)}
+              </span>
+              <span className="text-[15px] text-slate-400 line-through">
+                {money(priced.standard)}
+              </span>
+            </p>
+            <p className="mt-1 inline-block rounded bg-brandgreen-600 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
+              {tier ? TIERS[tier].name : 'Member'} price · you save {money(priced.saving)}
+            </p>
+            {priced.capped ? (
+              <p className="mt-1.5 text-[12px] text-amber-900/70">
+                Your annual member benefit is fully used after this job.
+              </p>
+            ) : null}
+          </>
+        ) : (
+          <p className="mt-1 text-3xl font-semibold text-navy-800">
+            {money(priced.standard)}
+          </p>
+        )
       ) : null}
       <p className="mt-1.5 text-[13px] leading-relaxed text-amber-900/80">
         Nothing is booked and nothing is charged until you say go.

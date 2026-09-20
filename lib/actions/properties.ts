@@ -199,3 +199,21 @@ export async function saveTradePartner(
   revalidatePath('/admin/trade-partners');
   return { ok: true };
 }
+
+/** Set a property's membership tier and billing. Admin only, via RLS. */
+export async function saveMembership(formData: FormData): Promise<void> {
+  const supabase = await createClient();
+  const propertyId = String(formData.get('property_id'));
+
+  await supabase
+    .from('properties')
+    .update({
+      tier: str(formData, 'tier') ?? 'CORE',
+      billing_cycle: str(formData, 'billing_cycle') ?? 'MONTHLY',
+      commitment_start: str(formData, 'commitment_start'),
+    })
+    .eq('id', propertyId);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath('/home');
+}

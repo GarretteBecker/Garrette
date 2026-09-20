@@ -13,7 +13,11 @@ export default function DemoReportsPage() {
       showSignOut={false}
     >
       <DemoBanner />
-      <ReportsList reports={DEMO_PORTAL_DATA.reports} />
+      <ReportsList
+        reports={DEMO_PORTAL_DATA.reports}
+        tier={DEMO_PORTAL_DATA.property.tier}
+        hrefPrefix="/demo"
+      />
     </PortalShell>
   );
 }

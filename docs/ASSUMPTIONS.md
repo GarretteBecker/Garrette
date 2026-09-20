@@ -182,6 +182,38 @@ my guesses at what a Lancaster County remodeler gets called about, and at
 how a homeowner would describe urgency. Category is stored as free text, so
 changing the list needs no migration.
 
+## 12. Member-pricing caps — **invented figures**
+
+The Master Program Specification says both tiers carry an annual dollar cap
+on the member discount, but it never gives the numbers. I had to put
+something in for the arithmetic to work, so:
+
+| Tier | Discount | Annual cap | Status |
+|---|---|---|---|
+| Core | 5% | **$500** | invented |
+| Response | 10% | **$1,500** | invented |
+
+Both are two constants in `lib/membership.ts`
+(`memberDiscountAnnualCap`). Change them there and every quote, every
+membership screen and every cap warning in the app follows — no migration,
+no other file.
+
+Worth choosing deliberately rather than leaving: the cap is what stops one
+large remodel from consuming a year of margin. A Response member spending
+$30,000 with no cap takes $3,000 off — ten times their annual fee.
+
+## 13. Membership economics — **a warning, not an assumption**
+
+Checking the spec's own arithmetic: the Response fulfilment subtotal comes
+to **$1,930 against a $1,973 ceiling — $43 of headroom per member per
+year**, before any member discount is given. Removing snow removal is what
+made that positive at all.
+
+That is not a coding matter and I have changed nothing on the strength of
+it, but at 30 members it is the difference between a healthy year and a
+loss, so it should be your number rather than the spec's.
+
+
 ---
 
 ## What I'd most like corrected
@@ -191,3 +223,4 @@ changing the list needs no migration.
 3. **Whether the report sections are in the order you'd present them** to a
    homeowner sitting at their kitchen table
 4. **The portal's plain-English copy** (§8) — it is your sales voice, not mine
+5. **The two member-pricing caps** (§12) — I invented both figures

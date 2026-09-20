@@ -334,7 +334,15 @@ export const DEMO_PORTAL_DATA: PortalData = {
     bedrooms: 4,
     bathrooms: 2.5,
     lot_size_acres: 0.31,
-    plan_tier: 'HomeKeeper Premier',
+    plan_tier: 'HomeKeeper Response',
+    // The sample home is a Response member, so the demo shows the whole
+    // product. Flip this to 'CORE' to see what a Core member sees.
+    tier: 'RESPONSE',
+    billing_cycle: 'ANNUAL_PREPAID',
+    commitment_start: '2024-03-01',
+    commitment_months: 12,
+    member_discount_used_ytd: 310,
+    member_discount_year_start: '2026-03-01',
     member_since: '2024-03-01',
     notes: null,
     created_at: '2024-03-01T00:00:00Z',

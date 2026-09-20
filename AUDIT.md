@@ -4,25 +4,35 @@
 **Method:** every verdict below was checked against the code, the migrations
 and the seed data, not from memory. No application code was changed.
 
-**Score: 3 present, 8 partial, 5 missing.** The field and request machinery
-is largely built. The *commercial* layer — tiers, pricing, the Hub, the
-Passport, the legal disclosures — is the gap.
+**Score at the time of the audit: 3 present, 8 partial, 5 missing.** The
+field and request machinery is largely built. The *commercial* layer —
+tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
+
+> **Updated 20 September 2026, after the memberships phase.** Items 1 and 13
+> have moved (1: missing → partial, 13: missing → present); fix-list items
+> 1, 2 and 4 are done. Each is marked below. **Score now: 4 present, 9
+> partial, 3 missing.** Everything else stands as first written.
 
 ---
 
-## 1. Membership tiers — **MISSING**
+## 1. Membership tiers — ~~MISSING~~ → **PARTIAL** *(was the largest gap)*
 
-`properties.plan_tier` is a free-text column (the demo says "HomeKeeper
-Premier", which is not even one of your two tiers). Nothing else exists.
+**At audit:** `properties.plan_tier` was a free-text column (the demo said
+"HomeKeeper Premier", which is not even one of your two tiers). Nothing
+gated anything — a Core member would have seen quarterly visits, quarterly
+reports and every Response feature.
 
-Not present: the two tiers as defined values; $69/$759 and $299/$3,289
-pricing; the 12-month commitment; prepay-vs-two-months onboarding; what each
-tier includes; member-pricing percentages or caps; the design-build fixed
-credit; Water Protect as an add-on.
+**Now present:** both tiers as defined values with $69/$759 and $299/$3,289
+pricing and the 12-month commitment (`lib/membership.ts`, migration `0010`);
+what each tier includes, on a screen the member can read; member-pricing
+percentages, tracked against an annual cap across jobs; and the gate itself
+— quarterly reports are Response-only **in RLS**, so it holds against a
+guessed address, not just a hidden button.
 
-**Nothing gates the UI.** A Core member would see quarterly visits, quarterly
-reports and every Response feature. This is the single largest gap in the
-specification.
+**Still missing:** prepay-versus-two-months onboarding; the design-build
+fixed credit; Water Protect as an add-on. The two discount **cap figures are
+invented placeholders** ($500 Core, $1,500 Response) — the spec says caps
+exist but never gives the numbers.
 
 ## 2. Snow removal removed — **PRESENT**
 
@@ -179,11 +189,15 @@ words "not a warranty" and "not a substitute for a buyer's inspection" appear
 nowhere. The data that would populate it largely exists; the product does
 not.
 
-## 13. What's excluded — **MISSING**
+## 13. What's excluded — ~~MISSING~~ → **PRESENT**
 
-No exclusions appear anywhere in the app. A member cannot see what their
-membership does not cover. This currently lives only in a contract they
-signed once.
+**At audit:** no exclusions appeared anywhere in the app; they lived only in
+a contract signed once.
+
+**Now:** eight exclusions, each with a sentence explaining it, on the
+membership screen at `/home/membership` (and in the sales demo). Held in
+`EXCLUSIONS` in `lib/membership.ts` so there is one list, not one per
+screen.
 
 ## 14. Never store — **PRESENT**
 
@@ -227,16 +241,18 @@ exercise it.
 
 ## Tier 1 — costs you money or creates liability
 
-1. **Tier model and UI gating.** Without it, every Core member gets Response
-   features. You are giving away the $299 product at the $69 price. *Largest
-   single item; touches schema, admin and every member screen.*
-2. **Exclusions visible in-app (item 13).** A member who believes repairs are
-   included will argue the invoice. The contract alone will not stop that
-   conversation.
+1. ~~**Tier model and UI gating.**~~ **DONE.** Gating is enforced in RLS, not
+   only in the UI, so a Core member cannot reach a quarterly report by any
+   route. *Remaining under item 1: onboarding options, design-build credit,
+   Water Protect, and the real cap figures.*
+2. ~~**Exclusions visible in-app (item 13).**~~ **DONE.** Eight exclusions on
+   the membership screen, each explained.
 3. **PA compliance (item 15).** Auto-renewal disclosure, renewal notice
    window and the three-day cancellation right are statutory, not optional.
-4. **Member pricing not shown.** The discount is a headline benefit that is
-   currently invisible, so it cannot do the job of justifying the fee.
+   *Now the top open item.*
+4. ~~**Member pricing not shown.**~~ **DONE.** The member sees the standard
+   price struck through, their price and their saving on every quote, and
+   how much of their annual cap is left.
 5. **No 24-hour report delivery tracking.** A promise nothing measures.
 
 ## Tier 2 — a homeowner notices on a demo
