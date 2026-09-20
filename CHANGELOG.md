@@ -397,6 +397,71 @@ disclosures *before* someone commits — if you add online signup, they must
 appear before the payment step. No e-signature. No holiday calendar. No
 retention policy.
 
+### Phase 15 — "I need help now"
+
+A red button at the top of the member's dashboard. They tap it, pick what is
+happening, and get told what to do **in their own house** — their shutoff, in
+their basement, with the photograph the technician took of it.
+
+Anyone can publish "turn the water off at the main". Only B&M can say *"yours
+is the red lever on the northwest wall just past the stairs"* and show them a
+picture. That is the whole feature.
+
+**Safety is the architecture, not a disclaimer.** `docs/emergency-help.md`
+has the full reasoning; three rules govern it:
+
+- **Life before property.** Gas and electrical open with a full-width red
+  *Get everyone out now* card and a 911 button, above everything else. The
+  gas screen **never** shows the gas shutoff and says outright: do not go
+  looking for it, do not touch a switch. Sending somebody into a gassy
+  basement to hunt for a valve is the worst thing this app could do.
+- **The list order is part of the design.** "I smell gas" and "Burning smell"
+  are first because a frightened person taps the first thing that matches.
+- **Never invent their house.** No shutoff recorded? The screen says so and
+  tells them to call. It does not guess and it does not show a stock photo of
+  somebody else's valve.
+
+**⚠ No phone number is written into this code except 911.** Utility numbers
+vary by address and change; a wrong one on a gas screen is the worst possible
+bug. They come from config, have **no defaults**, and do not render when
+unset — the step still says where to find it (the bill). Set
+`NEXT_PUBLIC_BM_EMERGENCY_PHONE` and there is a Call B&M button; until then
+there is not one.
+
+**Eleven emergencies**, each with ordered steps, a "please do not" list, and
+the member's own equipment: gas smell, burning smell, water leak, basement
+water, sewage backup, no heat, no hot water, no water, roof leak, appliance
+leak, something else.
+
+**Not tier-gated, deliberately.** Withholding "here is where your water
+shutoff is" from a member on the cheaper plan is not a business model. The
+tier gates the *response* — Response gets priority routing, Core gets an
+honest "as soon as we can during business hours".
+
+**The office side**
+
+- **About the house** — water source, sewer type, heating fuel, service size,
+  construction, roof. Water and sewer change the advice: a well home loses
+  pressure in a power cut, a public home does not.
+- **Shutoffs & access points** — record where each one is, how to work it,
+  and photograph it with the camera already in the app. The card names which
+  of the six the emergency screens need are still missing.
+- Location notes are prompted to be written *"for somebody frightened, in the
+  dark, who has never looked for it before"*.
+
+**Also**
+
+- Tapping "Log it with photos" from an emergency lands on the request form
+  already filled in — urgent, right category, right title. Every emergency's
+  category was checked against the real list rather than assumed.
+- New property fields and a `safety_points` table (migration `0013`). Tested
+  on PostgreSQL 16 against two households with shutoffs each: the member sees
+  their five and none of the other home's, a member cannot write one, and the
+  database refuses a shutoff captioned with another property's room.
+- CLAUDE.md rule 3 holds — still no field anywhere for an alarm code, gate
+  code, key location or combination. A shutoff is a valve anyone in the room
+  can see; a key location is not.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
@@ -414,3 +479,9 @@ retention policy.
 - Membership billing is not wired to anything — the tier, cycle and
   commitment are recorded, nothing charges a card. GoHighLevel handles
   billing, per the brief.
+- **The emergency screens need signal.** They are authenticated pages and the
+  service worker deliberately never caches those. A member with no signal
+  cannot open "I need help now" — see `docs/emergency-help.md`.
+- **The emergency guidance has not been reviewed by a licensed trade.** It is
+  general homeowner advice of the kind a utility prints on a fridge magnet.
+  Read `lib/emergency.ts` and correct anything you would not say yourself.

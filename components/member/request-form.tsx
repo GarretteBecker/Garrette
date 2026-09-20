@@ -8,6 +8,7 @@ import { compressImage, formatBytes } from '@/lib/media/compress';
 import { createServiceRequest, type RequestActionState } from '@/lib/actions/service-requests';
 import { enqueue } from '@/lib/offline/outbox';
 import { syncNow } from '@/lib/offline/sync';
+import { emergencyByKind } from '@/lib/emergency';
 import { REQUEST_CATEGORIES, URGENCY_OPTIONS } from '@/lib/service-requests';
 import { Field, inputClass, textareaClass } from '@/components/ui';
 import type { Asset, Room, PriorityLevel } from '@/lib/types/database';
@@ -47,8 +48,15 @@ export default function RequestForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const openCameraOnLoad = searchParams.get('camera') === '1';
+
+  // Arriving from "I need help now": the form starts already filled in with
+  // what they just told us. Somebody in an emergency should not have to
+  // describe it twice.
+  const fromEmergency = emergencyByKind((searchParams.get('kind') ?? '').toUpperCase());
+  const startUrgent = searchParams.get('urgent') === '1';
+
   const [roomId, setRoomId] = useState('');
-  const [urgency, setUrgency] = useState<PriorityLevel>('MEDIUM');
+  const [urgency, setUrgency] = useState<PriorityLevel>(startUrgent ? 'URGENT' : 'MEDIUM');
   const [picked, setPicked] = useState<Picked[]>([]);
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -313,7 +321,13 @@ export default function RequestForm({
       </div>
 
       <Field label="What kind of problem is it?" htmlFor="category">
-        <select id="category" name="category" required defaultValue="" className={inputClass}>
+        <select
+          id="category"
+          name="category"
+          required
+          defaultValue={fromEmergency?.requestCategory ?? ''}
+          className={inputClass}
+        >
           <option value="" disabled>Choose one…</option>
           {REQUEST_CATEGORIES.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -358,6 +372,7 @@ export default function RequestForm({
           name="title"
           required
           maxLength={120}
+          defaultValue={fromEmergency?.requestTitle ?? ''}
           placeholder="Kitchen disposal humming but not spinning"
           className={inputClass}
         />

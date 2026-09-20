@@ -1,16 +1,42 @@
 import Link from 'next/link';
 
 /**
- * The two things a homeowner opens this app to do.
+ * What a homeowner opens this app to do.
  *
  * Deliberately the largest, loudest thing on the dashboard after the status
- * line. A member who has just found water on the floor should not have to
- * hunt — the camera is one tap from the front door, and it lands them in the
- * request form with the photo already attached.
+ * line. Help Now is full width and first, because the moment it exists for
+ * is the moment nobody reads carefully: somebody standing in water at 11pm
+ * should hit the right thing without aiming.
  */
 export default function QuickActions({ hrefPrefix = '/home' }: { hrefPrefix?: string }) {
   return (
-    <div className="mb-7 grid grid-cols-2 gap-3">
+    <div className="mb-7 space-y-3">
+      <Link
+        href={`${hrefPrefix}/help`}
+        className="flex items-center gap-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 px-4 py-5 text-white shadow-sm transition active:scale-[0.98]"
+      >
+        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/25">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+               className="h-7 w-7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 9v4" />
+            <path d="M10.4 3.9 2.5 17.3A2 2 0 0 0 4.2 20.3h15.6a2 2 0 0 0 1.7-3L13.6 3.9a2 2 0 0 0-3.2 0z" />
+            <path d="M12 17h.01" />
+          </svg>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[19px] font-bold leading-tight">I need help now</span>
+          <span className="mt-0.5 block text-[13px] leading-snug text-red-100">
+            Burst pipe, no heat, gas smell — what to do, in your home
+          </span>
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+             className="h-5 w-5 shrink-0 text-white/70" strokeLinecap="round" strokeLinejoin="round"
+             aria-hidden="true">
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </Link>
+
+      <div className="grid grid-cols-2 gap-3">
       {/* Camera first: a photo explains more than a paragraph. */}
       <Link
         href={`${hrefPrefix}/requests/new?camera=1`}
@@ -50,6 +76,7 @@ export default function QuickActions({ hrefPrefix = '/home' }: { hrefPrefix?: st
           </span>
         </span>
       </Link>
+      </div>
     </div>
   );
 }

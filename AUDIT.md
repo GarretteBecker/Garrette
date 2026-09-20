@@ -27,6 +27,11 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > agreement storage, auto-renewal disclosure, opt-out, renewal-notice
 > tracking and a working three-business-day cancellation. What remains there
 > is a lawyer's job, not a developer's.
+>
+> **And after the emergency phase.** Item 6 ("I Need Help Now") is now
+> PRESENT, and item 3's missing property-level Home Record fields — water
+> source, sewer type, service size, construction, roof, and the main shutoff
+> with a photograph — are in.
 
 ---
 
@@ -72,12 +77,13 @@ warranties, reports, plans, product info. **Every asset, visit, finding,
 request, report and photo is tied to the property** — 11 tables are
 property-scoped, verified.
 
-**Missing at property level:** construction type, utilities, well vs public
-water, septic vs public sewer, a dedicated main-shutoff location + photo
-field, electrical service size, roof age, exterior materials, safety-device
-summary. Several of these *exist as assets* in the demo (main shutoff, panel,
-roof) but there is no structured property record for them — so nothing can
-reliably pull "the member's own shutoff photo", which item 10 depends on.
+~~**Missing at property level:**~~ **NOW PRESENT.** Construction type,
+exterior and roof materials, roof year, well vs public water, septic vs
+public sewer, heating fuel, electrical service size, stories and basement
+type are all fields on the property. The shutoffs are better than a field:
+`safety_points` is a typed table, so the emergency screen can ask for "the
+WATER_MAIN on this property" and get a reliable answer with its photograph —
+which is exactly what item 6 needed.
 
 **Missing on assets:** collection/series, size/dimensions, installer,
 replacement parts (cartridge, filter size, belt). Filter sizes currently live
@@ -282,13 +288,18 @@ exercise it.
 
 ## Tier 2 — a homeowner notices on a demo
 
-6. **I Need Help Now.** The most visible absence in the member portal.
+6. ~~**I Need Help Now.**~~ **DONE.** Eleven emergencies, each showing the
+   member's own shutoff with its photograph. Safety-first ordering, no
+   hard-coded phone numbers, and not tier-gated — see
+   `docs/emergency-help.md`.
 7. **Zero-findings report.** A clean quarter currently looks like a bug.
 8. **Baseline Report** — the first document a new member ever receives.
 9. **Request categories** aligned to your eleven.
 10. **Q1–Q4 checklist themes** corrected to yours, especially Q3.
-11. **Property-level Home Record fields** — construction, utilities, water,
-    sewer, shutoff location and photo. Item 10 depends on these existing.
+11. ~~**Property-level Home Record fields**~~ **DONE.** Construction,
+    utilities, water source, sewer type, service size, roof — and the
+    shutoffs as their own typed records with photographs, which is what
+    made item 6 possible.
 
 ## Tier 3 — substantial products in their own right
 

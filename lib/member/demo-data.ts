@@ -16,6 +16,7 @@ import type {
 } from '@/lib/types/database';
 import type { StatusEvent } from '@/components/member/request-status';
 import type { Agreement } from '@/lib/agreements';
+import type { SafetyPoint } from '@/lib/emergency';
 
 const PROPERTY_ID = 'demo-property';
 
@@ -490,6 +491,66 @@ function addBusinessDays(from: Date, n: number): string {
   }
   return d.toISOString().slice(0, 10);
 }
+
+/**
+ * The demo home's shutoffs.
+ *
+ * One is deliberately absent — there is no recorded main gas shutoff — so
+ * the demo also shows the honest "we have not recorded yours yet" state
+ * rather than only the happy path. A prospect should see both.
+ */
+export const DEMO_SAFETY_POINTS: SafetyPoint[] = [
+  {
+    id: 'sp1',
+    kind: 'WATER_MAIN',
+    label: 'Main water shutoff',
+    location_note: 'Basement, northwest corner, on the wall just past the stairs where the line comes in through the foundation.',
+    how_to_note: 'Red lever. Turn it a quarter turn so it sits across the pipe rather than along it.',
+    photo_id: null,
+    room_name: 'Basement',
+    photo_url: null,
+  },
+  {
+    id: 'sp2',
+    kind: 'WATER_HEATER_SHUTOFF',
+    label: 'Water heater shutoff',
+    location_note: 'On the cold inlet at the top of the Bradford White, northeast corner of the basement.',
+    how_to_note: 'Blue handle on the right-hand pipe. Quarter turn.',
+    photo_id: null,
+    room_name: 'Basement',
+    photo_url: null,
+  },
+  {
+    id: 'sp3',
+    kind: 'ELECTRICAL_PANEL',
+    label: 'Main electrical panel',
+    location_note: 'Basement, south wall beside the workbench. 200 amp Square D, 40 space.',
+    how_to_note: 'Main breaker is the large one at the top. Furnace is breaker 14, sump is 22.',
+    photo_id: null,
+    room_name: 'Basement',
+    photo_url: null,
+  },
+  {
+    id: 'sp4',
+    kind: 'SUMP_PUMP',
+    label: 'Sump pump',
+    location_note: 'Basement, northwest pit under the plywood cover.',
+    how_to_note: 'Zoeller M53. Lift the float by hand to test it — it should start straight away.',
+    photo_id: null,
+    room_name: 'Basement',
+    photo_url: null,
+  },
+  {
+    id: 'sp5',
+    kind: 'MAIN_CLEANOUT',
+    label: 'Main drain cleanout',
+    location_note: 'Basement floor, three feet from the base of the soil stack. Black cap, flush with the slab.',
+    how_to_note: null,
+    photo_id: null,
+    room_name: 'Basement',
+    photo_url: null,
+  },
+];
 
 export const DEMO_PORTAL_DATA: PortalData = {
   property: {

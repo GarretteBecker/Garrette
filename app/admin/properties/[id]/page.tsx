@@ -15,6 +15,9 @@ import RoomEditor from '@/components/admin/room-editor';
 import AssetEditor from '@/components/admin/asset-editor';
 import DocumentManager, { type DocRow } from '@/components/admin/document-manager';
 import AgreementEditor from '@/components/admin/agreement-editor';
+import SafetyPoints from '@/components/admin/safety-points';
+import { saveHomeFacts } from '@/lib/actions/safety';
+import type { SafetyPoint } from '@/lib/emergency';
 import { scheduleVisit } from '@/lib/actions/visits';
 import { saveMembership } from '@/lib/actions/properties';
 import { TIERS, money, type MembershipTier } from '@/lib/membership';
@@ -63,6 +66,7 @@ export default async function PropertyDetailPage({
     { data: planItems },
     { data: requests },
     { data: documents },
+    { data: safetyPoints },
     { data: agreements },
     { data: photoRows },
   ] = await Promise.all([
@@ -79,6 +83,11 @@ export default async function PropertyDetailPage({
       .select('id, title, doc_type, storage_path, size_bytes, created_at')
       .eq('property_id', id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('safety_points')
+      .select('id, kind, label, room_id, location_note, how_to_note, photo_id')
+      .eq('property_id', id)
+      .order('sort_order'),
     supabase
       .from('membership_agreements')
       .select('*')
@@ -106,6 +115,7 @@ export default async function PropertyDetailPage({
 
   // The agreement in force. Rescinded and superseded ones stay in the table
   // as history; the Overview tab is about the one that is live.
+  const safetyRows = (safetyPoints ?? []) as (SafetyPoint & { room_id: string | null })[];
   const agreementRows = (agreements ?? []) as Agreement[];
   const liveAgreement =
     agreementRows.find((a) => a.status === 'ACTIVE' || a.status === 'PENDING_SIGNATURE') ?? null;
@@ -273,6 +283,128 @@ export default async function PropertyDetailPage({
                   .filter((d) => d.doc_type === 'CONTRACT')
                   .map((d) => ({ id: d.id, title: d.title }))}
                 defaultTier={(p as unknown as { tier?: MembershipTier }).tier ?? 'CORE'}
+              />
+            </Card>
+
+            <Card className="p-4">
+              <h2 className="mb-1 font-semibold text-navy-800">About the house</h2>
+              <p className="mb-3 text-[13px] leading-relaxed text-slate-500">
+                The facts about the building itself, not the things inside it.
+                Water source and sewer type change what we tell a member in an
+                emergency — a well home loses water when the power goes out, a
+                public home does not.
+              </p>
+              <form action={saveHomeFacts} className="space-y-3">
+                <input type="hidden" name="property_id" value={id} />
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Water" htmlFor="water_source">
+                    <select id="water_source" name="water_source"
+                            defaultValue={(p as unknown as { water_source?: string }).water_source ?? ''}
+                            className={inputClass}>
+                      <option value="">Not recorded</option>
+                      <option value="PUBLIC">Public water</option>
+                      <option value="WELL">Well</option>
+                      <option value="SHARED_WELL">Shared well</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </Field>
+                  <Field label="Sewer" htmlFor="sewer_type">
+                    <select id="sewer_type" name="sewer_type"
+                            defaultValue={(p as unknown as { sewer_type?: string }).sewer_type ?? ''}
+                            className={inputClass}>
+                      <option value="">Not recorded</option>
+                      <option value="PUBLIC">Public sewer</option>
+                      <option value="SEPTIC">Septic</option>
+                      <option value="MOUND">Mound system</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Heating fuel" htmlFor="heating_fuel">
+                    <select id="heating_fuel" name="heating_fuel"
+                            defaultValue={(p as unknown as { heating_fuel?: string }).heating_fuel ?? ''}
+                            className={inputClass}>
+                      <option value="">Not recorded</option>
+                      <option value="NATURAL_GAS">Natural gas</option>
+                      <option value="PROPANE">Propane</option>
+                      <option value="OIL">Oil</option>
+                      <option value="ELECTRIC">Electric</option>
+                      <option value="HEAT_PUMP">Heat pump</option>
+                      <option value="OTHER">Other</option>
+                    </select>
+                  </Field>
+                  <Field label="Electrical service (amps)" htmlFor="electrical_service_amps">
+                    <input id="electrical_service_amps" name="electrical_service_amps"
+                           type="number" inputMode="numeric"
+                           defaultValue={(p as unknown as { electrical_service_amps?: number }).electrical_service_amps ?? ''}
+                           placeholder="200" className={inputClass} />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Construction" htmlFor="construction_type">
+                    <input id="construction_type" name="construction_type"
+                           defaultValue={(p as unknown as { construction_type?: string }).construction_type ?? ''}
+                           placeholder="Two-story colonial, wood frame" className={inputClass} />
+                  </Field>
+                  <Field label="Exterior" htmlFor="exterior_material">
+                    <input id="exterior_material" name="exterior_material"
+                           defaultValue={(p as unknown as { exterior_material?: string }).exterior_material ?? ''}
+                           placeholder="Vinyl siding" className={inputClass} />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Roof" htmlFor="roof_material">
+                    <input id="roof_material" name="roof_material"
+                           defaultValue={(p as unknown as { roof_material?: string }).roof_material ?? ''}
+                           placeholder="Architectural shingle" className={inputClass} />
+                  </Field>
+                  <Field label="Roof installed" htmlFor="roof_installed_year">
+                    <input id="roof_installed_year" name="roof_installed_year"
+                           type="number" inputMode="numeric"
+                           defaultValue={(p as unknown as { roof_installed_year?: number }).roof_installed_year ?? ''}
+                           placeholder="2016" className={inputClass} />
+                  </Field>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Field label="Stories" htmlFor="stories">
+                    <input id="stories" name="stories" type="number" step="0.5" inputMode="decimal"
+                           defaultValue={(p as unknown as { stories?: number }).stories ?? ''}
+                           placeholder="2" className={inputClass} />
+                  </Field>
+                  <Field label="Basement" htmlFor="basement_type">
+                    <input id="basement_type" name="basement_type"
+                           defaultValue={(p as unknown as { basement_type?: string }).basement_type ?? ''}
+                           placeholder="Full, partially finished" className={inputClass} />
+                  </Field>
+                </div>
+
+                <button type="submit" className="h-12 w-full rounded-lg bg-navy-700 font-semibold text-white">
+                  Save
+                </button>
+              </form>
+            </Card>
+
+            <Card className="p-4">
+              <h2 className="mb-1 font-semibold text-navy-800">Shutoffs &amp; access points</h2>
+              <p className="mb-3 text-[13px] leading-relaxed text-slate-500">
+                What this member sees when they tap{' '}
+                <span className="font-semibold text-navy-700">I need help now</span> at
+                eleven at night. Photograph each one — a homeowner who has never
+                looked at their own water main will know it from a picture long
+                before they work it out from a sentence.
+              </p>
+              <SafetyPoints
+                propertyId={id}
+                points={safetyRows.map((sp) => ({
+                  ...sp,
+                  room_name: roomRows.find((r) => r.id === sp.room_id)?.name ?? null,
+                }))}
+                rooms={roomRows.map((r) => ({ id: r.id, name: r.name }))}
               />
             </Card>
 

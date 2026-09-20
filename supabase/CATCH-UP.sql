@@ -16,6 +16,8 @@
 --     4. Membership agreements: what they signed, when it renews, and the
 --        three-business-day right to cancel — as a button the homeowner can
 --        actually press, not a paragraph. See docs/pa-compliance.md.
+--     5. The facts about the house (water source, sewer, service size) and
+--        where the shutoffs are — the data behind "I need help now".
 --
 -- ▶ HOW TO USE IT
 --   1. Supabase dashboard → SQL Editor → New query
@@ -662,6 +664,188 @@ comment on view public.renewal_notices_due is
   'sent yet. Stays listed after the window closes rather than disappearing '
   'quietly — a missed notice is the thing you most need to see.';
 
+
+-- ---------------------------------------------------------------------
+-- The house itself, and where the shutoffs are  (migration 0013)
+--
+-- The Home Record knew everything about the water heater and almost
+-- nothing about the HOUSE — and there was nowhere at all to record where
+-- the main water shutoff is or what it looks like. That last one is the
+-- whole point: a member standing in two inches of water at 11pm needs to
+-- be told THEIR shutoff is behind the furnace, with a photograph of it.
+--
+-- ⚠ Reference information only, never a substitute for 911 or the gas
+-- company — and, as ever, no alarm codes, key locations or combinations.
+-- ---------------------------------------------------------------------
+
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'water_source') then
+    create type public.water_source as enum ('PUBLIC', 'WELL', 'SHARED_WELL', 'OTHER');
+  end if;
+  if not exists (select 1 from pg_type where typname = 'sewer_type') then
+    create type public.sewer_type as enum ('PUBLIC', 'SEPTIC', 'MOUND', 'OTHER');
+  end if;
+  if not exists (select 1 from pg_type where typname = 'heating_fuel') then
+    create type public.heating_fuel as enum ('NATURAL_GAS', 'PROPANE', 'OIL', 'ELECTRIC', 'HEAT_PUMP', 'OTHER');
+  end if;
+end $$;
+
+alter table public.properties
+  add column if not exists construction_type      text,
+  add column if not exists exterior_material      text,
+  add column if not exists roof_material          text,
+  add column if not exists roof_installed_year    integer,
+  add column if not exists water_source           public.water_source,
+  add column if not exists sewer_type             public.sewer_type,
+  add column if not exists heating_fuel           public.heating_fuel,
+  add column if not exists electrical_service_amps integer,
+  add column if not exists stories                numeric(2,1),
+  add column if not exists basement_type          text;
+
+comment on column public.properties.water_source is
+  'Public or well. Changes the emergency advice: a well home loses water '
+  'pressure when the power goes out, a public home does not.';
+
+comment on column public.properties.sewer_type is
+  'Public or septic. A septic home with a backup needs different advice '
+  'and a different trade than a home on a municipal line.';
+
+-- ---------------------------------------------------------------------
+-- Safety points: the things you need to find in a hurry.
+--
+-- A typed table rather than free-text assets, because the emergency
+-- screen has to ask a precise question — "where is the WATER MAIN on
+-- this property" — and get a reliable answer. A row named "Main Water
+-- Shutoff" in a list of 36 assets cannot be looked up; this can.
+-- ---------------------------------------------------------------------
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'safety_point_kind') then
+    create type public.safety_point_kind as enum (
+  'WATER_MAIN',          -- the whole-house water shutoff
+  'WATER_HEATER_SHUTOFF',
+  'GAS_MAIN',
+  'OIL_TANK_SHUTOFF',
+  'ELECTRICAL_PANEL',    -- main panel / main breaker
+  'SUB_PANEL',
+  'SUMP_PUMP',
+  'MAIN_CLEANOUT',       -- drain access for a backup
+  'SEPTIC_ACCESS',
+  'WELL_PUMP',
+  'FLOOR_DRAIN',
+  'OUTSIDE_SPIGOT_SHUTOFF',
+  'SMOKE_CO_ALARM',
+  'FIRE_EXTINGUISHER',
+  'OTHER'
+);
+  end if;
+end $$;
+
+create table if not exists public.safety_points (
+  id            uuid primary key default gen_random_uuid(),
+  property_id   uuid not null references public.properties (id) on delete cascade,
+  kind          public.safety_point_kind not null,
+  -- What to call it on screen. Blank falls back to a label for the kind.
+  label         text,
+  room_id       uuid references public.rooms (id)  on delete set null,
+  asset_id      uuid references public.assets (id) on delete set null,
+  -- "Basement, northeast corner, behind the furnace." Written for somebody
+  -- who is frightened and holding a torch.
+  location_note text,
+  -- "Turn the red handle a quarter turn clockwise until it stops."
+  how_to_note   text,
+  photo_id      uuid references public.photos (id) on delete set null,
+  sort_order    integer not null default 0,
+  created_by    uuid references public.profiles (id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+create index if not exists safety_points_property_id_idx on public.safety_points (property_id);
+create index if not exists safety_points_kind_idx        on public.safety_points (property_id, kind);
+
+drop trigger if exists safety_points_set_updated_at on public.safety_points;
+create trigger safety_points_set_updated_at
+  before update on public.safety_points
+  for each row execute function public.set_updated_at();
+
+comment on table public.safety_points is
+  'Shutoffs, panels and access points, captured on a visit so a member can '
+  'be told where theirs is when it matters. Reference information only — '
+  'never a substitute for 911 or the utility.';
+
+-- A linked room, asset or photo must belong to the same property. Same
+-- reasoning as migration 0011: RLS stops anyone READING across a property
+-- boundary, but a row captioned with another house's room is its own harm.
+create or replace function public.enforce_safety_point_links()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.room_id is not null and not exists (
+    select 1 from public.rooms r where r.id = new.room_id and r.property_id = new.property_id
+  ) then
+    raise exception 'room % is not on property %', new.room_id, new.property_id;
+  end if;
+
+  if new.asset_id is not null and not exists (
+    select 1 from public.assets a where a.id = new.asset_id and a.property_id = new.property_id
+  ) then
+    raise exception 'asset % is not on property %', new.asset_id, new.property_id;
+  end if;
+
+  if new.photo_id is not null and not exists (
+    select 1 from public.photos p where p.id = new.photo_id and p.property_id = new.property_id
+  ) then
+    raise exception 'photo % is not on property %', new.photo_id, new.property_id;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists safety_points_links_same_property on public.safety_points;
+create trigger safety_points_links_same_property
+  before insert or update of room_id, asset_id, photo_id, property_id
+  on public.safety_points
+  for each row execute function public.enforce_safety_point_links();
+
+-- ---------------------------------------------------------------------
+-- RLS. Read by anyone who can see the property — INCLUDING the member,
+-- on every tier.
+--
+-- The tier gates priority response, not safety information. Withholding
+-- "here is where your water shutoff is" from a paying member because they
+-- are on the cheaper plan is not a business model, it is a liability. See
+-- docs/emergency-help.md.
+-- ---------------------------------------------------------------------
+alter table public.safety_points enable row level security;
+alter table public.safety_points force row level security;
+
+drop policy if exists safety_points_select on public.safety_points;
+create policy safety_points_select on public.safety_points
+  for select to authenticated
+  using (public.can_access_property(property_id));
+
+drop policy if exists safety_points_staff_insert on public.safety_points;
+create policy safety_points_staff_insert on public.safety_points
+  for insert to authenticated
+  with check (public.can_write_property(property_id));
+
+drop policy if exists safety_points_staff_update on public.safety_points;
+create policy safety_points_staff_update on public.safety_points
+  for update to authenticated
+  using (public.can_write_property(property_id))
+  with check (public.can_write_property(property_id));
+
+drop policy if exists safety_points_admin_delete on public.safety_points;
+create policy safety_points_admin_delete on public.safety_points
+  for delete to authenticated
+  using (public.is_admin());
+
 -- ---------------------------------------------------------------------
 -- Did it work?
 -- ---------------------------------------------------------------------
@@ -690,7 +874,12 @@ select
        where table_schema = 'public' and table_name = 'membership_agreements'
     )
       then 'Membership agreements did not apply — send this result to Claude.'
-    else 'Up to date. Report attachments, membership tiers, Home Plan requests and membership agreements are all in.'
+    when not exists (
+      select 1 from information_schema.tables
+       where table_schema = 'public' and table_name = 'safety_points'
+    )
+      then 'Shutoffs and house facts did not apply — send this result to Claude.'
+    else 'Up to date. Report attachments, membership tiers, Home Plan requests, membership agreements and emergency shutoffs are all in.'
   end as result,
   (select string_agg(name || ' — ' || tier, ', ' order by name)
      from public.properties) as your_homes;

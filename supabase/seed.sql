@@ -563,3 +563,48 @@ insert into public.reports (id, property_id, visit_id, title, report_type, perio
    'Fall 2026 Visit Summary', 'VISIT_SUMMARY', '2026-09-08', '2026-09-08',
    'b0000000-0000-4000-8000-000000000001/demo/fall-2026-visit.pdf', 'a0000000-0000-4000-8000-000000000001', '2026-09-08 18:30:00-04', 'RELEASED', '2026-09-08 18:30:00-04')
 on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------
+-- 11. The facts about the house, and where the shutoffs are
+--
+-- This is the data behind "I need help now". The gas main is deliberately
+-- absent so the demo also shows the honest "we have not recorded yours
+-- yet" state — a prospect should see both.
+-- ---------------------------------------------------------------------
+update public.properties
+   set construction_type      = 'Two-story colonial, wood frame',
+       exterior_material      = 'Vinyl siding',
+       roof_material          = 'Architectural shingle',
+       roof_installed_year    = 2016,
+       water_source           = 'PUBLIC',
+       sewer_type             = 'PUBLIC',
+       heating_fuel           = 'NATURAL_GAS',
+       electrical_service_amps = 200,
+       stories                = 2,
+       basement_type          = 'Full, unfinished — mechanicals live here'
+ where id = 'b0000000-0000-4000-8000-000000000001';
+
+insert into public.safety_points
+  (id, property_id, kind, label, room_id, location_note, how_to_note, sort_order)
+values
+  ('88880000-0000-4000-8000-000000000001', 'b0000000-0000-4000-8000-000000000001',
+   'WATER_MAIN', 'Main water shutoff', 'd0000000-0000-4000-8000-00000000000b',
+   'Basement, northwest corner, on the wall just past the stairs where the line comes in through the foundation.',
+   'Red lever. Turn it a quarter turn so it sits across the pipe rather than along it.', 10),
+  ('88880000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001',
+   'ELECTRICAL_PANEL', 'Main electrical panel', 'd0000000-0000-4000-8000-00000000000b',
+   'Basement, south wall beside the workbench. 200 amp Square D, 40 space.',
+   'Main breaker is the large one at the top. Furnace is breaker 14, sump is 22.', 20),
+  ('88880000-0000-4000-8000-000000000003', 'b0000000-0000-4000-8000-000000000001',
+   'WATER_HEATER_SHUTOFF', 'Water heater shutoff', 'd0000000-0000-4000-8000-00000000000b',
+   'On the cold inlet at the top of the Bradford White, northeast corner of the basement.',
+   'Blue handle on the right-hand pipe. Quarter turn.', 30),
+  ('88880000-0000-4000-8000-000000000004', 'b0000000-0000-4000-8000-000000000001',
+   'SUMP_PUMP', 'Sump pump', 'd0000000-0000-4000-8000-00000000000b',
+   'Basement, northwest pit under the plywood cover.',
+   'Zoeller M53. Lift the float by hand to test it — it should start straight away.', 40),
+  ('88880000-0000-4000-8000-000000000005', 'b0000000-0000-4000-8000-000000000001',
+   'MAIN_CLEANOUT', 'Main drain cleanout', 'd0000000-0000-4000-8000-00000000000b',
+   'Basement floor, three feet from the base of the soil stack. Black cap, flush with the slab.',
+   null, 50)
+on conflict (id) do nothing;
