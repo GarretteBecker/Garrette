@@ -1,25 +1,26 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
-import { compressImage, formatBytes } from '@/lib/media/compress';
+import PhotoCapture from '@/components/capture/photo-capture';
 
 export interface AssetPhoto {
   id: string;
   storage_path: string;
   caption: string | null;
+  note: string | null;
+  kind: string;
+  scan_status: string;
   /** Signed URL, minted on the server. */
   url: string | null;
 }
 
 /**
- * Photos attached to one asset.
+ * Photos on one item in the Home Record.
  *
- * The list is fetched on the server (signed URLs and all) and handed down as
- * a prop; this component only handles capture, compression and upload, then
- * refreshes the route. CLAUDE.md rule 4: compress before the bytes leave the
- * phone.
+ * The list is fetched on the server (signed URLs and all) and handed down;
+ * capture, compression, upload and data-plate scanning all live in the
+ * shared PhotoCapture component so the office and the field behave
+ * identically.
  */
 export default function AssetPhotos({
   propertyId,
@@ -31,98 +32,53 @@ export default function AssetPhotos({
   photos: AssetPhoto[];
 }) {
   const router = useRouter();
-  const supabase = createClient();
-  const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  async function handleFiles(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    setBusy(true);
-    setError(null);
-    setNote(null);
-
-    try {
-      for (const file of Array.from(files)) {
-        const { blob, width, height, originalBytes } = await compressImage(file);
-
-        const path = `${propertyId}/assets/${assetId}/${crypto.randomUUID()}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from('property-photos')
-          .upload(path, blob, { contentType: 'image/jpeg', upsert: false });
-        if (uploadError) throw new Error(uploadError.message);
-
-        const { error: insertError } = await supabase.from('photos').insert({
-          property_id: propertyId,
-          asset_id: assetId,
-          storage_path: path,
-          width,
-          height,
-          size_bytes: blob.size,
-          taken_at: new Date(file.lastModified).toISOString(),
-        });
-        if (insertError) throw new Error(insertError.message);
-
-        setNote(`Uploaded ${formatBytes(blob.size)} (was ${formatBytes(originalBytes)}).`);
-      }
-      router.refresh();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Upload failed.');
-    } finally {
-      setBusy(false);
-      if (fileRef.current) fileRef.current.value = '';
-    }
-  }
+  const refresh = () => router.refresh();
 
   return (
-    <div>
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={busy}
-          className="rounded-lg bg-navy-700 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
-        >
-          {busy ? 'Uploading…' : 'Add photo'}
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          multiple
-          hidden
-          onChange={(e) => void handleFiles(e.target.files)}
-        />
-        {note ? <span className="text-xs text-slate-500">{note}</span> : null}
-      </div>
-
-      {error ? (
-        <p role="alert" className="mt-2 rounded bg-red-50 px-2 py-1 text-xs text-red-800">
-          {error}
-        </p>
-      ) : null}
+    <div className="space-y-3">
+      <PhotoCapture
+        target={{ propertyId, assetId }}
+        mode="plate"
+        label="Scan data plate"
+        onChanged={refresh}
+      />
+      <PhotoCapture
+        target={{ propertyId, assetId }}
+        mode="general"
+        label="Add photo"
+        onChanged={refresh}
+      />
 
       {photos.length > 0 ? (
-        <div className="mt-3 grid grid-cols-3 gap-2">
+        <ul className="grid grid-cols-3 gap-2">
           {photos.map((p) =>
             p.url ? (
-              // Signed Supabase URLs expire, so next/image optimization is
-              // not worth the cache churn here.
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={p.id}
-                src={p.url}
-                alt={p.caption ?? 'Asset photo'}
-                className="aspect-square w-full rounded-lg object-cover ring-1 ring-slate-200"
-                loading="lazy"
-              />
+              <li key={p.id}>
+                {/* Signed Supabase URLs expire, so next/image optimization is
+                    not worth the cache churn here. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.url}
+                  alt={p.note ?? p.caption ?? 'Item photo'}
+                  className="aspect-square w-full rounded-lg object-cover ring-1 ring-slate-200"
+                  loading="lazy"
+                />
+                {p.kind === 'DATA_PLATE' ? (
+                  <p className="mt-1 text-center text-[9px] font-bold uppercase tracking-wide text-slate-400">
+                    {p.scan_status === 'DONE' ? 'Plate · scanned' : 'Plate'}
+                  </p>
+                ) : null}
+                {p.note ? (
+                  <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-slate-500">
+                    {p.note}
+                  </p>
+                ) : null}
+              </li>
             ) : null,
           )}
-        </div>
+        </ul>
       ) : (
-        <p className="mt-2 text-xs text-slate-500">No photos on this item yet.</p>
+        <p className="text-xs text-slate-500">No photos on this item yet.</p>
       )}
     </div>
   );

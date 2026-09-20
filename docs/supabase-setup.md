@@ -47,7 +47,8 @@ editor, click **Run**. You want to see "Success. No rows returned" each time.
 | 2 | `supabase/migrations/0002_rls.sql` | The security rules. **This is the important one** — it's what stops one member seeing another's house |
 | 3 | `supabase/migrations/0003_storage.sql` | Creates the two private buckets for photos and documents |
 | 4 | `supabase/migrations/0004_report_release.sql` | Adds the draft/release step so you review a report before the member sees it |
-| 5 | `supabase/seed.sql` | Loads the Miller Home demo and creates three test logins |
+| 5 | `supabase/migrations/0005_photo_capture.sql` | Photo notes, photo types, and data-plate scan results |
+| 6 | `supabase/seed.sql` | Loads the Miller Home demo and creates three test logins |
 
 > **If a script errors:** stop. Don't run the next one. The most common cause
 > is running them out of order, or running the same one twice. Tell me what
@@ -81,6 +82,25 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...your long key...
 
 Save it. `.env.local` is already set to never get committed to git, so your
 keys stay on your machine.
+
+### Optional: turn on data-plate scanning
+
+If you want the "Scan data plate" button to actually read placards, add a
+third line:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Get one at **console.anthropic.com → API Keys**. Each scan costs a fraction
+of a cent.
+
+Skip this and everything else still works — the camera captures and stores
+photos exactly the same, you just type the model and serial in by hand.
+
+Unlike the two Supabase values, **this one is a real secret**: it stays on
+the server, never goes to the browser, and must never be committed or
+pasted into a chat.
 
 ## Step 6 — Run it
 

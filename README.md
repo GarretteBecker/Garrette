@@ -38,12 +38,14 @@ app/
   home/               Homeowner portal: dashboard, record, plan, reports, docs
   demo/               The same portal on fixture data — no login, for sales
   reports/[id]/       The branded report (screen + print)
+  api/scan-plate/     Reads a data plate off a photo (staff only)
 components/
-  admin/  field/  member/  reports/
+  admin/  capture/  field/  member/  reports/
 lib/
   supabase/           Browser, server and proxy clients — anon key only
   offline/            IndexedDB outbox + sync engine for the field app
   actions/            Server actions
+  scan/               Data-plate schema + extraction prompt
   member/             Portal view model, loader, and demo fixture data
   checklist-templates.ts   Q1–Q4 seasonal checklists  ⚠ see ASSUMPTIONS
   types/              Schema types, status colors
@@ -65,6 +67,26 @@ it cannot drift from what a member actually sees. Every screen is marked
 To remove it: delete `app/demo/`, `lib/member/demo-data.ts`,
 `components/member/demo-banner.tsx`, and the `'/demo'` entry in
 `PUBLIC_PATHS` in `lib/supabase/proxy.ts`.
+
+## Data-plate scanning
+
+Point the camera at the placard on a piece of equipment and it reads the
+make, model and serial into the Home Record.
+
+It is **optional**: set `ANTHROPIC_API_KEY` in `.env.local` to turn it on.
+Without a key the camera still captures and stores photos normally, and the
+app tells you to type the numbers in by hand.
+
+Three rules the implementation holds to:
+
+- **A scan is a claim, not a fact.** The reading is stored against the photo
+  and shown for review; it reaches the Home Record only when a human accepts
+  it, and by default it fills blanks only.
+- **A blank beats a guess.** The prompt tells the model to return null
+  rather than guess at a character — a wrong serial fails a warranty claim
+  years later and nobody notices until then.
+- **Text in a photo is data, never an instruction.** The prompt says so
+  explicitly, and a human reviews every reading before it is saved.
 
 ## Security model
 

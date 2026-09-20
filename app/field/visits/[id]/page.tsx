@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader } from '@/components/brand';
 import SyncBanner from '@/components/field/sync-banner';
-import VisitWorkspace from '@/components/field/visit-workspace';
+import VisitWorkspace, { type VisitPhoto } from '@/components/field/visit-workspace';
 import { startVisit } from '@/lib/actions/visits';
 import { Card, formatDate } from '@/components/ui';
 import { quarterFor, CHECKLIST_TEMPLATES } from '@/lib/checklist-templates';
@@ -29,18 +29,39 @@ export default async function FieldVisitPage({
     { data: assets },
     { data: checklist },
     { data: findings },
+    { data: visitPhotos },
   ] = await Promise.all([
     supabase.from('properties').select('*').eq('id', v.property_id).maybeSingle(),
     supabase.from('rooms').select('*').eq('property_id', v.property_id).order('sort_order'),
     supabase.from('assets').select('*').eq('property_id', v.property_id).order('name'),
     supabase.from('checklist_items').select('*').eq('visit_id', id).order('sort_order'),
     supabase.from('findings').select('*').eq('visit_id', id).order('created_at', { ascending: false }),
+    supabase
+      .from('photos')
+      .select('id, storage_path, note, kind, scan_status')
+      .eq('visit_id', id)
+      .order('created_at', { ascending: false }),
   ]);
 
   if (!property) notFound();
   const p = property as Property;
 
   const items = (checklist ?? []) as ChecklistItem[];
+
+  // Private bucket: sign each thumbnail on the server.
+  const photoList: VisitPhoto[] = [];
+  for (const row of (visitPhotos ?? []) as {
+    id: string;
+    storage_path: string;
+    note: string | null;
+    kind: string;
+    scan_status: string;
+  }[]) {
+    const { data: signed } = await supabase.storage
+      .from('property-photos')
+      .createSignedUrl(row.storage_path, 3600);
+    photoList.push({ ...row, url: signed?.signedUrl ?? null });
+  }
   const quarter = quarterFor(v.scheduled_for ? new Date(v.scheduled_for) : new Date());
   const template = CHECKLIST_TEMPLATES[quarter];
 
@@ -93,6 +114,7 @@ export default async function FieldVisitPage({
         assets={(assets ?? []) as Asset[]}
         checklist={items}
         findings={(findings ?? []) as Finding[]}
+        photos={photoList}
         techId={profile.id}
       />
     </div>

@@ -8,6 +8,7 @@ import { CHECKLIST_RESULT_STYLES } from '@/lib/types/finding-status';
 import { Card, StatusPill, textareaClass } from '@/components/ui';
 import QuickFinding from './quick-finding';
 import AssetQuickEdit from './asset-quick-edit';
+import PhotoCapture from '@/components/capture/photo-capture';
 import type {
   Visit, Property, Room, Asset, ChecklistItem, Finding, ChecklistResult,
 } from '@/lib/types/database';
@@ -20,7 +21,16 @@ function nextResult(current: ChecklistResult): ChecklistResult {
   return CYCLE[(i + 1) % CYCLE.length];
 }
 
-type Tab = 'checklist' | 'findings' | 'record';
+export interface VisitPhoto {
+  id: string;
+  storage_path: string;
+  note: string | null;
+  kind: string;
+  scan_status: string;
+  url: string | null;
+}
+
+type Tab = 'checklist' | 'findings' | 'photos' | 'record';
 
 export default function VisitWorkspace({
   visit,
@@ -29,6 +39,7 @@ export default function VisitWorkspace({
   assets: initialAssets,
   checklist: initialChecklist,
   findings: initialFindings,
+  photos,
   techId,
 }: {
   visit: Visit;
@@ -37,6 +48,7 @@ export default function VisitWorkspace({
   assets: Asset[];
   checklist: ChecklistItem[];
   findings: Finding[];
+  photos: VisitPhoto[];
   techId: string;
 }) {
   const [tab, setTab] = useState<Tab>('checklist');
@@ -96,16 +108,16 @@ export default function VisitWorkspace({
             />
           </div>
           <div className="flex gap-1 py-2">
-            {(['checklist', 'findings', 'record'] as Tab[]).map((t) => (
+            {(['checklist', 'findings', 'photos', 'record'] as Tab[]).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTab(t)}
-                className={`h-9 flex-1 rounded-lg text-sm font-medium capitalize ${
+                className={`h-9 flex-1 rounded-lg text-[13px] font-medium capitalize ${
                   tab === t ? 'bg-navy-700 text-white' : 'text-slate-600'
                 }`}
               >
-                {t === 'record' ? 'Home Record' : t}
+                {t === 'record' ? 'Record' : t}
               </button>
             ))}
           </div>
@@ -198,6 +210,47 @@ export default function VisitWorkspace({
               ))}
             </ul>
           )
+        ) : null}
+
+        {tab === 'photos' ? (
+          <div className="space-y-3">
+            <PhotoCapture
+              target={{ propertyId: property.id, visitId: visit.id }}
+              mode="general"
+              label="Add a photo to this visit"
+            />
+            <p className="text-center text-[12px] leading-relaxed text-slate-500">
+              General shots for the visit — conditions, access, anything worth
+              a record. Photos of a specific item go on that item instead.
+            </p>
+
+            {photos.length > 0 ? (
+              <ul className="grid grid-cols-3 gap-2 pt-1">
+                {photos.map((p) =>
+                  p.url ? (
+                    <li key={p.id}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={p.url}
+                        alt={p.note ?? 'Visit photo'}
+                        className="aspect-square w-full rounded-lg object-cover ring-1 ring-slate-200"
+                        loading="lazy"
+                      />
+                      {p.note ? (
+                        <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-slate-500">
+                          {p.note}
+                        </p>
+                      ) : null}
+                    </li>
+                  ) : null,
+                )}
+              </ul>
+            ) : (
+              <p className="pt-1 text-center text-[12px] text-slate-400">
+                No photos on this visit yet.
+              </p>
+            )}
+          </div>
         ) : null}
 
         {tab === 'record' ? (

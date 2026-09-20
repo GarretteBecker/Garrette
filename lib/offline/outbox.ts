@@ -16,7 +16,9 @@ export type OutboxKind =
   | 'checklist.update'
   | 'finding.create'
   | 'asset.upsert'
-  | 'visit.complete';
+  | 'visit.complete'
+  | 'photo.upload'
+  | 'photo.link';
 
 export interface OutboxOp {
   /** Client-generated id, also used as the row id so retries are idempotent. */
@@ -24,8 +26,10 @@ export interface OutboxOp {
   kind: OutboxKind;
   /** JSON-serialisable row payload. */
   payload: Record<string, unknown>;
-  /** Optional photo captured with a finding. */
+  /** Optional photo captured with a finding, or the photo being uploaded. */
   photo?: { blob: Blob; width: number; height: number };
+  /** photo.upload only: run a data-plate scan once the upload lands. */
+  wantScan?: boolean;
   propertyId: string;
   createdAt: number;
   attempts: number;

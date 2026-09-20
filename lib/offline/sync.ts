@@ -113,6 +113,53 @@ async function applyOp(supabase: SupabaseClient, op: OutboxOp): Promise<void> {
       return;
     }
 
+    case 'photo.upload': {
+      if (!op.photo) return;
+
+      const path = `${op.propertyId}/captures/${op.localId}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from('property-photos')
+        .upload(path, op.photo.blob, { contentType: 'image/jpeg', upsert: true });
+      if (uploadError) throw new Error(uploadError.message);
+
+      // Client-generated id, upserted, so a retry after a half-failed sync
+      // updates the same row rather than creating a duplicate photo.
+      const { error: insertError } = await supabase.from('photos').upsert({
+        id: op.localId,
+        property_id: op.propertyId,
+        ...op.payload,
+        storage_path: path,
+        width: op.photo.width,
+        height: op.photo.height,
+        size_bytes: op.photo.blob.size,
+      });
+      if (insertError) throw new Error(insertError.message);
+
+      if (op.wantScan) {
+        // A failed scan must not block the queue — the photo is already
+        // safely stored, and the row records why the scan did not run.
+        try {
+          await fetch('/api/scan-plate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ photoId: op.localId }),
+          });
+        } catch {
+          // Left as PENDING/FAILED on the row; the tech can retry from the UI.
+        }
+      }
+      return;
+    }
+
+    case 'photo.link': {
+      // Queued after the asset.upsert that creates the item, and the queue
+      // drains in order, so the asset row exists by the time this runs.
+      const { photoId, ...rest } = op.payload as { photoId: string } & Record<string, unknown>;
+      const { error } = await supabase.from('photos').update(rest).eq('id', photoId);
+      if (error) throw new Error(error.message);
+      return;
+    }
+
     case 'visit.complete': {
       const { visitId, ...rest } = op.payload as { visitId: string } & Record<string, unknown>;
       const { error } = await supabase.from('visits').update(rest).eq('id', visitId);

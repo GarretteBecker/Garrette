@@ -74,7 +74,7 @@ export default async function PropertyDetailPage({
       .order('created_at', { ascending: false }),
     supabase
       .from('photos')
-      .select('id, asset_id, storage_path, caption')
+      .select('id, asset_id, storage_path, caption, note, kind, scan_status')
       .eq('property_id', id)
       .not('asset_id', 'is', null)
       .order('created_at', { ascending: false }),
@@ -100,6 +100,9 @@ export default async function PropertyDetailPage({
     asset_id: string;
     storage_path: string;
     caption: string | null;
+    note: string | null;
+    kind: string;
+    scan_status: string;
   }[]) {
     const { data: signed } = await supabase.storage
       .from('property-photos')
@@ -109,6 +112,9 @@ export default async function PropertyDetailPage({
       id: row.id,
       storage_path: row.storage_path,
       caption: row.caption,
+      note: row.note,
+      kind: row.kind,
+      scan_status: row.scan_status,
       url: signed?.signedUrl ?? null,
     });
     photosByAsset[row.asset_id] = list;

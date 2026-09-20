@@ -116,6 +116,39 @@ attention"; otherwise any open PLAN → "in good shape, items to budget for";
 otherwise "nothing needs your attention". Easy to change in
 `computeHomeStatus` in `lib/member/portal.ts`.
 
+## 9. Data-plate scanning — **never run against the live API**
+
+This is the one piece of the app I could not test. This environment has no
+Anthropic credentials, so the actual Claude call in
+`app/api/scan-plate/route.ts` has never executed.
+
+**Verified:** the schema converts to a valid output format and validates
+clean, partial and malformed readings correctly; the review UI renders
+properly on a phone in both the clear and hard-to-read cases; the database
+function that applies a scan fills blanks only, records who applied it, and
+refuses a photo with no scan; the route compiles and is registered.
+
+**Not verified:** whether the extraction is any good on a real, dirty,
+badly-lit plate at an angle. That is exactly the case that matters and I
+have no way to try it here.
+
+Also invented, pending your review:
+
+- **The prompt** (`lib/scan/schema.ts`). Its central instruction is "return
+  null rather than guess" — I would rather it leave a serial blank than put
+  a wrong one in your record.
+- **Model and effort.** Claude Opus 5 at `medium` effort. If real plates come
+  back with low confidence, raise it to `high` in the route; that is a
+  one-word change.
+- **Cost.** Roughly a fraction of a cent per scan. I have not measured it
+  against real photos.
+
+**How to check it yourself:** add a key, then scan the four hardest plates
+you can find — a rusty water heater, an outdoor condenser in the sun, an
+embossed metal panel, and a faded sticker. If the serials come back right,
+it works. If they come back wrong rather than blank, tell me: that means the
+prompt needs tightening, and a wrong serial is worse than none.
+
 ---
 
 ## What I'd most like corrected

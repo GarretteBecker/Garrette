@@ -86,6 +86,31 @@ First working build. Four phases, in the order they were asked for.
 - Brand status colors verified against WCAG AA (worst case 5.02:1); portal
   rendered and reviewed at iPhone viewport
 
+### Phase 6 — Capture & scan
+
+- **One capture component used everywhere.** A photo can be attached to an
+  item, a finding, a visit, a room, or the property itself, each with its
+  own note. Same component in the office and the field, so they cannot
+  drift apart.
+- **Scan a data plate.** Point the camera at the placard on a water heater,
+  furnace or condenser and it reads the brand, model, serial, date and
+  capacity off it, plus whatever else is printed (BTU input, refrigerant,
+  pressure).
+- **A scan is a claim, not a fact.** The reading is stored against the
+  photo and shown for review. Nothing reaches the Home Record until a human
+  taps Save, and by default it only fills blanks — a misread can never
+  silently overwrite something that was typed in.
+- **Scanning a new item fills the form** instead of writing a row, so a tech
+  can add equipment by photographing its plate. Photos captured before the
+  item is saved are linked to it afterwards, in queue order.
+- **Offline like everything else.** With no signal the photo goes in the
+  outbox and both the upload and the scan run when signal returns.
+- **Scanning is optional.** With no API key configured, capture still works
+  end to end and the app says to type the numbers in by hand.
+- New photo columns: `kind`, `note`, `scan_status`, `scan_data`,
+  `scan_error`, `scan_applied_at`, plus `apply_scan_to_asset()`.
+- A visit now has its own Photos tab for general shots.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
@@ -97,3 +122,8 @@ First working build. Four phases, in the order they were asked for.
 - No automated tests yet
 - The portal reads data but does not yet write: submitting a service request
   from the member side is still to come
+- **The scan's actual Claude call has never been run** — this environment has
+  no API credentials. Everything around it is verified; the call itself is
+  not. See `docs/ASSUMPTIONS.md` §9.
+- No rate limiting on the scan endpoint (it is staff-only, but a stuck
+  client could still loop)

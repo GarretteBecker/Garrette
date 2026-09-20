@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { enqueue } from '@/lib/offline/outbox';
 import { syncNow } from '@/lib/offline/sync';
 import { inputClass, textareaClass, Field } from '@/components/ui';
+import PhotoCapture from '@/components/capture/photo-capture';
+import type { StoredScan } from '@/lib/scan/schema';
 import { ASSET_CATEGORIES, ASSET_CONDITIONS, conditionLabel } from '@/lib/types/finding-status';
 import type { Asset, Room, AssetCondition } from '@/lib/types/database';
 
@@ -39,6 +41,28 @@ export default function AssetQuickEdit({
   const [notes, setNotes] = useState(asset?.notes ?? '');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // Fixed for the lifetime of the form, so photos captured before the
+  // item is saved can still be linked to it afterwards.
+  const [assetId] = useState(() => asset?.id ?? crypto.randomUUID());
+  const [scanNote, setScanNote] = useState<string | null>(null);
+  // Photos captured before this item exists as a row; linked after save.
+  const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
+
+  /** Fill the form from a data plate rather than writing to the row. */
+  function useScan(scan: StoredScan) {
+    const filled: string[] = [];
+    if (scan.manufacturer) { setManufacturer(scan.manufacturer); filled.push('brand'); }
+    if (scan.model) { setModel(scan.model); filled.push('model'); }
+    if (scan.serial_number) { setSerial(scan.serial_number); filled.push('serial'); }
+    if (scan.install_date) { setInstallDate(scan.install_date); filled.push('date'); }
+    if (!name.trim() && scan.equipment_type) setName(scan.equipment_type);
+
+    setScanNote(
+      filled.length > 0
+        ? `Filled in ${filled.join(', ')} from the plate. Check it, then Save.`
+        : 'Nothing on that plate came back legible. Type it in by hand.',
+    );
+  }
 
   async function save() {
     if (!name.trim()) {
@@ -53,7 +77,7 @@ export default function AssetQuickEdit({
     setSaving(true);
     setError(null);
 
-    const id = asset?.id ?? crypto.randomUUID();
+    const id = assetId;
     const payload = {
       property_id: propertyId,
       room_id: roomId || null,
@@ -74,6 +98,18 @@ export default function AssetQuickEdit({
       propertyId,
       payload,
     });
+
+    // Queued after the item itself, and the outbox drains in order, so the
+    // asset row exists by the time these run.
+    for (const photoId of capturedPhotos) {
+      await enqueue({
+        localId: `link:${photoId}`,
+        kind: 'photo.link',
+        propertyId,
+        payload: { photoId, asset_id: id, room_id: roomId || null },
+      });
+    }
+
     void syncNow();
 
     onSaved({
@@ -109,6 +145,25 @@ export default function AssetQuickEdit({
       </header>
 
       <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+        <div className="rounded-xl bg-slate-50 p-3 ring-1 ring-slate-200">
+          <PhotoCapture
+            target={{ propertyId, assetId: asset?.id ?? null, roomId: roomId || null }}
+            mode="plate"
+            label="Scan the data plate"
+            onCaptured={(photoId) => setCapturedPhotos((prev) => [...prev, photoId])}
+            onUseValues={useScan}
+          />
+          <p className="mt-2 text-center text-[12px] leading-relaxed text-slate-500">
+            Point at the placard and shoot. It fills in the brand, model and
+            serial for you — check them before saving.
+          </p>
+          {scanNote ? (
+            <p className="mt-2 rounded-lg bg-brandgreen-50 px-3 py-2 text-[13px] text-brandgreen-800">
+              {scanNote}
+            </p>
+          ) : null}
+        </div>
+
         <Field label="What is it?" htmlFor="qa-name">
           <input
             id="qa-name"
