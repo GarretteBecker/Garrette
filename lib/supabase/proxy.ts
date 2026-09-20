@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { isSupabaseConfigured } from './config';
 
 /** Public routes that never require a session. */
 const PUBLIC_PATHS = [
@@ -24,6 +25,13 @@ function isPublic(pathname: string) {
  * real boundary is RLS in Postgres (CLAUDE.md rule 2).
  */
 export async function updateSession(request: NextRequest) {
+  // Not configured yet: there is no database, so there is nothing to guard
+  // and no session to refresh. Let every request through so the demo and the
+  // setup notice still render instead of the whole site erroring.
+  if (!isSupabaseConfigured()) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

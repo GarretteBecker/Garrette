@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type { Profile, UserRole } from '@/lib/types/database';
 
 /**
@@ -9,6 +10,10 @@ import type { Profile, UserRole } from '@/lib/types/database';
  * guarantees a user can always see their own row.
  */
 export async function getProfile(): Promise<Profile | null> {
+  // No keys yet: behave like a signed-out visitor so the caller redirects to
+  // /login, which explains what is missing.
+  if (!isSupabaseConfigured()) return null;
+
   const supabase = await createClient();
 
   const {

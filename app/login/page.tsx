@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
+import Link from 'next/link';
 import LoginForm from './login-form';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { BrandFooter } from '@/components/brand';
 
 export default function LoginPage() {
@@ -31,9 +33,35 @@ export default function LoginPage() {
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-xl">
-            <Suspense fallback={null}>
-              <LoginForm />
-            </Suspense>
+            {isSupabaseConfigured() ? (
+              <Suspense fallback={null}>
+                <LoginForm />
+              </Suspense>
+            ) : (
+              <div className="text-center">
+                <p className="text-lg font-semibold text-navy-800">
+                  Almost there
+                </p>
+                <p className="mt-2 text-[14px] leading-relaxed text-slate-600">
+                  The app is running, but it has not been connected to its
+                  database yet, so there is nobody to log in as.
+                </p>
+                <p className="mt-3 rounded-lg bg-slate-50 p-3 text-left text-[13px] leading-relaxed text-slate-600">
+                  Add <span className="font-mono text-[12px]">NEXT_PUBLIC_SUPABASE_URL</span> and{' '}
+                  <span className="font-mono text-[12px]">NEXT_PUBLIC_SUPABASE_ANON_KEY</span> in your
+                  hosting settings, then deploy again.
+                </p>
+                <Link
+                  href="/demo"
+                  className="mt-4 flex h-12 w-full items-center justify-center rounded-lg bg-brandgreen-600 font-semibold text-white"
+                >
+                  See the sample home instead
+                </Link>
+                <p className="mt-2 text-[12px] text-slate-500">
+                  The demo needs no database — it works right now.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
