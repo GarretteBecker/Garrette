@@ -16,6 +16,9 @@ npm run dev
 Full setup, including creating the Supabase project and running the database
 scripts: **[docs/supabase-setup.md](docs/supabase-setup.md)**
 
+In a hurry? Paste **`supabase/SETUP-EVERYTHING.sql`** into the Supabase SQL
+editor — it builds the whole database in one go.
+
 ## Demo logins
 
 After running `supabase/seed.sql`:

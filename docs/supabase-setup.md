@@ -1,5 +1,10 @@
 # Connecting your Supabase account — step by step
 
+> ⚠️ **This file is instructions, not code.** Do not paste this page into
+> the SQL editor — it is written in Markdown and Supabase will answer with
+> `syntax error at or near "#"`. The SQL you actually run lives in
+> `supabase/SETUP-EVERYTHING.sql`. Step 3 below tells you what to do.
+
 Plain English, no assumptions. Total time: about 20 minutes, most of it waiting.
 
 **What Supabase is, in one sentence:** it's the filing cabinet and the lock on
@@ -30,28 +35,46 @@ You do this once. After that it just runs.
 5. Click **Create new project**.
 6. Go get a coffee. It takes 2–3 minutes to build.
 
-## Step 3 — Run the database setup scripts
+## Step 3 — Build the database
 
-This is where the tables, the security rules, and the demo home get created.
+This is where the tables, the security rules and the demo home get created.
 
-In the Supabase dashboard, click **SQL Editor** in the left sidebar, then
-**New query**. You're going to paste in five files, **in this exact order**,
-running each one before moving to the next.
+### The easy way — one file, one paste
 
-For each file: open it from this repo, select all, copy, paste into the SQL
-editor, click **Run**. You want to see "Success. No rows returned" each time.
+1. In the Supabase dashboard, click **SQL Editor** in the left sidebar, then
+   **New query**.
+2. Open **`supabase/SETUP-EVERYTHING.sql`** from this repository.
+   On GitHub, click the **Copy raw file** button (the two-squares icon at the
+   top right of the file).
+3. Paste it into the SQL editor and click **Run**.
+
+It takes a few seconds. You want to see **"Success. No rows returned."**
+
+You may also see a grey note saying `extension "pgcrypto" already exists,
+skipping`. That is not an error — Supabase already has it installed, which
+is exactly what we want.
+
+> **Run this once, on a fresh project.** Running it a second time will
+> complain that the tables already exist. If you need to start over, create a
+> new Supabase project rather than re-running it.
+
+### The careful way — one file at a time
+
+If you would rather run them separately (easier to see where a problem is),
+run these in this exact order, each on its own. The files are in
+`supabase/migrations/`, except the last one.
 
 | Order | File | What it does |
 |-------|------|--------------|
-| 1 | `supabase/migrations/0001_schema.sql` | Creates every table — properties, assets, findings, visits, all of it |
-| 2 | `supabase/migrations/0002_rls.sql` | The security rules. **This is the important one** — it's what stops one member seeing another's house |
-| 3 | `supabase/migrations/0003_storage.sql` | Creates the two private buckets for photos and documents |
-| 4 | `supabase/migrations/0004_report_release.sql` | Adds the draft/release step so you review a report before the member sees it |
-| 5 | `supabase/migrations/0005_photo_capture.sql` | Photo notes, photo types, and data-plate scan results |
-| 6 | `supabase/migrations/0006_service_requests.sql` | Request categories, media, and the completion write-back |
-| 7 | `supabase/migrations/0007_security_hardening.sql` | **Security fixes — do not skip.** See `SECURITY-REVIEW.md` |
-| 8 | `supabase/migrations/0008_member_approval.sql` | Lets a member approve or decline an estimate |
-| 9 | `supabase/seed.sql` | Loads the Miller Home demo and creates three test logins |
+| 1 | `0001_schema.sql` | Creates every table — properties, assets, findings, visits, all of it |
+| 2 | `0002_rls.sql` | The security rules. **This is the important one** — it's what stops one member seeing another's house |
+| 3 | `0003_storage.sql` | Creates the two private buckets for photos and documents |
+| 4 | `0004_report_release.sql` | Adds the draft/release step so you review a report before the member sees it |
+| 5 | `0005_photo_capture.sql` | Photo notes, photo types, and data-plate scan results |
+| 6 | `0006_service_requests.sql` | Request categories, media, and the completion write-back |
+| 7 | `0007_security_hardening.sql` | **Security fixes — do not skip.** See `SECURITY-REVIEW.md` |
+| 8 | `0008_member_approval.sql` | Lets a member approve or decline an estimate |
+| 9 | `../seed.sql` | Loads the Miller Home demo and creates three test logins |
 
 > **If a script errors:** stop. Don't run the next one. The most common cause
 > is running them out of order, or running the same one twice. Tell me what
