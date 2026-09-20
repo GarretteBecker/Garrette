@@ -74,6 +74,19 @@ export const FINDING_STATUS_STYLES: Record<FindingStatus, StatusStyle> = {
   },
 };
 
+/**
+ * The same five colors as raw hex, for the places a Tailwind class will not
+ * do: inline styles, print stylesheets, and small colored label text.
+ * All five clear WCAG AA against white (checked: 5.02:1 at worst).
+ */
+export const FINDING_STATUS_HEX: Record<FindingStatus, string> = {
+  GOOD: '#2E5E3A',
+  MONITOR: '#1d4ed8',
+  PLAN: '#b45309',
+  ACTION: '#b91c1c',
+  IMPROVEMENT: '#6d28d9',
+};
+
 /** Stage order, and the display labels with spaces instead of underscores. */
 export const SERVICE_REQUEST_STAGES: ServiceRequestStage[] = [
   'NEW',

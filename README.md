@@ -35,14 +35,16 @@ app/
   login/              Sign in
   admin/              Office: properties, Home Record, trade partners, reports
   field/              Technician: today's visits, checklist, finding capture
-  home/               Member portal
+  home/               Homeowner portal: dashboard, record, plan, reports, docs
+  demo/               The same portal on fixture data — no login, for sales
   reports/[id]/       The branded report (screen + print)
 components/
-  admin/  field/  reports/
+  admin/  field/  member/  reports/
 lib/
   supabase/           Browser, server and proxy clients — anon key only
   offline/            IndexedDB outbox + sync engine for the field app
   actions/            Server actions
+  member/             Portal view model, loader, and demo fixture data
   checklist-templates.ts   Q1–Q4 seasonal checklists  ⚠ see ASSUMPTIONS
   types/              Schema types, status colors
 supabase/
@@ -52,6 +54,17 @@ docs/
   supabase-setup.md   Step-by-step connection guide
   ASSUMPTIONS.md      Everything invented in the spec's absence ⚠ review this
 ```
+
+## Showing it to a prospect
+
+`/demo` renders the homeowner portal from fixture data — no login, no
+database, nothing real. It uses the same components the live portal uses, so
+it cannot drift from what a member actually sees. Every screen is marked
+"Sample home".
+
+To remove it: delete `app/demo/`, `lib/member/demo-data.ts`,
+`components/member/demo-banner.tsx`, and the `'/demo'` entry in
+`PUBLIC_PATHS` in `lib/supabase/proxy.ts`.
 
 ## Security model
 

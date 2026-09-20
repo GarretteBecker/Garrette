@@ -1,22 +1,22 @@
 import { requireRole } from '@/lib/auth';
 import { loadPortalData } from '@/lib/member/load';
 import PortalShell from '@/components/member/shell';
-import MemberDashboard from '@/components/member/dashboard';
+import HomeRecord from '@/components/member/home-record';
 import NoHomeLinked from '@/components/member/no-home-linked';
 
-export default async function MemberDashboardPage() {
+export default async function HomeRecordPage() {
   const profile = await requireRole('member');
   const data = await loadPortalData(profile.full_name);
 
-  if (!data) return <NoHomeLinked active="dashboard" />;
+  if (!data) return <NoHomeLinked active="record" />;
 
   return (
     <PortalShell
-      active="dashboard"
-      title={data.property.name}
-      subtitle={`${data.property.address_line1}, ${data.property.city}`}
+      active="record"
+      title="My Home Record"
+      subtitle="Everything we track in your home"
     >
-      <MemberDashboard data={data} />
+      <HomeRecord assets={data.assets} rooms={data.rooms} photos={data.photos} />
     </PortalShell>
   );
 }

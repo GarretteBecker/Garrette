@@ -63,6 +63,29 @@ First working build. Four phases, in the order they were asked for.
 - Admin review queue at `/admin/reports`
 - Print-ready at US Letter with brand colors preserved
 
+### Phase 5 — Homeowner portal
+
+- Mobile-first portal with a five-tab bottom bar: Home, Record, Plan,
+  Reports, Docs
+- **Dashboard** — a plain-English verdict on the home ("2 things need
+  attention"), a status count row, the next scheduled visit, the top open
+  recommendations with cost ranges and a running total, and a merged
+  recent-activity timeline
+- **My Home Record** — browse by room or by system, searchable across name,
+  brand, model and serial; tap any item for a detail sheet with photos,
+  warranty state, full specs, and an expected-service-life meter
+- **Home Plan** — grouped Action / Plan / Monitor / Improvement, each item
+  showing the recommendation, cost range and planned timing, under a total
+  planned-investment figure
+- **Reports** — every released report, opening into the branded report page
+- **Documents** — manuals, warranties and permits grouped by type, opened
+  through short-lived signed URLs
+- **`/demo`** — the same portal components rendered from fixture data
+  (`lib/member/demo-data.ts`) with no login and no database, for showing the
+  product to a prospect. Clearly marked "Sample home" on every screen.
+- Brand status colors verified against WCAG AA (worst case 5.02:1); portal
+  rendered and reviewed at iPhone viewport
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
@@ -72,3 +95,5 @@ First working build. Four phases, in the order they were asked for.
 - Service request stages are stored and displayed but nothing advances them
 - GoHighLevel integration not started (later phase, per the brief)
 - No automated tests yet
+- The portal reads data but does not yet write: submitting a service request
+  from the member side is still to come

@@ -2,7 +2,15 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /** Public routes that never require a session. */
-const PUBLIC_PATHS = ['/login', '/auth', '/manifest.webmanifest', '/icon.svg'];
+const PUBLIC_PATHS = [
+  '/login',
+  '/auth',
+  '/manifest.webmanifest',
+  '/icon.svg',
+  // The no-login sales demo. Renders fixture data only (lib/member/demo-data.ts)
+  // and never touches the database, so there is nothing here to leak.
+  '/demo',
+];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));

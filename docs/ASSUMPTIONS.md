@@ -102,6 +102,20 @@ contained piece of work and the report page is already built to be its input.
 I didn't do it because you'd be paying for it in every deploy, and I'd rather
 you decide that.
 
+## 8. Homeowner portal wording
+
+All the plain-English copy a member reads is invented: the status verdicts
+("2 things need attention", "Your home is in good shape"), the one-line
+meaning under each status label, and the framing on the Home Plan
+("Estimates only — nothing is committed until you approve it"). This is
+sales-facing language in your voice, so read it as copy you are signing off
+on, not as neutral UI text.
+
+The dashboard's verdict rule is also a guess: any open ACTION → "needs
+attention"; otherwise any open PLAN → "in good shape, items to budget for";
+otherwise "nothing needs your attention". Easy to change in
+`computeHomeStatus` in `lib/member/portal.ts`.
+
 ---
 
 ## What I'd most like corrected
@@ -110,3 +124,4 @@ you decide that.
 2. **The permission table** — especially "techs can't delete"
 3. **Whether the report sections are in the order you'd present them** to a
    homeowner sitting at their kitchen table
+4. **The portal's plain-English copy** (§8) — it is your sales voice, not mine
