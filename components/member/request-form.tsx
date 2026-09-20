@@ -6,6 +6,8 @@ import { useFormStatus } from 'react-dom';
 import { createClient } from '@/lib/supabase/client';
 import { compressImage, formatBytes } from '@/lib/media/compress';
 import { createServiceRequest, type RequestActionState } from '@/lib/actions/service-requests';
+import { enqueue } from '@/lib/offline/outbox';
+import { syncNow } from '@/lib/offline/sync';
 import { REQUEST_CATEGORIES, URGENCY_OPTIONS } from '@/lib/service-requests';
 import { Field, inputClass, textareaClass } from '@/components/ui';
 import type { Asset, Room, PriorityLevel } from '@/lib/types/database';
@@ -45,6 +47,7 @@ export default function RequestForm({
   const [picked, setPicked] = useState<Picked[]>([]);
   const [uploadNote, setUploadNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [queued, setQueued] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Items in the chosen room first — that is how a homeowner thinks.
@@ -54,6 +57,49 @@ export default function RequestForm({
 
   const [state, formAction] = useActionState<RequestActionState, FormData>(
     async (prev, fd) => {
+      // No signal: queue the whole submission — the request row first, then
+      // its media — and let the outbox drain it in order when signal returns.
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        const requestId = crypto.randomUUID();
+        await enqueue({
+          localId: requestId,
+          kind: 'request.create',
+          propertyId,
+          payload: {
+            title: String(fd.get('title') ?? '').trim(),
+            description: String(fd.get('description') ?? '').trim(),
+            category: String(fd.get('category') ?? '') || null,
+            room_id: String(fd.get('room_id') ?? '') || null,
+            asset_id: String(fd.get('asset_id') ?? '') || null,
+            priority: String(fd.get('priority') ?? 'MEDIUM'),
+          },
+        });
+
+        for (const item of picked) {
+          const compressed = item.isVideo ? null : await compressImage(item.file);
+          await enqueue({
+            localId: crypto.randomUUID(),
+            kind: 'photo.upload',
+            propertyId,
+            pathPrefix: `requests/${requestId}`,
+            payload: {
+              service_request_id: requestId,
+              kind: 'GENERAL',
+              mime_type: item.isVideo ? item.file.type : 'image/jpeg',
+            },
+            photo: {
+              blob: compressed?.blob ?? item.file,
+              width: compressed?.width ?? 0,
+              height: compressed?.height ?? 0,
+            },
+          });
+        }
+
+        void syncNow();
+        setQueued(true);
+        return { ok: true };
+      }
+
       const result = await createServiceRequest(prev, fd);
       if (!result.requestId) return result;
 
@@ -124,6 +170,28 @@ export default function RequestForm({
     }
     setPicked((prev) => [...prev, ...next].slice(0, 6));
     if (fileRef.current) fileRef.current.value = '';
+  }
+
+  if (queued) {
+    return (
+      <div className="rounded-2xl bg-amber-50 p-5 text-center ring-1 ring-amber-600/20">
+        <p className="text-lg font-semibold text-amber-900">Saved on your phone</p>
+        <p className="mt-2 text-[14px] leading-relaxed text-amber-900/80">
+          You are offline right now. This will send itself to B&amp;M as soon
+          as you have a signal — you do not need to do anything.
+        </p>
+        <p className="mt-3 text-[13px] font-medium text-amber-900">
+          If it is an emergency, call us instead of waiting.
+        </p>
+        <button
+          type="button"
+          onClick={() => router.push('/home/requests')}
+          className="mt-4 h-12 w-full rounded-lg bg-white font-semibold text-navy-700 ring-1 ring-slate-300"
+        >
+          Back to my requests
+        </button>
+      </div>
+    );
   }
 
   return (

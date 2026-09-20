@@ -19,12 +19,44 @@ import { buildEvent, type GhlContact, type GhlEvent, type GhlEventType } from '.
 
 const TIMEOUT_MS = 8000;
 
-export function ghlConfigured(): boolean {
-  return Boolean(process.env.GHL_WEBHOOK_URL);
+/**
+ * Which URL each event goes to.
+ *
+ * Set a per-event URL and that event gets its own GHL workflow — usually
+ * cleaner, because each workflow then has one trigger and one message rather
+ * than a branch at the top. Set only GHL_WEBHOOK_URL and everything goes to
+ * one workflow that branches on the `event` field. Mixing the two is fine:
+ * per-event wins, the generic one is the fallback.
+ *
+ * Read statically rather than by computed key so the values are inlined at
+ * build time.
+ */
+function urlFor(event: GhlEventType): string | undefined {
+  const specific =
+    event === 'report.released'
+      ? process.env.GHL_WEBHOOK_URL_REPORT_RELEASED
+      : event === 'service_request.stage_changed'
+        ? process.env.GHL_WEBHOOK_URL_REQUEST_STAGE
+        : event === 'visit.scheduled'
+          ? process.env.GHL_WEBHOOK_URL_VISIT_SCHEDULED
+          : undefined;
+
+  return specific || process.env.GHL_WEBHOOK_URL;
+}
+
+/** True when at least one webhook URL is configured. */
+export function ghlConfigured(event?: GhlEventType): boolean {
+  if (event) return Boolean(urlFor(event));
+  return Boolean(
+    process.env.GHL_WEBHOOK_URL ||
+      process.env.GHL_WEBHOOK_URL_REPORT_RELEASED ||
+      process.env.GHL_WEBHOOK_URL_REQUEST_STAGE ||
+      process.env.GHL_WEBHOOK_URL_VISIT_SCHEDULED,
+  );
 }
 
 async function post(payload: GhlEvent): Promise<void> {
-  const url = process.env.GHL_WEBHOOK_URL;
+  const url = urlFor(payload.event);
   if (!url) return;
 
   const controller = new AbortController();
@@ -57,7 +89,7 @@ async function post(payload: GhlEvent): Promise<void> {
 
 /** Queue an event to send once the current response has gone out. */
 export function sendGhlEvent(payload: GhlEvent): void {
-  if (!ghlConfigured()) return;
+  if (!ghlConfigured(payload.event)) return;
   after(() => post(payload));
 }
 
@@ -110,7 +142,7 @@ export async function notify(
   propertyId: string,
   data: Record<string, string | number | null>,
 ): Promise<void> {
-  if (!ghlConfigured()) return;
+  if (!ghlConfigured(event)) return;
   try {
     const ctx = await loadEventContext(propertyId);
     if (!ctx) return;

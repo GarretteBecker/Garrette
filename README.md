@@ -99,6 +99,12 @@ Three rules the implementation holds to:
 `docs/deploy-vercel.md` walks through GitHub, Vercel, a custom domain, and
 installing it on a phone. `docs/gohighlevel.md` covers the GHL webhooks.
 
+## Security
+
+`SECURITY-REVIEW.md` records a full audit: what was tested, what was not, the
+findings (one critical, fixed), and twelve items to verify before real
+customer data. **Start with disabling public signup in Supabase.**
+
 ## Security model
 
 Every table has Row Level Security on, forced, deny-by-default. A member can

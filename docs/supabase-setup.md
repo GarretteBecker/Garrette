@@ -48,7 +48,10 @@ editor, click **Run**. You want to see "Success. No rows returned" each time.
 | 3 | `supabase/migrations/0003_storage.sql` | Creates the two private buckets for photos and documents |
 | 4 | `supabase/migrations/0004_report_release.sql` | Adds the draft/release step so you review a report before the member sees it |
 | 5 | `supabase/migrations/0005_photo_capture.sql` | Photo notes, photo types, and data-plate scan results |
-| 6 | `supabase/seed.sql` | Loads the Miller Home demo and creates three test logins |
+| 6 | `supabase/migrations/0006_service_requests.sql` | Request categories, media, and the completion write-back |
+| 7 | `supabase/migrations/0007_security_hardening.sql` | **Security fixes — do not skip.** See `SECURITY-REVIEW.md` |
+| 8 | `supabase/migrations/0008_member_approval.sql` | Lets a member approve or decline an estimate |
+| 9 | `supabase/seed.sql` | Loads the Miller Home demo and creates three test logins |
 
 > **If a script errors:** stop. Don't run the next one. The most common cause
 > is running them out of order, or running the same one twice. Tell me what
@@ -129,6 +132,10 @@ working.
 > **These are demo accounts with a password that's published in this repo.**
 > Before you put a single real customer in this system, delete all three in
 > **Authentication → Users** and create real accounts.
+>
+> **Also turn off public signup** before real data: **Authentication →
+> Providers → Email**, disable signups or require email confirmation. This is
+> the configuration half of the critical finding in `SECURITY-REVIEW.md`.
 
 ---
 

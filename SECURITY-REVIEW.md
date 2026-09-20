@@ -126,7 +126,17 @@ photo, report, tech assignment, and storage objects in both buckets.
 
 Then, as the Miller member, every one of those tables was queried.
 
-**Result: 0 rows from the other property, on every table, including storage.**
+**Result: 0 rows from the other property, on every table, including storage** —
+while the member still correctly saw their own 36 assets, 14 rooms, 12
+findings, 2 reports and 2 storage objects. A test that returns zero because
+there was nothing to find proves nothing, so the fixture was counted before
+each run to confirm every victim row actually existed.
+
+> One re-run during this review *was* vacuous: the fixture aborted on a
+> foreign-key error and the zeros were meaningless. It was caught by checking
+> the fixture counts, fixed, and re-run. Worth knowing if you repeat this
+> work: **always assert the attack has something to steal before believing it
+> failed.**
 
 | Table | Victim rows visible |
 |---|---|
@@ -136,6 +146,26 @@ Then, as the Miller member, every one of those tables was queried.
 | service_requests, service_request_events | 0 |
 | trade_partners, property_techs | 0 (not visible at all to members) |
 | storage.objects (both buckets) | 0 |
+
+Re-verified after every fix, against a fixture confirmed complete.
+
+### The member approval route (added after the audit)
+
+Members remain read-only on `service_requests`; the staff update policy is
+still the only one. Approving an estimate goes through a single
+`SECURITY DEFINER` function that re-checks every precondition internally:
+
+| Attempt | Result |
+|---|---|
+| Member approves their own request at AWAITING APPROVAL | Allowed |
+| Member declines it (returns to TRIAGE, reason logged) | Allowed |
+| Same request at any other stage | Rejected |
+| A request on another property | Rejected |
+| Anonymous caller | Rejected |
+| A tech using the member route | Rejected |
+
+Both outcomes write an audited stage event. The function cannot be used to
+reach any stage other than APPROVED or TRIAGE.
 
 ### Every RLS policy
 

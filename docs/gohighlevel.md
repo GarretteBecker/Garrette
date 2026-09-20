@@ -161,12 +161,25 @@ would say it out loud.
 
 ## One workflow or three?
 
-Either works.
+Both work — pick whichever you find easier to maintain.
 
-- **Three workflows, three URLs** — cleaner, but you would need three
-  environment variables and HomeKeeper only reads one. Not supported today.
-- **One workflow, branch inside it** — what to do now. Add an **If/Else** on
-  the `event` field at the top and branch into three paths.
+**Three workflows (recommended).** Build a separate workflow per event, each
+with its own Inbound Webhook trigger, and set one variable per URL:
+
+```
+GHL_WEBHOOK_URL_REPORT_RELEASED=https://services.leadconnectorhq.com/hooks/...
+GHL_WEBHOOK_URL_REQUEST_STAGE=https://services.leadconnectorhq.com/hooks/...
+GHL_WEBHOOK_URL_VISIT_SCHEDULED=https://services.leadconnectorhq.com/hooks/...
+```
+
+Each workflow then has one trigger and one message, with no branching.
+
+**One workflow.** Set only `GHL_WEBHOOK_URL` and every event goes there; add
+an **If/Else** on the `event` field at the top and branch into three paths.
+
+**Mixing is fine.** A per-event URL wins where it is set, and
+`GHL_WEBHOOK_URL` catches everything else — so you can split one event out
+without touching the others.
 
 ---
 

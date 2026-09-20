@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import PortalShell from '@/components/member/shell';
+import SyncBanner from '@/components/field/sync-banner';
 import { StageChip } from '@/components/member/request-status';
 import { urgencyLabel } from '@/lib/service-requests';
 import { formatDate } from '@/components/ui';
@@ -22,6 +23,9 @@ export default async function MemberRequestsPage() {
 
   return (
     <PortalShell active="dashboard" title="Service requests" subtitle="What you have asked us to look at">
+      <div className="-mx-5 -mt-5 mb-5">
+        <SyncBanner />
+      </div>
       <Link
         href="/home/requests/new"
         className="mb-6 flex h-14 w-full items-center justify-center gap-2.5 rounded-xl bg-brandgreen-600 text-base font-bold text-white active:scale-[0.99]"

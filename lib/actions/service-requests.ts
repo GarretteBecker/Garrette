@@ -340,3 +340,48 @@ export async function completeRequest(
   revalidatePath('/home/requests');
   return { ok: true };
 }
+
+// ------------------------------------------------- member approval
+
+/**
+ * A member approving or declining the estimate on their own request.
+ *
+ * Goes through member_respond_to_estimate, which re-checks inside the
+ * database that the caller is a member of that property and that the request
+ * really is at AWAITING APPROVAL. Members stay read-only on the table itself.
+ */
+export async function respondToEstimate(
+  _prev: RequestActionState,
+  formData: FormData,
+): Promise<RequestActionState> {
+  const requestId = String(formData.get('request_id'));
+  const approve = String(formData.get('approve')) === 'true';
+  const note = text(formData, 'note');
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('member_respond_to_estimate', {
+    target_request_id: requestId,
+    p_approve: approve,
+    p_note: note,
+  });
+
+  if (error) return { error: error.message };
+
+  const { data: req } = await supabase
+    .from('service_requests')
+    .select('property_id, title, stage')
+    .eq('id', requestId)
+    .maybeSingle();
+
+  if (req) {
+    await notifyStage(req.property_id, requestId, req.title, 'AWAITING_APPROVAL', req.stage, {
+      member_decision: approve ? 'approved' : 'declined',
+      member_note: note,
+    });
+  }
+
+  revalidatePath(`/home/requests/${requestId}`);
+  revalidatePath('/home/requests');
+  revalidatePath('/admin/requests');
+  return { ok: true };
+}

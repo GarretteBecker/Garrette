@@ -4,7 +4,8 @@ import { requireRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import PortalShell from '@/components/member/shell';
 import RequestStatus, { type StatusEvent } from '@/components/member/request-status';
-import { formatDate, formatMoneyRange } from '@/components/ui';
+import EstimateResponse from '@/components/member/estimate-response';
+import { formatDate } from '@/components/ui';
 import type { ServiceRequest, Asset, Room } from '@/lib/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -81,19 +82,8 @@ export default async function MemberRequestDetailPage({
         events={(events ?? []) as StatusEvent[]}
       />
 
-      {r.estimate_amount != null && r.stage === 'AWAITING_APPROVAL' ? (
-        <div className="mb-5 rounded-2xl bg-amber-50 p-4 ring-1 ring-amber-600/20">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-800">
-            Your approval needed
-          </p>
-          <p className="mt-1 text-2xl font-semibold text-navy-800">
-            {formatMoneyRange(r.estimate_amount, null)}
-          </p>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-amber-900/80">
-            Give us a call or reply to our message to approve. Nothing is
-            booked until you do.
-          </p>
-        </div>
+      {r.stage === 'AWAITING_APPROVAL' ? (
+        <EstimateResponse requestId={r.id} amount={r.estimate_amount} />
       ) : null}
 
       {r.scheduled_for ? (

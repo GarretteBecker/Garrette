@@ -152,6 +152,38 @@ First working build. Four phases, in the order they were asked for.
 - `docs/deploy-vercel.md` — GitHub, Vercel, custom domain, phone install
 - `docs/gohighlevel.md` — webhook setup, payloads, and the API key
 
+### Phase 8 — Security review and gap fixes
+
+**Security review** (`SECURITY-REVIEW.md`) — schema built on PostgreSQL 16
+and attacked as each role.
+
+- **CRITICAL, fixed:** privilege escalation through signup metadata. Anyone
+  with the public anon key could sign up with `options.data.role='admin'`
+  and read every property. Verified exploitable, then fixed: new users are
+  always created as `member`.
+- **Medium, fixed:** a member could forge stage, estimate and dispatch fields
+  on a request they submitted.
+- **Medium, fixed:** two functions did not pin `search_path`.
+- **Bug, fixed:** member-raised requests had no history, because the app tried
+  to write the opening event as the member and RLS silently refused. A trigger
+  writes it now.
+- **Low, fixed:** seeded reports stayed DRAFT, so the demo member saw none.
+- Verified after fixes: zero cross-property rows on all 16 tables and both
+  storage buckets, against a fixture confirmed to actually contain them.
+
+**Gaps closed**
+
+- **Members can approve or decline an estimate** from their phone. Members
+  stay read-only on the table; it goes through one narrow SECURITY DEFINER
+  function that re-checks the caller, the property and the stage. Tested from
+  six angles including a tech trying to use the member route.
+- **Member submissions now queue offline**, like tech capture. With no signal
+  the request and its photos go to the outbox and send themselves later;
+  the member sees "Saved on your phone" rather than an error.
+- **A GHL workflow per event.** Set `GHL_WEBHOOK_URL_REPORT_RELEASED`,
+  `_REQUEST_STAGE` or `_VISIT_SCHEDULED` for a dedicated workflow;
+  `GHL_WEBHOOK_URL` remains the fallback, and mixing the two works.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
@@ -170,8 +202,5 @@ First working build. Four phases, in the order they were asked for.
   client could still loop)
 - **The GHL webhook has never been fired at a real GHL account** — no
   credentials here. See `docs/ASSUMPTIONS.md` §10.
-- Member approval of an estimate is by phone or text; there is no Approve
-  button in the portal yet
-- One GHL webhook URL, so one workflow with branching rather than three
-- Request media uploads are not queued for offline the way field capture is:
-  a member submitting with no signal gets an upload error
+- Reads are not audited anywhere; writes are. See `SECURITY-REVIEW.md` item 12
+- No rate limiting on the scan endpoint or member media upload

@@ -18,7 +18,8 @@ export type OutboxKind =
   | 'asset.upsert'
   | 'visit.complete'
   | 'photo.upload'
-  | 'photo.link';
+  | 'photo.link'
+  | 'request.create';
 
 export interface OutboxOp {
   /** Client-generated id, also used as the row id so retries are idempotent. */
@@ -30,6 +31,12 @@ export interface OutboxOp {
   photo?: { blob: Blob; width: number; height: number };
   /** photo.upload only: run a data-plate scan once the upload lands. */
   wantScan?: boolean;
+  /**
+   * photo.upload only: the folder under the property id. Staff capture goes
+   * to 'captures'; member request media MUST go to 'requests', because the
+   * storage policy only lets a member write under that prefix.
+   */
+  pathPrefix?: string;
   propertyId: string;
   createdAt: number;
   attempts: number;

@@ -116,7 +116,7 @@ async function applyOp(supabase: SupabaseClient, op: OutboxOp): Promise<void> {
     case 'photo.upload': {
       if (!op.photo) return;
 
-      const path = `${op.propertyId}/captures/${op.localId}.jpg`;
+      const path = `${op.propertyId}/${op.pathPrefix ?? 'captures'}/${op.localId}.jpg`;
       const { error: uploadError } = await supabase.storage
         .from('property-photos')
         .upload(path, op.photo.blob, { contentType: 'image/jpeg', upsert: true });
@@ -148,6 +148,16 @@ async function applyOp(supabase: SupabaseClient, op: OutboxOp): Promise<void> {
           // Left as PENDING/FAILED on the row; the tech can retry from the UI.
         }
       }
+      return;
+    }
+
+    case 'request.create': {
+      // Queued before any photo.upload that references it, and the outbox
+      // drains in order, so the row exists before its media arrives.
+      const { error } = await supabase
+        .from('service_requests')
+        .upsert({ id: op.localId, property_id: op.propertyId, ...op.payload });
+      if (error) throw new Error(error.message);
       return;
     }
 
