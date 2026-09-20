@@ -184,6 +184,21 @@ and attacked as each role.
   `_REQUEST_STAGE` or `_VISIT_SCHEDULED` for a dedicated workflow;
   `GHL_WEBHOOK_URL` remains the fallback, and mixing the two works.
 
+### Phase 10 — Files on a report
+
+- The office can **attach files to a quarterly review or any other report**:
+  a trade partner's service sheet, an inspection certificate, a write-up
+  done elsewhere. Upload from the report page itself.
+- Attachments appear as a section in the report, and are listed when it
+  prints.
+- **A file on a draft report stays hidden from the member.** Documents are
+  property-scoped, so without a policy change an attachment would have shown
+  up in the member's Documents list the moment it was uploaded — before
+  anyone reviewed the report it belongs to. The documents read policy now
+  hides report attachments until that report is released. Tested: a member
+  sees 0 draft attachments, the released one, and their ordinary documents;
+  an admin sees all.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

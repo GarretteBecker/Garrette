@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { FINDING_STATUSES, FINDING_STATUS_STYLES } from '@/lib/types/finding-status';
 import { formatDate, formatMoneyRange } from '@/components/ui';
 import PrintButton from '@/components/reports/print-button';
+import ReportAttachments, { type ReportFile } from '@/components/admin/report-attachments';
 import type {
   Report, Property, Finding, PlanItem, Visit, ChecklistItem, Asset, Member,
 } from '@/lib/types/database';
@@ -101,6 +102,22 @@ export default async function ReportPage({
         photoUrls.set(row.finding_id, list);
       }
     }
+  }
+
+  // Files the office attached to this report. RLS hides these from a member
+  // until the report is released (migration 0009).
+  const { data: attachmentRows } = await supabase
+    .from('documents')
+    .select('id, title, doc_type, storage_path, size_bytes, created_at')
+    .eq('report_id', id)
+    .order('created_at');
+
+  const attachments: (ReportFile & { url: string | null })[] = [];
+  for (const row of (attachmentRows ?? []) as ReportFile[]) {
+    const { data: signed } = await supabase.storage
+      .from('property-docs')
+      .createSignedUrl(row.storage_path, 3600);
+    attachments.push({ ...row, url: signed?.signedUrl ?? null });
   }
 
   const counts = FINDING_STATUSES.map((s) => ({
@@ -457,6 +474,13 @@ export default async function ReportPage({
               </div>
             </Section>
           ) : null}
+          <ReportAttachments
+            propertyId={r.property_id}
+            reportId={r.id}
+            files={attachments}
+            canEdit={isStaff}
+            released={r.status === 'RELEASED'}
+          />
         </div>
 
         {/* ---------------------------------------------- footer */}

@@ -74,7 +74,8 @@ run these in this exact order, each on its own. The files are in
 | 6 | `0006_service_requests.sql` | Request categories, media, and the completion write-back |
 | 7 | `0007_security_hardening.sql` | **Security fixes — do not skip.** See `SECURITY-REVIEW.md` |
 | 8 | `0008_member_approval.sql` | Lets a member approve or decline an estimate |
-| 9 | `../seed.sql` | Loads the Miller Home demo and creates three test logins |
+| 9 | `0009_report_attachments.sql` | Lets the office attach files to a report |
+| 10 | `../seed.sql` | Loads the Miller Home demo and creates three test logins |
 
 > **If a script errors:** stop. Don't run the next one. The most common cause
 > is running them out of order, or running the same one twice. Tell me what

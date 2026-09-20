@@ -223,6 +223,8 @@ export interface HkDocument {
   id: string;
   property_id: string;
   asset_id: string | null;
+  /** 0009 — set when the file belongs with a particular report. */
+  report_id: string | null;
   title: string;
   doc_type: DocumentType;
   storage_path: string;
