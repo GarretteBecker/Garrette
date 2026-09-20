@@ -43,6 +43,13 @@ export default async function AdminRequestsPage({
   const countFor = (s: ServiceRequestStage) => rows.filter((r) => r.stage === s).length;
   const needsAction = rows.filter((r) => r.stage === 'NEW' || r.stage === 'TRIAGE').length;
 
+  // The member has said go and is now waiting on us for a date. This is the
+  // one stage where the ball came back to B&M without anyone here doing
+  // anything, so nothing would otherwise draw the eye to it.
+  const approved = rows
+    .filter((r) => r.stage === 'APPROVED')
+    .sort((a, b) => (b.approved_at ?? '').localeCompare(a.approved_at ?? ''));
+
   // Group what is on screen by stage, in pipeline order.
   const grouped = STAGE_ORDER.map((s) => ({
     stage: s,
@@ -85,6 +92,32 @@ export default async function AdminRequestsPage({
       </nav>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5">
+        {approved.length > 0 && !stageFilter ? (
+          <div className="mb-4 rounded-xl bg-brandgreen-50 px-4 py-3.5 ring-1 ring-brandgreen-600/25">
+            <p className="text-sm font-semibold text-brandgreen-800">
+              {approved.length === 1
+                ? 'A member has approved work — it needs a date.'
+                : `${approved.length} approved jobs need a date.`}
+            </p>
+            <ul className="mt-2 space-y-1.5">
+              {approved.map((r) => (
+                <li key={r.id}>
+                  <Link
+                    href={`/admin/requests/${r.id}`}
+                    className="flex items-baseline gap-2 text-[13px] text-navy-800 underline-offset-2 hover:underline"
+                  >
+                    <span className="font-semibold">{r.title}</span>
+                    <span className="text-slate-500">
+                      {propertyName.get(r.property_id) ?? 'Property'}
+                      {r.approved_at ? ` · approved ${formatDate(r.approved_at)}` : ''}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
         {needsAction > 0 && !stageFilter ? (
           <p className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900 ring-1 ring-amber-600/20">
             {needsAction} request{needsAction === 1 ? '' : 's'} waiting to be triaged.
@@ -131,6 +164,11 @@ export default async function AdminRequestsPage({
                               {formatDate(r.created_at)} · {urgencyLabel(r.priority)}
                               {r.trade_partner_id ? ` · ${partnerName.get(r.trade_partner_id) ?? 'Trade'}` : ''}
                             </p>
+                            {r.stage === 'APPROVED' ? (
+                              <p className="mt-2 inline-block rounded bg-brandgreen-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                                Approved{r.approved_at ? ` ${formatDate(r.approved_at)}` : ''} · needs a date
+                              </p>
+                            ) : null}
                           </Card>
                         </Link>
                       </li>

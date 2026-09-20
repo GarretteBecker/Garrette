@@ -7,6 +7,7 @@ import { Card, Field, inputClass, formatDate, formatMoneyRange } from '@/compone
 import { STAGE_META, TONE_STYLE, nextStages, urgencyLabel, REQUEST_CATEGORIES, URGENCY_OPTIONS } from '@/lib/service-requests';
 import { moveStage, triageRequest, assignTradePartner, setEstimate, scheduleRequest } from '@/lib/actions/service-requests';
 import CompletionForm from '@/components/admin/completion-form';
+import JobPhotos, { type JobPhoto } from '@/components/admin/job-photos';
 import type { ServiceRequest, Asset, Room, TradePartner, ServiceRequestStage } from '@/lib/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -38,7 +39,7 @@ export default async function AdminRequestDetailPage({
         .select('id, from_stage, to_stage, note, created_at')
         .eq('service_request_id', id)
         .order('created_at', { ascending: false }),
-      supabase.from('photos').select('id, storage_path, mime_type').eq('service_request_id', id),
+      supabase.from('photos').select('id, storage_path, mime_type, kind, note').eq('service_request_id', id).order('created_at'),
       supabase.from('properties').select('name, address_line1, city').eq('id', r.property_id).maybeSingle(),
     ]);
 
@@ -48,13 +49,25 @@ export default async function AdminRequestDetailPage({
   const linkedAsset = assetRows.find((a) => a.id === r.asset_id) ?? null;
   const meta = STAGE_META[r.stage];
 
+  // What the member sent vs what we photographed on the job. Same table,
+  // told apart by kind, and kept apart on screen so neither gets mistaken
+  // for the other.
   const attachments: { id: string; url: string; isVideo: boolean }[] = [];
-  for (const m of (media ?? []) as { id: string; storage_path: string; mime_type: string | null }[]) {
+  const jobPhotos: JobPhoto[] = [];
+  type MediaRow = {
+    id: string; storage_path: string; mime_type: string | null;
+    kind: string | null; note: string | null;
+  };
+  for (const m of (media ?? []) as MediaRow[]) {
     const { data: signed } = await supabase.storage
       .from('property-photos')
       .createSignedUrl(m.storage_path, 3600);
-    if (signed?.signedUrl) {
-      attachments.push({ id: m.id, url: signed.signedUrl, isVideo: (m.mime_type ?? '').startsWith('video/') });
+    if (!signed?.signedUrl) continue;
+    const isVideo = (m.mime_type ?? '').startsWith('video/');
+    if (m.kind === 'BEFORE' || m.kind === 'AFTER') {
+      jobPhotos.push({ id: m.id, url: signed.signedUrl, isVideo, kind: m.kind, note: m.note });
+    } else {
+      attachments.push({ id: m.id, url: signed.signedUrl, isVideo });
     }
   }
 
@@ -101,6 +114,27 @@ export default async function AdminRequestDetailPage({
             </div>
           ) : null}
         </Card>
+
+        {/* ------------------------------------------- member approval */}
+        {r.approved_at ? (
+          <div className="rounded-2xl bg-brandgreen-50 p-4 ring-1 ring-brandgreen-600/25">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-brandgreen-700">
+              Member approved
+            </p>
+            <p className="mt-1 text-[15px] font-semibold text-navy-800">
+              {new Date(r.approved_at).toLocaleString('en-US', {
+                weekday: 'short', month: 'long', day: 'numeric',
+                hour: 'numeric', minute: '2-digit',
+              })}
+              {r.estimate_amount != null ? ` · ${formatMoneyRange(r.estimate_amount, null)}` : ''}
+            </p>
+            <p className="mt-1.5 text-[13px] leading-relaxed text-brandgreen-900/80">
+              {r.scheduled_for
+                ? `Booked for ${new Date(r.scheduled_for).toLocaleString()}.`
+                : 'They are waiting on a date from us. Book it in below.'}
+            </p>
+          </div>
+        ) : null}
 
         {/* ------------------------------------------- what they said */}
         <Card className="p-4">
@@ -193,7 +227,11 @@ export default async function AdminRequestDetailPage({
         {/* ------------------------------------------- money + date */}
         <div className="grid gap-5 sm:grid-cols-2">
           <Card className="p-4">
-            <h2 className="mb-3 font-semibold text-navy-800">Estimate</h2>
+            <h2 className="mb-1 font-semibold text-navy-800">Estimate</h2>
+            <p className="mb-3 text-[12px] leading-relaxed text-slate-500">
+              Sending a price puts the job in the member&rsquo;s hands — nothing
+              moves until they approve it on their phone.
+            </p>
             <form action={setEstimate} className="space-y-3">
               <input type="hidden" name="request_id" value={r.id} />
               <input
@@ -217,8 +255,13 @@ export default async function AdminRequestDetailPage({
             ) : null}
           </Card>
 
-          <Card className="p-4">
-            <h2 className="mb-3 font-semibold text-navy-800">Schedule</h2>
+          <Card className={`p-4 ${r.stage === 'APPROVED' ? 'ring-2 ring-brandgreen-600' : ''}`}>
+            <h2 className="mb-1 font-semibold text-navy-800">Schedule</h2>
+            <p className="mb-3 text-[12px] leading-relaxed text-slate-500">
+              {r.stage === 'APPROVED'
+                ? 'Approved and waiting on a date. Booking it moves the job to Scheduled and tells the member.'
+                : 'Booking a date moves the job to Scheduled and tells the member.'}
+            </p>
             <form action={scheduleRequest} className="space-y-3">
               <input type="hidden" name="request_id" value={r.id} />
               <input
@@ -239,9 +282,12 @@ export default async function AdminRequestDetailPage({
           </Card>
         </div>
 
+        {/* ------------------------------------------- job photos */}
+        <JobPhotos propertyId={r.property_id} requestId={r.id} photos={jobPhotos} />
+
         {/* ------------------------------------------- close out */}
         {canComplete ? (
-          <CompletionForm requestId={r.id} asset={linkedAsset} />
+          <CompletionForm requestId={r.id} asset={linkedAsset} photoCount={jobPhotos.length} />
         ) : null}
 
         {r.work_performed ? (

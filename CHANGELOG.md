@@ -241,6 +241,53 @@ have an annual dollar cap on member pricing but gives no figures, so
 you set them. They are two constants in `lib/membership.ts`; changing them
 changes every quote in the app. See `docs/ASSUMPTIONS.md`.
 
+### Phase 12 — Approve, schedule, photograph, finish
+
+The approval loop existed end to end but could not be *seen*: the sales demo
+had no request detail page at all, so the Approve button only ever appeared
+for a logged-in member on a request that happened to be awaiting approval.
+Meanwhile an approval arrived in the office with nothing to mark it.
+
+**The member approving**
+
+- **The demo now runs the whole loop.** `/demo/requests/{id}` renders the
+  same component the live portal uses, and one of the three fixture requests
+  sits at *Waiting on you* with a price on it — so the Approve button is on
+  screen during a sales call rather than described. The demo buttons respond
+  and explain what would happen; nothing is written anywhere.
+- **The price and the Approve button now sit above the history**, not below
+  it. They were previously under twelve timeline entries — a button nobody
+  would scroll to find.
+- **"We have sent you a price — tap to approve it"** on the request list, so
+  it is visible without opening anything.
+
+**The office knowing**
+
+- **An approval is now impossible to miss.** A green banner at the top of the
+  request board naming each approved job, the property and when they
+  approved; the same on the admin home screen; and an *Approved · needs a
+  date* badge on the card itself so it reads inside a filtered view too.
+- **The request page leads with it** — who approved, when, and for how much,
+  with the Schedule box ringed green while a job is approved and unbooked.
+- Both the Estimate and Schedule boxes now say what pressing the button does.
+
+**Photographing the work**
+
+- **B&M can photograph a job.** Capture can now target a service request, and
+  the request page has a *Job photos* card with separate Before and After
+  capture. Previously only the member could attach photos to a request, so
+  the office had no way to record what it found or what it left behind.
+- **Ours and theirs stay apart.** The member's submission photos sit under
+  *What you told us*; our before/after shots under *What we did* — same
+  table, told apart by photo kind, never blurred together.
+- **The close-out says where the photos are going**, and says so plainly when
+  there are none.
+- Verified on PostgreSQL 16 against a fixture with the photos actually
+  present: the office inserts before/after against a request, closing the job
+  out advances it to HOME RECORD UPDATED and moves both photos onto the Home
+  Record item along with the write-up, parts, service date and condition, and
+  the member can see them on their own request.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

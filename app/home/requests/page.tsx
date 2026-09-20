@@ -87,6 +87,13 @@ function RequestRow({ request }: { request: ServiceRequest }) {
         <p className="mt-1 text-[12px] text-slate-500">
           Raised {formatDate(request.created_at)} · {urgencyLabel(request.priority)}
         </p>
+        {/* The one stage where nothing moves until the member acts. It has to
+            be obvious from the list, not only after they open the request. */}
+        {request.stage === 'AWAITING_APPROVAL' ? (
+          <p className="mt-2 text-[13px] font-semibold text-amber-800">
+            We have sent you a price — tap to approve it
+          </p>
+        ) : null}
       </Link>
     </li>
   );

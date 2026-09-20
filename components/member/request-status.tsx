@@ -63,10 +63,18 @@ export default function RequestStatus({
   stage,
   priority,
   events,
+  children,
 }: {
   stage: ServiceRequestStage;
   priority: PriorityLevel;
   events: StatusEvent[];
+  /**
+   * Anything that needs to sit between the status card and the history —
+   * the approval card, above all. The history runs long, and a button the
+   * member has to scroll past twelve entries to find is a button that does
+   * not get pressed.
+   */
+  children?: React.ReactNode;
 }) {
   const meta = STAGE_META[stage];
 
@@ -98,6 +106,8 @@ export default function RequestStatus({
           <StageRail stage={stage} />
         </div>
       </div>
+
+      {children}
 
       {events.length > 0 ? (
         <>

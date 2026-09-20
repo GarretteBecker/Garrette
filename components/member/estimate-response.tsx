@@ -31,14 +31,18 @@ export default function EstimateResponse({
   amount,
   tier,
   discountUsed = 0,
+  demo = false,
 }: {
   requestId: string;
   amount: number | null;
   tier: MembershipTier | null;
   /** Member benefit already used this membership year, for the cap. */
   discountUsed?: number;
+  /** Sales demo: the buttons respond, but nothing is written anywhere. */
+  demo?: boolean;
 }) {
   const [showDecline, setShowDecline] = useState(false);
+  const [demoDone, setDemoDone] = useState<'approved' | 'declined' | null>(null);
   const [state, formAction] = useActionState<RequestActionState, FormData>(respondToEstimate, {});
 
   // The member benefit is a headline reason to be a member, so it is shown
@@ -80,7 +84,28 @@ export default function EstimateResponse({
         Nothing is booked and nothing is charged until you say go.
       </p>
 
-      <form action={formAction} className="mt-4 space-y-2">
+      {demoDone ? (
+        <p className="mt-4 rounded-xl bg-white px-4 py-3 text-[14px] font-medium text-navy-800 ring-1 ring-amber-600/20">
+          {demoDone === 'approved'
+            ? 'Approved. On a real membership this is the moment it lands on our board and we book it in.'
+            : 'Sent back to us. Nothing is booked and nothing is charged.'}
+        </p>
+      ) : (
+      <form
+        action={demo ? undefined : formAction}
+        onSubmit={
+          demo
+            ? (e) => {
+                e.preventDefault();
+                const approve =
+                  (e.nativeEvent as SubmitEvent).submitter instanceof HTMLButtonElement &&
+                  ((e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement).value === 'true';
+                setDemoDone(approve ? 'approved' : 'declined');
+              }
+            : undefined
+        }
+        className="mt-4 space-y-2"
+      >
         <input type="hidden" name="request_id" value={requestId} />
 
         {showDecline ? (
@@ -119,6 +144,7 @@ export default function EstimateResponse({
           </p>
         ) : null}
       </form>
+      )}
     </div>
   );
 }

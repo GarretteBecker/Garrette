@@ -40,6 +40,11 @@ export default async function AdminHomePage() {
 
   const rows = (properties ?? []) as PropertyRow[];
 
+  // Approved work is the one thing on this screen where a member is already
+  // waiting on us and nobody here did anything to cause it.
+  const approvedRequests = ((requests ?? []) as { id: string; title: string; stage: string }[])
+    .filter((r) => r.stage === 'APPROVED');
+
   // Count open ACTION findings per property for the attention column.
   const actionCounts = new Map<string, number>();
   for (const f of findings ?? []) {
@@ -54,6 +59,21 @@ export default async function AdminHomePage() {
       <AppHeader profile={profile} title="HomeKeeper Admin" subtitle={profile.full_name} />
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-5">
+        {approvedRequests.length > 0 ? (
+          <Link href="/admin/requests" className="mb-4 block">
+            <div className="rounded-xl bg-brandgreen-50 px-4 py-3.5 ring-1 ring-brandgreen-600/25 active:bg-brandgreen-100">
+              <p className="text-sm font-semibold text-brandgreen-800">
+                {approvedRequests.length === 1
+                  ? '1 approved job needs a date'
+                  : `${approvedRequests.length} approved jobs need a date`}
+              </p>
+              <p className="mt-0.5 text-[13px] text-slate-600">
+                {approvedRequests.map((r) => r.title).join(' · ')}
+              </p>
+            </div>
+          </Link>
+        ) : null}
+
         <div className="mb-5 grid grid-cols-3 gap-3">
           <Card className="p-3">
             <p className="text-2xl font-semibold text-navy-700">{rows.length}</p>

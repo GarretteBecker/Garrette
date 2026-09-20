@@ -12,6 +12,12 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > have moved (1: missing → partial, 13: missing → present); fix-list items
 > 1, 2 and 4 are done. Each is marked below. **Score now: 4 present, 9
 > partial, 3 missing.** Everything else stands as first written.
+>
+> **Also updated after the approve/schedule/photograph phase.** Item 7's
+> approval loop is now visible in the sales demo, approvals are flagged to
+> the office on the board and the admin home screen, and B&M can photograph
+> a job before and after — the photos travel to the Home Record on close-out.
+> Item 7 remains PARTIAL for the reasons already listed under it.
 
 ---
 

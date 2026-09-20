@@ -31,9 +31,12 @@ function Submit() {
 export default function CompletionForm({
   requestId,
   asset,
+  photoCount = 0,
 }: {
   requestId: string;
   asset: Pick<Asset, 'id' | 'name' | 'model' | 'serial_number'> | null;
+  /** Job photos already on this request, so we can say if there are none. */
+  photoCount?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState<RequestActionState, FormData>(completeRequest, {});
@@ -124,6 +127,23 @@ export default function CompletionForm({
           </Field>
         </>
       ) : null}
+
+      {/* Not a blocker — a closed job with no photo is better than a job left
+          open — but a written-up repair with nothing to look at is worth one
+          line of friction. */}
+      {photoCount === 0 ? (
+        <p className="rounded-lg bg-amber-50 px-3 py-2.5 text-[13px] leading-relaxed text-amber-900 ring-1 ring-amber-600/20">
+          No job photos yet. Scroll up and take a before/after if you can — it
+          is what makes this repair mean something a year from now.
+        </p>
+      ) : (
+        <p className="rounded-lg bg-brandgreen-50 px-3 py-2.5 text-[13px] text-brandgreen-800">
+          {photoCount} job photo{photoCount === 1 ? '' : 's'}{' '}
+          {asset
+            ? `will move onto ${asset.name} in the Home Record with this write-up.`
+            : 'will stay on this request — link an item above if they belong with a piece of equipment.'}
+        </p>
+      )}
 
       {state.error ? (
         <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">

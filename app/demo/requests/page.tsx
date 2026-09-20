@@ -33,7 +33,10 @@ export default function DemoRequestsPage() {
       <ul className="space-y-2.5">
         {requests.map((r) => (
           <li key={r.id}>
-            <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200">
+            <Link
+              href={`/demo/requests/${r.id}`}
+              className="block rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
+            >
               <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold leading-snug text-navy-800">{r.title}</p>
                 <StageChip stage={r.stage as ServiceRequestStage} member />
@@ -41,7 +44,12 @@ export default function DemoRequestsPage() {
               <p className="mt-1 text-[12px] text-slate-500">
                 Raised {formatDate(r.created_at)}
               </p>
-            </div>
+              {r.stage === 'AWAITING_APPROVAL' ? (
+                <p className="mt-2 text-[13px] font-semibold text-amber-800">
+                  We have sent you a price — tap to approve it
+                </p>
+              ) : null}
+            </Link>
           </li>
         ))}
       </ul>

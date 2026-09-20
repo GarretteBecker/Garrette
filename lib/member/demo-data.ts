@@ -11,7 +11,10 @@
  */
 
 import type { PortalData } from './portal';
-import type { Asset, Finding, PlanItem, Room, Visit } from '@/lib/types/database';
+import type {
+  Asset, Finding, PlanItem, PriorityLevel, Room, ServiceRequestStage, Visit,
+} from '@/lib/types/database';
+import type { StatusEvent } from '@/components/member/request-status';
 
 const PROPERTY_ID = 'demo-property';
 
@@ -320,6 +323,119 @@ const VISITS: Visit[] = [
     member_notes: null },
 ];
 
+/**
+ * Service requests, in full.
+ *
+ * One at each of the three moments that matter on a sales call: waiting on
+ * the homeowner to approve a price, approved and booked in, and just raised.
+ * The middle of the pipeline is where the product earns its fee, so the demo
+ * has to show it rather than stop at a list.
+ */
+export interface DemoRequest {
+  id: string;
+  title: string;
+  stage: ServiceRequestStage;
+  priority: PriorityLevel;
+  category: string | null;
+  roomName: string | null;
+  assetName: string | null;
+  assetModel: string | null;
+  description: string;
+  created_at: string;
+  estimate_amount: number | null;
+  approved_at: string | null;
+  scheduled_for: string | null;
+  work_performed: string | null;
+  parts_used: string | null;
+  events: StatusEvent[];
+}
+
+function ev(
+  id: string,
+  from: ServiceRequestStage | null,
+  to: ServiceRequestStage,
+  note: string | null,
+  days: number,
+): StatusEvent {
+  return { id, from_stage: from, to_stage: to, note, created_at: daysFromNow(days) };
+}
+
+export const DEMO_REQUESTS: DemoRequest[] = [
+  {
+    id: 'sr1',
+    title: 'Hall bath toilet running between flushes',
+    stage: 'AWAITING_APPROVAL',
+    priority: 'MEDIUM',
+    category: 'Plumbing',
+    roomName: 'Hall Bathroom',
+    assetName: 'Hall Bath Toilet',
+    assetModel: 'Cadet 3 215AA.104',
+    description:
+      'It runs for about thirty seconds every hour or so, mostly overnight. We replaced the flapper last year and it was fine for a while.',
+    created_at: daysFromNow(-6),
+    estimate_amount: 340,
+    approved_at: null,
+    scheduled_for: null,
+    work_performed: null,
+    parts_used: null,
+    events: [
+      ev('sr1e1', null, 'NEW', 'Raised from the homeowner portal.', -6),
+      ev('sr1e2', 'NEW', 'TRIAGE', 'Looked at the Home Record — 2019 unit, flapper already done once.', -5),
+      ev('sr1e3', 'TRIAGE', 'DISPATCHED', 'Sent to Stauffer Plumbing.', -5),
+      ev('sr1e4', 'DISPATCHED', 'ACCEPTED', 'Stauffer Plumbing accepted.', -4),
+      ev('sr1e5', 'ACCEPTED', 'ESTIMATING', 'Pricing a full rebuild kit rather than another flapper.', -3),
+      ev('sr1e6', 'ESTIMATING', 'AWAITING_APPROVAL', 'Price sent to the homeowner.', -1),
+    ],
+  },
+  {
+    id: 'sr2',
+    title: 'Sump pump battery backup install',
+    stage: 'SCHEDULED',
+    priority: 'MEDIUM',
+    category: 'Plumbing',
+    roomName: 'Basement',
+    assetName: 'Sump Pump',
+    assetModel: 'M53 Mighty-Mate 1/3 HP',
+    description:
+      'You flagged on the spring visit that there is no backup if the power goes out. We would like to get that sorted before spring storms.',
+    created_at: daysFromNow(-11),
+    estimate_amount: 1180,
+    approved_at: daysFromNow(-4),
+    scheduled_for: daysFromNowAt(9, 9),
+    work_performed: null,
+    parts_used: null,
+    events: [
+      ev('sr2e1', null, 'NEW', 'Raised from the homeowner portal.', -11),
+      ev('sr2e2', 'NEW', 'TRIAGE', 'Matched to the Home Plan item from the spring visit.', -10),
+      ev('sr2e3', 'TRIAGE', 'ESTIMATING', 'Pricing a 75Ah backup system with alarm.', -8),
+      ev('sr2e4', 'ESTIMATING', 'AWAITING_APPROVAL', 'Price sent to the homeowner.', -6),
+      ev('sr2e5', 'AWAITING_APPROVAL', 'APPROVED', 'Homeowner approved the estimate.', -4),
+      ev('sr2e6', 'APPROVED', 'SCHEDULED', 'Booked in.', -3),
+    ],
+  },
+  {
+    id: 'sr3',
+    title: 'Kitchen disposal humming but not spinning',
+    stage: 'TRIAGE',
+    priority: 'MEDIUM',
+    category: 'Appliance',
+    roomName: 'Kitchen',
+    assetName: null,
+    assetModel: null,
+    description: 'It hums when switched on but nothing turns. Switched it off at the wall for now.',
+    created_at: daysFromNow(-2),
+    estimate_amount: null,
+    approved_at: null,
+    scheduled_for: null,
+    work_performed: null,
+    parts_used: null,
+    events: [
+      ev('sr3e1', null, 'NEW', 'Raised from the homeowner portal.', -2),
+      ev('sr3e2', 'NEW', 'TRIAGE', 'Checking whether this is the reset or the motor.', -1),
+    ],
+  },
+];
+
 export const DEMO_PORTAL_DATA: PortalData = {
   property: {
     id: PROPERTY_ID,
@@ -377,8 +493,10 @@ export const DEMO_PORTAL_DATA: PortalData = {
       storage_path: '', size_bytes: 140_000, created_at: daysFromNow(-340) },
   ],
   photos: [],
-  openRequests: [
-    { id: 'sr1', title: 'Sump pump battery backup install', stage: 'SCHEDULED', created_at: daysFromNow(-11) },
-    { id: 'sr2', title: 'Kitchen disposal humming but not spinning', stage: 'TRIAGE', created_at: daysFromNow(-2) },
-  ],
+  openRequests: DEMO_REQUESTS.map((r) => ({
+    id: r.id,
+    title: r.title,
+    stage: r.stage,
+    created_at: r.created_at,
+  })),
 };

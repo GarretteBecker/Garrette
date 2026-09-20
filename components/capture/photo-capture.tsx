@@ -30,6 +30,7 @@ export interface CaptureTarget {
   findingId?: string | null;
   visitId?: string | null;
   roomId?: string | null;
+  serviceRequestId?: string | null;
 }
 
 type Phase =
@@ -43,6 +44,7 @@ type Phase =
 export default function PhotoCapture({
   target,
   mode = 'general',
+  photoKind = 'GENERAL',
   label,
   onChanged,
   onCaptured,
@@ -51,6 +53,9 @@ export default function PhotoCapture({
   target: CaptureTarget;
   /** 'plate' adds the data-plate scan after upload. */
   mode?: 'general' | 'plate';
+  /** How the photo is filed. BEFORE/AFTER separate our job shots from the
+      member's own. Ignored when mode is 'plate'. */
+  photoKind?: 'GENERAL' | 'BEFORE' | 'AFTER' | 'DOCUMENT';
   label?: string;
   /** Fired after something lands, so the parent can refresh. */
   onChanged?: () => void;
@@ -88,7 +93,8 @@ export default function PhotoCapture({
       finding_id: target.findingId ?? null,
       visit_id: target.visitId ?? null,
       room_id: target.roomId ?? null,
-      kind: isPlate ? ('DATA_PLATE' as const) : ('GENERAL' as const),
+      service_request_id: target.serviceRequestId ?? null,
+      kind: isPlate ? ('DATA_PLATE' as const) : photoKind,
       note: note.trim() || null,
       scan_status: isPlate ? ('PENDING' as const) : ('NOT_REQUESTED' as const),
       taken_at: new Date(file.lastModified).toISOString(),
