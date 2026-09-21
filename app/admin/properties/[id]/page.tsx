@@ -17,6 +17,7 @@ import DocumentManager, { type DocRow } from '@/components/admin/document-manage
 import AgreementEditor from '@/components/admin/agreement-editor';
 import SafetyPoints from '@/components/admin/safety-points';
 import { saveHomeFacts } from '@/lib/actions/safety';
+import { createBaselineReport } from '@/lib/actions/reports';
 import type { SafetyPoint } from '@/lib/emergency';
 import { scheduleVisit } from '@/lib/actions/visits';
 import { saveMembership } from '@/lib/actions/properties';
@@ -67,6 +68,7 @@ export default async function PropertyDetailPage({
     { data: requests },
     { data: documents },
     { data: safetyPoints },
+    { data: baselineReport },
     { data: agreements },
     { data: photoRows },
   ] = await Promise.all([
@@ -88,6 +90,12 @@ export default async function PropertyDetailPage({
       .select('id, kind, label, room_id, location_note, how_to_note, photo_id')
       .eq('property_id', id)
       .order('sort_order'),
+    supabase
+      .from('reports')
+      .select('id, title, report_type, status, generated_at')
+      .eq('property_id', id)
+      .eq('report_type', 'BASELINE')
+      .maybeSingle(),
     supabase
       .from('membership_agreements')
       .select('*')
@@ -264,6 +272,37 @@ export default async function PropertyDetailPage({
                   Save membership
                 </button>
               </form>
+            </Card>
+
+            <Card className="p-4">
+              <h2 className="mb-1 font-semibold text-navy-800">Home Baseline Report</h2>
+              <p className="mb-3 text-[13px] leading-relaxed text-slate-500">
+                The first document a member gets: their whole house written
+                down — every item, every serial, the shutoffs with photos, and
+                the plan. It drafts itself when you complete an onboarding
+                visit; make it by hand for a home already on the books.
+              </p>
+              {baselineReport ? (
+                <Link
+                  href={`/reports/${(baselineReport as { id: string }).id}`}
+                  className="flex h-12 w-full items-center justify-center rounded-lg bg-navy-50 text-[14px] font-semibold text-navy-700 ring-1 ring-navy-100 active:bg-navy-100"
+                >
+                  Open it
+                  {(baselineReport as { status: string }).status !== 'RELEASED'
+                    ? ' — still a draft'
+                    : ''}
+                </Link>
+              ) : (
+                <form action={createBaselineReport}>
+                  <input type="hidden" name="property_id" value={id} />
+                  <button
+                    type="submit"
+                    className="h-12 w-full rounded-lg bg-navy-700 font-semibold text-white"
+                  >
+                    Create the baseline report
+                  </button>
+                </form>
+              )}
             </Card>
 
             <Card className="p-4">

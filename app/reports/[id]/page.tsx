@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { requireProfile } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import ReportDocument, { type ReportRow } from '@/components/reports/report-document';
+import BaselineDocument from '@/components/reports/baseline-document';
+import { loadSafetyPoints } from '@/lib/member/safety';
 import { type ReportFile } from '@/components/admin/report-attachments';
 import type { Property, Finding, PlanItem, Visit, ChecklistItem, Member, Asset } from '@/lib/types/database';
 
@@ -26,8 +28,57 @@ export default async function ReportPage({
   ]);
   if (!property) notFound();
   const p = property as Property;
+  const memberRows = (members ?? []) as Member[];
 
   const isAnnual = r.report_type === 'ANNUAL_REVIEW';
+  const isBaseline = r.report_type === 'BASELINE';
+
+  // ------------------------------------------------------------ baseline
+  //
+  // A different document, not a variant of the quarterly: the whole house
+  // rather than one visit. It needs everything, so it loads its own data
+  // and returns early rather than bending the queries below out of shape.
+  if (isBaseline) {
+    const [
+      { data: allAssets }, { data: rooms }, { data: baseFindings },
+      { data: planItems }, { data: visit }, { data: checklist }, points,
+    ] = await Promise.all([
+      supabase.from('assets').select('*').eq('property_id', r.property_id)
+        .order('category').order('name'),
+      supabase.from('rooms').select('id, name').eq('property_id', r.property_id)
+        .order('sort_order'),
+      // Everything still open — the baseline describes the house as it is,
+      // not one visit's worth of notes.
+      supabase.from('findings').select('*').eq('property_id', r.property_id)
+        .is('resolved_at', null).order('status'),
+      supabase.from('plan_items').select('*').eq('property_id', r.property_id)
+        .in('status', ['PROPOSED', 'APPROVED', 'SCHEDULED', 'DEFERRED'])
+        .order('target_year').order('sort_order'),
+      r.visit_id
+        ? supabase.from('visits').select('*').eq('id', r.visit_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+      r.visit_id
+        ? supabase.from('checklist_items').select('*').eq('visit_id', r.visit_id).order('sort_order')
+        : Promise.resolve({ data: [] }),
+      loadSafetyPoints(r.property_id),
+    ]);
+
+    return (
+      <BaselineDocument
+        report={r}
+        property={p}
+        visit={(visit ?? null) as Visit | null}
+        members={memberRows}
+        assets={(allAssets ?? []) as Asset[]}
+        rooms={(rooms ?? []) as { id: string; name: string }[]}
+        findings={(baseFindings ?? []) as Finding[]}
+        checklist={(checklist ?? []) as ChecklistItem[]}
+        plan={(planItems ?? []) as PlanItem[]}
+        safetyPoints={points}
+        isStaff={isStaff}
+      />
+    );
+  }
 
   // Findings in scope: this visit for a quarterly report, the whole period
   // for an annual one.
@@ -68,7 +119,6 @@ export default async function ReportPage({
   const v = (visit ?? null) as Visit | null;
   const items = (checklist ?? []) as ChecklistItem[];
   const recordUpdates = (assets ?? []) as Asset[];
-  const memberRows = (members ?? []) as Member[];
 
   // Photos for the findings in this report, as signed URLs.
   const findingIds = findings.map((f) => f.id);

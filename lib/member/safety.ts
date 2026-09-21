@@ -12,13 +12,18 @@ import type { SafetyPoint } from '@/lib/emergency';
  * shutoff is" from a member on the cheaper plan is not a business model.
  * See docs/emergency-help.md.
  */
-export async function loadSafetyPoints(): Promise<SafetyPoint[]> {
+export async function loadSafetyPoints(propertyId?: string): Promise<SafetyPoint[]> {
   const supabase = await createClient();
 
-  const { data } = await supabase
+  // A member needs no filter — RLS already confines them to their own home.
+  // Staff can see every property, so a report has to say which one it means.
+  let query = supabase
     .from('safety_points')
     .select('id, kind, label, location_note, how_to_note, photo_id, room_id')
     .order('sort_order');
+  if (propertyId) query = query.eq('property_id', propertyId);
+
+  const { data } = await query;
 
   const rows = (data ?? []) as {
     id: string; kind: SafetyPoint['kind']; label: string | null;

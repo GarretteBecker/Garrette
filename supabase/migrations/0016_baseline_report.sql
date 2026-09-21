@@ -1,0 +1,25 @@
+-- =====================================================================
+-- B&M HomeKeeper — 0016 the Home Baseline Report
+--
+-- The first document a new member ever receives. Today their first one is
+-- a routine quarterly report three months in, which means their first
+-- impression of the product is "we did a visit" rather than "we now know
+-- your house better than you do".
+--
+-- The baseline is the other thing: every system, every serial, every
+-- warranty, where the shutoffs are with photographs of them, the condition
+-- of the house on the day we took it on, and the plan for the next few
+-- years. It is the artifact somebody shows their spouse to justify the
+-- spend, and the one a buyer's agent asks for when they sell.
+--
+-- ⚠ ONE STATEMENT, ON PURPOSE.
+--
+-- PostgreSQL will not let a newly added enum value be USED in the same
+-- transaction that adds it ("unsafe use of new value"). The whole of
+-- CATCH-UP.sql may run as one transaction in the Supabase SQL editor, so
+-- nothing in this migration — or anywhere downstream of it in those
+-- bundled scripts — may insert a report of this type. The office creates
+-- the first baseline from the app, after this has committed.
+-- =====================================================================
+
+alter type public.report_type add value if not exists 'BASELINE';

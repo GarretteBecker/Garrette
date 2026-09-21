@@ -120,7 +120,7 @@ export async function completeVisit(formData: FormData): Promise<void> {
 
   const { data: visit } = await supabase
     .from('visits')
-    .select('id, property_id, scheduled_for, title')
+    .select('id, property_id, scheduled_for, title, visit_type')
     .eq('id', visitId)
     .maybeSingle();
 
@@ -146,17 +146,32 @@ export async function completeVisit(formData: FormData): Promise<void> {
 
   if (!existing) {
     const when = visit.scheduled_for ? new Date(visit.scheduled_for) : new Date(completedAt);
-    const quarter = quarterFor(when);
-    const period = periodForQuarter(quarter, when.getFullYear());
 
-    await supabase.from('reports').insert({
-      property_id: visit.property_id,
-      visit_id: visitId,
-      title: `${quarter} ${when.getFullYear()} HomeKeeper Report`,
-      report_type: 'VISIT_SUMMARY',
-      period_start: period.start,
-      period_end: period.end,
-    });
+    if ((visit as { visit_type?: string }).visit_type === 'ONBOARDING') {
+      // The first document a member ever gets is the baseline, not a
+      // quarterly — "here is your whole house" rather than "here is what we
+      // did in April". It is the one they show somebody else.
+      await supabase.from('reports').insert({
+        property_id: visit.property_id,
+        visit_id: visitId,
+        title: 'Home Baseline Report',
+        report_type: 'BASELINE',
+        period_start: when.toISOString().slice(0, 10),
+        period_end: when.toISOString().slice(0, 10),
+      });
+    } else {
+      const quarter = quarterFor(when);
+      const period = periodForQuarter(quarter, when.getFullYear());
+
+      await supabase.from('reports').insert({
+        property_id: visit.property_id,
+        visit_id: visitId,
+        title: `${quarter} ${when.getFullYear()} HomeKeeper Report`,
+        report_type: 'VISIT_SUMMARY',
+        period_start: period.start,
+        period_end: period.end,
+      });
+    }
   }
 
   revalidatePath(`/field/visits/${visitId}`);

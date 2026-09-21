@@ -668,6 +668,51 @@ home's name, so the icon was spending 32px to say the same thing twice, and
 the emergency button needed that room. Checked at 375px with Sign out
 present: nothing truncates.
 
+### Phase 20 — The Home Baseline Report
+
+The first document a new member ever receives. Until now that was a routine
+quarterly report three months in, so their first impression of the product
+was "we did a visit" rather than "we now know your house better than you
+do".
+
+The baseline is the other thing, and it is a different document rather than
+a variant of the quarterly:
+
+- **The house itself** — construction, water source, sewer type, heating
+  fuel, electrical service, roof and its age, basement.
+- **Where your shutoffs are** — each one with where it is, how to work it,
+  and the photograph the technician took. The section a member should read
+  before they need it.
+- **Your Home Record** — every item, room by room, with make, model, serial
+  and install date. Serials matter more than people expect: they are what
+  turns a warranty claim or a part order from an afternoon into a phone
+  call.
+- **What is still under warranty**, soonest to expire.
+- **The condition we found it in** — the five statuses, and the findings.
+- **The next few years** — the Home Plan with a budget range.
+- **What happens from here** — four numbered steps, including tapping
+  Emergency.
+
+**It drafts itself when an onboarding visit is completed**, so the first
+report a member gets is the right one. For homes already on your books
+there is a *Create the baseline report* button on the property Overview —
+they never had an onboarding visit to hang it off, but the record exists,
+so the report can be made from it today. One per home; a second would not
+be a baseline.
+
+**A Core member gets theirs.** The tier gate covers quarterly reports only —
+verified: with the demo home set to Core, the member sees the baseline and
+no quarterlies.
+
+**A note on the migration.** Adding `BASELINE` to the report type is one
+statement on purpose. PostgreSQL will not let a new enum value be *used* in
+the same transaction that adds it, and the Supabase SQL editor may run a
+whole script as one — so nothing downstream in `CATCH-UP.sql` or
+`SETUP-EVERYTHING.sql` creates a report of that type. Both were tested
+wrapped in an explicit transaction, and the catch-up three times over.
+
+`/demo/reports/demo-r0` is a real one, so you can show it.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

@@ -45,6 +45,9 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > clock, rollover, a working trade portal and measured performance. The
 > caveat under item 16 — that trade-partner isolation was correct in the
 > schema but untested in practice — is now tested.
+>
+> **And after the baseline report.** Item 6's missing Home Baseline Report
+> is built and drafts itself from an onboarding visit.
 
 ---
 
@@ -147,7 +150,10 @@ release. Attachments (added today).
 template — it is not a Property Passport (no year-over-year changes, no
 remodel documentation, no warranty/permit roll-up).
 
-**Missing:** the Home Baseline Report entirely. Floor plans. Trade review
+~~**Missing:** the Home Baseline Report entirely.~~ **NOW PRESENT** — the
+house itself, the shutoffs with photographs, the whole Home Record with
+serials, live warranties, condition, the plan, and what happens next. It
+drafts itself on completing an onboarding visit. Floor plans. Trade review
 sections. The 24-hour delivery commitment (no timer, no prompt, nothing
 tracks it). **Quarterly reports are not gated to Response** — a Core member
 would receive them.
@@ -315,7 +321,8 @@ exercise it.
    `docs/emergency-help.md`.
 7. ~~**Zero-findings report.**~~ **DONE.** A clean quarter reads as the
    result it is, with the checklist count as evidence.
-8. **Baseline Report** — the first document a new member ever receives.
+8. ~~**Baseline Report**~~ **DONE.** The first document a new member
+   receives is now the baseline, not a routine quarterly.
 9. **Request categories** aligned to your eleven.
 10. **Q1–Q4 checklist themes** corrected to yours, especially Q3.
 11. ~~**Property-level Home Record fields**~~ **DONE.** Construction,

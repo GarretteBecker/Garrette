@@ -73,6 +73,39 @@ export async function setHeadlineFinding(formData: FormData): Promise<void> {
 }
 
 /** Create an Annual Property Report for a calendar year. */
+/**
+ * Write the baseline by hand.
+ *
+ * For homes already on the books when this shipped — they never had an
+ * onboarding visit to hang it off, but the record exists, so the report
+ * can be made from it today.
+ */
+export async function createBaselineReport(formData: FormData): Promise<void> {
+  const propertyId = String(formData.get('property_id'));
+  const supabase = await createClient();
+
+  // One baseline per home. A second would not be a baseline.
+  const { data: existing } = await supabase
+    .from('reports')
+    .select('id')
+    .eq('property_id', propertyId)
+    .eq('report_type', 'BASELINE')
+    .maybeSingle();
+  if (existing) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  await supabase.from('reports').insert({
+    property_id: propertyId,
+    title: 'Home Baseline Report',
+    report_type: 'BASELINE',
+    period_start: today,
+    period_end: today,
+  });
+
+  revalidatePath('/admin/reports');
+  revalidatePath(`/admin/properties/${propertyId}`);
+}
+
 export async function createAnnualReport(formData: FormData): Promise<void> {
   const propertyId = String(formData.get('property_id'));
   const year = Number(formData.get('year')) || new Date().getFullYear();

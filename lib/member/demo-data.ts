@@ -330,6 +330,12 @@ const VISITS: Visit[] = [
     completed_at: daysFromNow(-159), title: 'Spring Seasonal Visit',
     summary: 'Full spring walkthrough. A/C started and verified, sump pump tested, sillcocks opened, gutters checked. Two items raised for the plan: the deck and the hall bath toilet.',
     member_notes: null },
+  // The onboarding visit the baseline report came out of.
+  { id: 'v0', property_id: PROPERTY_ID, tech_id: null, visit_type: 'ONBOARDING',
+    status: 'COMPLETED', scheduled_for: daysFromNow(-560), started_at: daysFromNow(-560),
+    completed_at: daysFromNow(-560), title: 'Baseline Visit',
+    summary: 'Full documentation walkthrough — every room, every system, every plate we could get a camera on. Water shutoffs photographed, panel mapped and breakers labelled, filter sizes recorded. Two items raised for the plan; everything else sound for its age.',
+    member_notes: null },
   // The quarter where nothing was wrong.
   { id: 'v3', property_id: PROPERTY_ID, tech_id: null, visit_type: 'SEASONAL',
     status: 'COMPLETED', scheduled_for: daysFromNow(-250), started_at: daysFromNow(-250),
@@ -590,6 +596,7 @@ function checks(
 }
 
 export const DEMO_CHECKLISTS: Record<string, ChecklistItem[]> = {
+  v0: checks('v0', 'Q1'),
   v1: checks('v1', 'Q4', ['water heater', 'anode']),
   v2: checks('v2', 'Q2', ['deck', 'toilet']),
   // The clean quarter: every single item passed.
@@ -642,6 +649,11 @@ export const DEMO_PORTAL_DATA: PortalData = {
     // has to feel like good news rather than an empty page.
     { id: 'demo-r4', title: 'Summer HomeKeeper Report', report_type: 'VISIT_SUMMARY',
       period_start: daysFromNow(-330), period_end: daysFromNow(-250), generated_at: daysFromNow(-250) },
+    // The first thing they ever received. Oldest, so it sits at the bottom
+    // of their list — which is where it belongs, and where a prospect will
+    // scroll to when you say "and this is what you get on day one".
+    { id: 'demo-r0', title: 'Home Baseline Report', report_type: 'BASELINE',
+      period_start: daysFromNow(-560), period_end: daysFromNow(-560), generated_at: daysFromNow(-560) },
   ],
   documents: [
     { id: 'd1', title: 'Owens Corning roof warranty certificate', doc_type: 'WARRANTY',

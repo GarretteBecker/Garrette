@@ -23,6 +23,7 @@
 --     7. Real dispatch: a job is offered to a ranked trade partner with a
 --        clock on it, rolls to the next one if they decline or go quiet,
 --        and their acceptance rate is measured rather than remembered.
+--     8. The Home Baseline Report — the first document a new member gets.
 --
 -- ▶ HOW TO USE IT
 --   1. Supabase dashboard → SQL Editor → New query
@@ -1461,6 +1462,22 @@ comment on view public.trade_performance is
   'Acceptance rate and response time per partner. EXPIRED counts against '
   'them deliberately — silence costs the member the whole clock.';
 
+
+-- ---------------------------------------------------------------------
+-- The Home Baseline Report  (migration 0016)
+--
+-- The first document a new member ever receives: their whole house written
+-- down — every system, every serial, every warranty, the shutoffs with
+-- photographs, and the plan for the next few years.
+--
+-- ⚠ This adds a value to an existing type, and PostgreSQL will not let a
+-- new enum value be USED in the same transaction that adds it. Nothing
+-- below this line creates a report of that type on purpose — the office
+-- makes the first one from the app, after this file has finished.
+-- ---------------------------------------------------------------------
+
+alter type public.report_type add value if not exists 'BASELINE';
+
 -- ---------------------------------------------------------------------
 -- Did it work?
 -- ---------------------------------------------------------------------
@@ -1504,7 +1521,13 @@ select
        where table_schema = 'public' and table_name = 'dispatch_offers'
     )
       then 'Trade dispatch did not apply — send this result to Claude.'
-    else 'Up to date. Report attachments, membership tiers, Home Plan requests, membership agreements, emergency shutoffs, warranty watch and real dispatch are all in.'
+    when not exists (
+      select 1 from pg_enum e
+        join pg_type t on t.oid = e.enumtypid
+       where t.typname = 'report_type' and e.enumlabel = 'BASELINE'
+    )
+      then 'The baseline report type did not apply — send this result to Claude.'
+    else 'Up to date. Everything through the Home Baseline Report is in.'
   end as result,
   (select string_agg(name || ' — ' || tier, ', ' order by name)
      from public.properties) as your_homes;

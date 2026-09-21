@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import ReportDocument, { type ReportRow } from '@/components/reports/report-document';
-import { DEMO_PORTAL_DATA, DEMO_CHECKLISTS } from '@/lib/member/demo-data';
+import BaselineDocument from '@/components/reports/baseline-document';
+import { DEMO_PORTAL_DATA, DEMO_CHECKLISTS, DEMO_SAFETY_POINTS } from '@/lib/member/demo-data';
 import type { Finding, Member } from '@/lib/types/database';
 
 /**
@@ -20,6 +21,7 @@ export function generateStaticParams() {
 
 /** Which visit each demo report was written up from. */
 const VISIT_FOR: Record<string, string | null> = {
+  'demo-r0': 'v0',   // the baseline
   'demo-r1': 'v1',
   'demo-r2': 'v2',
   'demo-r3': null,   // annual — covers the whole year
@@ -29,6 +31,7 @@ const VISIT_FOR: Record<string, string | null> = {
 /** Findings in scope for each report, mirroring what the live page queries. */
 function findingsFor(reportId: string): Finding[] {
   const all = DEMO_PORTAL_DATA.findings;
+  if (reportId === 'demo-r0') return all;                      // baseline: the whole house
   if (reportId === 'demo-r3') return all;                      // annual: everything
   if (reportId === 'demo-r4') return [];                       // the clean quarter
   if (reportId === 'demo-r2') return all.filter((f) => ['f2', 'f5'].includes(f.id));
@@ -74,6 +77,25 @@ export default async function DemoReportPage({
     is_primary: true,
     relationship: null,
   };
+
+  if (meta.report_type === 'BASELINE') {
+    return (
+      <BaselineDocument
+        report={report}
+        property={DEMO_PORTAL_DATA.property}
+        visit={visit}
+        members={[member]}
+        assets={DEMO_PORTAL_DATA.assets}
+        rooms={DEMO_PORTAL_DATA.rooms.map((r) => ({ id: r.id, name: r.name }))}
+        findings={findingsFor(id)}
+        checklist={visitId ? DEMO_CHECKLISTS[visitId] ?? [] : []}
+        plan={DEMO_PORTAL_DATA.planItems}
+        safetyPoints={DEMO_SAFETY_POINTS}
+        isStaff={false}
+        demo
+      />
+    );
+  }
 
   return (
     <ReportDocument
