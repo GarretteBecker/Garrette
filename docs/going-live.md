@@ -87,9 +87,41 @@ here touches your existing website.
 1. Site → **Domain management → Add a domain**
 2. Same thing: a **CNAME** for `app` pointing at your Netlify site address
 
-### Then, wherever you bought the domain
+### If your domain lives in GoHighLevel
 
-(GoDaddy, Namecheap, Google Domains, whoever.)
+You can do the whole thing in GHL — **but use the right screen.** GHL has
+two domain features and only one of them is what you want:
+
+| Screen | What it does | Use it? |
+|---|---|---|
+| **Add / Connect Domain** | Points a domain at a GHL funnel or website, so GHL serves it | ❌ **No.** This would make GHL answer for `app.` instead of your app |
+| **Domains → your domain → DNS Records → Add Record** | Plain DNS record editing | ✅ **Yes.** This is the one |
+
+For a domain **purchased through HighLevel**, GHL manages the DNS zone and
+lets you add A, CNAME, AAAA, MX and TXT records yourself. A CNAME can point
+anywhere — it does not have to point at GHL.
+
+1. GHL → **Settings → Domains** (or the domain purchase area)
+2. Open `bmhomeimprovementsolutionsllc.com`
+3. **DNS Records → Add Record**
+4. Type: **CNAME** · Name: **app** · Value: whatever Vercel or Netlify gave you
+5. Save
+
+⚠️ **One thing to know before you do it this way.** If your DNS lives in
+GHL, then GHL is a dependency of the app being reachable at all. If that
+account ever lapses or you move off HighLevel, `app.` stops resolving until
+you move the DNS. That is survivable — you would just re-create the record
+at a registrar — but it is worth knowing that the marketing platform and
+the members' app would share a single point of failure.
+
+If you would rather they were independent, keep the domain's DNS at your
+registrar (or Cloudflare, free) and point *both* GHL and this app at it
+from there.
+
+### If your domain is registered somewhere else
+
+(GoDaddy, Namecheap, Cloudflare, whoever.) GHL cannot edit DNS for a
+domain whose zone it does not host, so this is where the record goes.
 
 1. Find **DNS** / **Manage DNS** / **DNS records**
 2. **Add record** →
