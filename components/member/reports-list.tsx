@@ -19,10 +19,18 @@ export default function ReportsList({
   reports,
   tier,
   hrefPrefix = '/home',
+  reportBase = '',
 }: {
   reports: PortalReport[];
   tier?: MembershipTier | null;
   hrefPrefix?: string;
+  /**
+   * Where a report opens. The live report lives at the top level (/reports)
+   * because staff read the same page; the demo has its own copy under
+   * /demo. Deliberately not derived from hrefPrefix, which would send a
+   * member to /home/reports/<id> — a route that does not exist.
+   */
+  reportBase?: string;
 }) {
   // The database already refuses a Core member the quarterly reports. Without
   // this the page would simply look short, as though reports were missing.
@@ -78,7 +86,7 @@ export default function ReportsList({
           return (
             <li key={r.id}>
               <Link
-                href={`/reports/${r.id}`}
+                href={`${reportBase}/reports/${r.id}`}
                 className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 active:bg-slate-50"
               >
                 <div className="flex h-12 w-10 shrink-0 flex-col items-center justify-center rounded-lg bg-navy-700 text-white">

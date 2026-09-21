@@ -17,6 +17,7 @@ export default function DemoReportsPage() {
         reports={DEMO_PORTAL_DATA.reports}
         tier={DEMO_PORTAL_DATA.property.tier}
         hrefPrefix="/demo"
+        reportBase="/demo"
       />
     </PortalShell>
   );

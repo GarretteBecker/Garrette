@@ -12,11 +12,13 @@
 
 import type { PortalData } from './portal';
 import type {
-  Asset, Finding, PlanItem, PriorityLevel, Room, ServiceRequestStage, Visit,
+  Asset, ChecklistItem, Finding, PlanItem, PriorityLevel, Room,
+  ServiceRequestStage, Visit,
 } from '@/lib/types/database';
 import type { StatusEvent } from '@/components/member/request-status';
 import type { Agreement } from '@/lib/agreements';
 import type { SafetyPoint } from '@/lib/emergency';
+import { CHECKLIST_TEMPLATES, type Quarter } from '@/lib/checklist-templates';
 
 const PROPERTY_ID = 'demo-property';
 
@@ -328,6 +330,12 @@ const VISITS: Visit[] = [
     completed_at: daysFromNow(-159), title: 'Spring Seasonal Visit',
     summary: 'Full spring walkthrough. A/C started and verified, sump pump tested, sillcocks opened, gutters checked. Two items raised for the plan: the deck and the hall bath toilet.',
     member_notes: null },
+  // The quarter where nothing was wrong.
+  { id: 'v3', property_id: PROPERTY_ID, tech_id: null, visit_type: 'SEASONAL',
+    status: 'COMPLETED', scheduled_for: daysFromNow(-250), started_at: daysFromNow(-250),
+    completed_at: daysFromNow(-250), title: 'Summer Seasonal Visit',
+    summary: 'Full summer walkthrough — cooling, exterior, attic and crawl. Condenser coil cleaned and refrigerant pressures verified, dryer vent clear, sump tested under load, grading and downspouts checked, attic inspected for moisture. Everything we looked at came back in good order.',
+    member_notes: null },
 ];
 
 /**
@@ -555,6 +563,39 @@ export const DEMO_SAFETY_POINTS: SafetyPoint[] = [
   },
 ];
 
+/**
+ * Checklists behind the demo reports.
+ *
+ * The clean-quarter report needs real numbers to stand on — "we went through
+ * 47 checks and every one passed" is only worth reading if the 47 is true.
+ */
+function checks(
+  visitId: string,
+  quarter: Quarter,
+  attention: string[] = [],
+): ChecklistItem[] {
+  // Real seasonal labels, not "Check 1" — the report prints these, and a
+  // prospect reading forty-seven of them is exactly the point.
+  return CHECKLIST_TEMPLATES[quarter].items.map((t, i) => ({
+    id: `${visitId}-c${i}`,
+    visit_id: visitId,
+    category: t.category,
+    label: t.label,
+    result: attention.some((a) => t.label.toLowerCase().includes(a))
+      ? ('ATTENTION' as const)
+      : ('PASS' as const),
+    notes: null,
+    sort_order: i,
+  }));
+}
+
+export const DEMO_CHECKLISTS: Record<string, ChecklistItem[]> = {
+  v1: checks('v1', 'Q4', ['water heater', 'anode']),
+  v2: checks('v2', 'Q2', ['deck', 'toilet']),
+  // The clean quarter: every single item passed.
+  v3: checks('v3', 'Q3'),
+};
+
 export const DEMO_PORTAL_DATA: PortalData = {
   property: {
     id: PROPERTY_ID,
@@ -596,6 +637,11 @@ export const DEMO_PORTAL_DATA: PortalData = {
       period_start: daysFromNow(-240), period_end: daysFromNow(-159), generated_at: daysFromNow(-159) },
     { id: 'demo-r3', title: 'Annual Property Report', report_type: 'ANNUAL_REVIEW',
       period_start: daysFromNow(-365), period_end: daysFromNow(-1), generated_at: daysFromNow(-160) },
+    // A quarter where nothing was wrong. Worth showing a prospect: it is
+    // what most of their quarters will look like, and it is the report that
+    // has to feel like good news rather than an empty page.
+    { id: 'demo-r4', title: 'Summer HomeKeeper Report', report_type: 'VISIT_SUMMARY',
+      period_start: daysFromNow(-330), period_end: daysFromNow(-250), generated_at: daysFromNow(-250) },
   ],
   documents: [
     { id: 'd1', title: 'Owens Corning roof warranty certificate', doc_type: 'WARRANTY',

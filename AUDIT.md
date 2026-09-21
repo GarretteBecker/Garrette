@@ -36,6 +36,10 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > **And after warranty watch.** The warranty dates item 3 already stored are
 > finally used: a member is told before cover runs out, and the office has a
 > worklist of everything expiring in the next 120 days.
+>
+> **And after the clean-quarter phase.** Item 5's zero-findings gap is
+> closed, and the demo can now open a real report — including one showing a
+> quarter where nothing was wrong.
 
 ---
 
@@ -120,11 +124,13 @@ range.
 **Partial:** IMPROVEMENT target timing only exists if someone separately
 creates a linked Home Plan item — it is not a field on the finding.
 
-**Missing:** a zero-recommendation visit does **not** display well. When
-there are no findings, the "What we found" section simply vanishes from the
-report. There is no "no repairs recommended this quarter" statement. Your
-spec calls that a valid, good outcome, and right now it reads as though
-something failed to load.
+~~**Missing:** a zero-recommendation visit does not display well.~~
+**FIXED.** A clean quarter now leads with "No repairs recommended this
+quarter" and the evidence behind it — "we went through 13 checks and every
+one passed" — and the findings section states the result instead of
+vanishing. The wording is generated from what the report actually contains,
+so it never claims a count it does not have, and never says "nothing to
+budget for" over a Home Plan that still has items on it.
 
 ## 6. Three PDF report products — **PARTIAL**
 
@@ -296,7 +302,8 @@ exercise it.
    member's own shutoff with its photograph. Safety-first ordering, no
    hard-coded phone numbers, and not tier-gated — see
    `docs/emergency-help.md`.
-7. **Zero-findings report.** A clean quarter currently looks like a bug.
+7. ~~**Zero-findings report.**~~ **DONE.** A clean quarter reads as the
+   result it is, with the checklist count as evidence.
 8. **Baseline Report** — the first document a new member ever receives.
 9. **Request categories** aligned to your eleven.
 10. **Q1–Q4 checklist themes** corrected to yours, especially Q3.

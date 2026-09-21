@@ -520,6 +520,68 @@ chips, so a card cannot say "ending soon" while the chip beside it says
 - 9 unit tests on the selection logic, including that an old decline does
   not silence a new warranty period.
 
+### Phase 17 — A clean quarter reads like good news
+
+A visit where nothing is wrong is the product working. It was the outcome
+the report handled worst: the "What we found" section simply **vanished**, so
+a perfect visit read as though the page had failed to load.
+
+Now it says what actually happened:
+
+> **No repairs recommended this quarter**
+> We went through 13 checks on this visit and every one passed. There is
+> nothing for you to do and nothing to budget for.
+
+and where the findings list would have been empty:
+
+> **What we found** — Nothing. All 13 checks passed.
+
+The evidence is the point. "We checked thirteen things and every one passed"
+is worth more to a careful homeowner than a list of problems, and it is the
+sentence that renews a membership.
+
+**It refuses to contradict itself.** The wording is generated from what the
+report actually contains, so it never:
+
+- claims a checklist count when no checklist was recorded
+- says "nothing to report" while three MONITOR items sit further down the
+  same page — it names them and says none of it needs doing now
+- says "nothing to budget for" over a Home Plan that still has items on it —
+  it says "nothing new to plan for, your Home Plan below is unchanged"
+
+That last one was a real bug I caught in my own copy: the first version
+announced "nothing to budget for" directly above a $17,100 plan.
+
+**The status row and the headline changed too.** A row of five zeros read
+flat; it now carries a line above it saying what the zeros mean. And "The
+one thing to know" — which previously vanished with nothing to say — leads
+with the clean result. An admin who explicitly chose a headline finding
+still gets theirs.
+
+**The demo's Reports tab was a dead end.** It linked at `/reports/<id>`,
+which is behind the login wall, so on a sales call it stopped at exactly the
+moment you want to hand somebody the thing they are buying. There is now a
+`/demo/reports/<id>` rendering the **same** `ReportDocument` component the
+live app uses — what a prospect sees is what a member gets.
+
+`demo-r4` is deliberately a clean quarter, so you can show one.
+
+**Also**
+
+- The report page split into loading (`app/reports/[id]`) and document
+  (`components/reports/report-document.tsx`). The page keeps RLS; the
+  document is reusable.
+- Demo checklists now use the **real** seasonal templates rather than
+  invented labels, so the count in the headline and the ticks under "What we
+  did" come from the same place and agree.
+- 11 cases covered on the wording logic, including one check, no checklist,
+  N/A items excluded, and a resolved ACTION not counting.
+
+**Worth knowing:** the Q3 template is only **13 items**. The report's
+credibility rests partly on that number, and 13 is thin for a full seasonal
+visit. The audit already flags that the Q1-Q4 *themes* do not match your
+spec; their *length* is worth a look at the same time.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
