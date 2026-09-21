@@ -733,6 +733,7 @@ begin
   'WATER_HEATER_SHUTOFF',
   'GAS_MAIN',
   'OIL_TANK_SHUTOFF',
+  'PROPANE_TANK_SHUTOFF',
   'ELECTRICAL_PANEL',    -- main panel / main breaker
   'SUB_PANEL',
   'SUMP_PUMP',
@@ -1478,6 +1479,21 @@ comment on view public.trade_performance is
 
 alter type public.report_type add value if not exists 'BASELINE';
 
+
+-- ---------------------------------------------------------------------
+-- The propane tank shutoff  (migration 0017)
+--
+-- A propane home's shutoff is the hand wheel on the tank, outdoors. It is
+-- the one valve this app will ever ask a member to close during a leak,
+-- because they are already outside when they reach it. There was nowhere
+-- to record it until now.
+--
+-- ⚠ Same enum rule as above: nothing below this line may create a safety
+-- point of this kind. You add the first one from the app.
+-- ---------------------------------------------------------------------
+
+alter type public.safety_point_kind add value if not exists 'PROPANE_TANK_SHUTOFF';
+
 -- ---------------------------------------------------------------------
 -- Did it work?
 -- ---------------------------------------------------------------------
@@ -1527,7 +1543,13 @@ select
        where t.typname = 'report_type' and e.enumlabel = 'BASELINE'
     )
       then 'The baseline report type did not apply — send this result to Claude.'
-    else 'Up to date. Everything through the Home Baseline Report is in.'
+    when not exists (
+      select 1 from pg_enum e
+        join pg_type t on t.oid = e.enumtypid
+       where t.typname = 'safety_point_kind' and e.enumlabel = 'PROPANE_TANK_SHUTOFF'
+    )
+      then 'The propane tank shutoff did not apply — send this result to Claude.'
+    else 'Up to date. Everything through the propane tank shutoff is in.'
   end as result,
   (select string_agg(name || ' — ' || tier, ', ' order by name)
      from public.properties) as your_homes;

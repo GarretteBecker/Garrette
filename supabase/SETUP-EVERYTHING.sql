@@ -2375,6 +2375,7 @@ create type public.safety_point_kind as enum (
   'WATER_HEATER_SHUTOFF',
   'GAS_MAIN',
   'OIL_TANK_SHUTOFF',
+  'PROPANE_TANK_SHUTOFF',  -- the valve on the tank, outdoors
   'ELECTRICAL_PANEL',    -- main panel / main breaker
   'SUB_PANEL',
   'SUMP_PUMP',

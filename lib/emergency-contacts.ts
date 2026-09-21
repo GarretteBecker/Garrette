@@ -13,9 +13,17 @@ import type { EmergencyContactKey } from '@/lib/emergency';
  * an actual bill for the area you serve:
  *
  *   NEXT_PUBLIC_GAS_UTILITY_NAME / NEXT_PUBLIC_GAS_UTILITY_PHONE
+ *   NEXT_PUBLIC_PROPANE_SUPPLIER_NAME / NEXT_PUBLIC_PROPANE_SUPPLIER_PHONE
  *   NEXT_PUBLIC_ELECTRIC_UTILITY_NAME / NEXT_PUBLIC_ELECTRIC_UTILITY_PHONE
  *   NEXT_PUBLIC_WATER_UTILITY_NAME / NEXT_PUBLIC_WATER_UTILITY_PHONE
  *   NEXT_PUBLIC_BM_EMERGENCY_PHONE
+ *
+ * The propane one is the weakest of these, because a propane supplier is
+ * chosen per household rather than by address — two members on the same
+ * street can be on different companies. Set it only if you genuinely serve
+ * one supplier's area; otherwise leave it unset and the screen falls back
+ * to the answer that is always right, which is that the 24-hour number is
+ * printed on the sticker on their own tank.
  *
  * They are NEXT_PUBLIC_ on purpose — a published emergency number is meant
  * to be read by the person holding the phone.
@@ -39,6 +47,11 @@ export function emergencyContact(key: EmergencyContactKey): EmergencyContact | n
       return contact(
         process.env.NEXT_PUBLIC_GAS_UTILITY_NAME,
         process.env.NEXT_PUBLIC_GAS_UTILITY_PHONE,
+      );
+    case 'PROPANE_SUPPLIER':
+      return contact(
+        process.env.NEXT_PUBLIC_PROPANE_SUPPLIER_NAME,
+        process.env.NEXT_PUBLIC_PROPANE_SUPPLIER_PHONE,
       );
     case 'ELECTRIC_UTILITY':
       return contact(

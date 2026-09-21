@@ -1,5 +1,7 @@
 import Link from 'next/link';
-import { EMERGENCIES, NOT_911_NOTICE, responsePromise } from '@/lib/emergency';
+import {
+  emergenciesForFuel, NOT_911_NOTICE, responsePromise, type HeatingFuel,
+} from '@/lib/emergency';
 import { bmEmergencyPhone, telHref } from '@/lib/emergency-contacts';
 
 const SEVERITY_BAR: Record<string, string> = {
@@ -20,11 +22,15 @@ const SEVERITY_BAR: Record<string, string> = {
 export default function EmergencyPicker({
   hrefPrefix = '/home',
   hasPriority,
+  fuel = null,
 }: {
   hrefPrefix?: string;
   hasPriority: boolean;
+  /** Their heating fuel, which changes the wording under "I smell gas". */
+  fuel?: HeatingFuel | null;
 }) {
   const bm = bmEmergencyPhone();
+  const emergencies = emergenciesForFuel(fuel);
 
   return (
     <>
@@ -47,7 +53,7 @@ export default function EmergencyPicker({
       </p>
 
       <ul className="space-y-2.5">
-        {EMERGENCIES.map((e) => (
+        {emergencies.map((e) => (
           <li key={e.kind}>
             <Link
               href={`${hrefPrefix}/help/${e.kind.toLowerCase()}`}

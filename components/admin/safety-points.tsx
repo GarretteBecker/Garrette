@@ -6,21 +6,45 @@ import { useFormStatus } from 'react-dom';
 import PhotoCapture from '@/components/capture/photo-capture';
 import { Field, inputClass, textareaClass } from '@/components/ui';
 import { saveSafetyPoint, deleteSafetyPoint } from '@/lib/actions/safety';
-import { SAFETY_POINT_LABEL, type SafetyPoint, type SafetyPointKind } from '@/lib/emergency';
+import {
+  SAFETY_POINT_LABEL, coreSafetyKinds,
+  type HeatingFuel, type SafetyPoint, type SafetyPointKind,
+} from '@/lib/emergency';
 
 /** The order a tech walks a basement, roughly. */
 const KINDS: SafetyPointKind[] = [
-  'WATER_MAIN', 'GAS_MAIN', 'ELECTRICAL_PANEL', 'WATER_HEATER_SHUTOFF',
-  'SUMP_PUMP', 'MAIN_CLEANOUT', 'WELL_PUMP', 'SEPTIC_ACCESS',
-  'OIL_TANK_SHUTOFF', 'SUB_PANEL', 'FLOOR_DRAIN', 'OUTSIDE_SPIGOT_SHUTOFF',
-  'SMOKE_CO_ALARM', 'FIRE_EXTINGUISHER', 'OTHER',
+  'WATER_MAIN', 'GAS_MAIN', 'PROPANE_TANK_SHUTOFF', 'ELECTRICAL_PANEL',
+  'WATER_HEATER_SHUTOFF', 'SUMP_PUMP', 'MAIN_CLEANOUT', 'WELL_PUMP',
+  'SEPTIC_ACCESS', 'OIL_TANK_SHUTOFF', 'SUB_PANEL', 'FLOOR_DRAIN',
+  'OUTSIDE_SPIGOT_SHUTOFF', 'SMOKE_CO_ALARM', 'FIRE_EXTINGUISHER', 'OTHER',
 ];
 
-/** The handful that earn their own prompt — these are what emergencies ask for. */
-const CORE_KINDS: SafetyPointKind[] = [
-  'WATER_MAIN', 'ELECTRICAL_PANEL', 'GAS_MAIN', 'WATER_HEATER_SHUTOFF',
-  'SUMP_PUMP', 'MAIN_CLEANOUT',
-];
+/**
+ * What a good one looks like, by kind.
+ *
+ * These are the sentences a technician would otherwise have to invent
+ * standing in somebody's basement. They are deliberately about the valve
+ * rather than about the house, because the valve is the part a homeowner
+ * has never looked at.
+ */
+const HOW_TO_HINT: Partial<Record<SafetyPointKind, string>> = {
+  WATER_MAIN:
+    'Red lever — quarter turn so it sits across the pipe rather than along it.',
+  PROPANE_TANK_SHUTOFF:
+    'Lift the dome lid. Black hand wheel, turn clockwise until it stops — no tools.',
+  GAS_MAIN:
+    'At the meter. Quarter turn with a wrench so the tab sits across the pipe. Utility work.',
+  OIL_TANK_SHUTOFF:
+    'Valve at the bottom of the tank where the line leaves it. Clockwise to close.',
+  ELECTRICAL_PANEL:
+    'Main breaker is the large one at the top. Note which breaker runs the furnace and the sump.',
+};
+
+const WHERE_HINT: Partial<Record<SafetyPointKind, string>> = {
+  PROPANE_TANK_SHUTOFF:
+    'Where the tank stands, and which end of it the valve is on. Say if it is buried.',
+  GAS_MAIN: 'Which side of the house the meter is on, and what you pass to reach it.',
+};
 
 function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -50,17 +74,26 @@ export default function SafetyPoints({
   propertyId,
   points,
   rooms,
+  fuel = null,
 }: {
   propertyId: string;
   points: (SafetyPoint & { room_id?: string | null })[];
   rooms: { id: string; name: string }[];
+  /**
+   * Their heating fuel. A propane home needs its tank valve recorded and
+   * has no gas meter; an all-electric home needs neither. Chasing a
+   * technician for a shutoff that does not exist teaches them to ignore
+   * the prompt.
+   */
+  fuel?: HeatingFuel | null;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<string | 'new' | null>(null);
   const [photoId, setPhotoId] = useState<string | null>(null);
 
   const have = new Set(points.map((p) => p.kind));
-  const missing = CORE_KINDS.filter((k) => !have.has(k));
+  const missing = coreSafetyKinds(fuel).filter((k) => !have.has(k));
+  const firstKind = missing[0] ?? 'WATER_MAIN';
 
   return (
     <div className="space-y-3">
@@ -141,6 +174,7 @@ export default function SafetyPoints({
           <PointForm
             propertyId={propertyId}
             point={null}
+            defaultKind={firstKind}
             rooms={rooms}
             photoId={photoId}
             setPhotoId={setPhotoId}
@@ -161,7 +195,7 @@ export default function SafetyPoints({
 }
 
 function PointForm({
-  propertyId, point, rooms, photoId, setPhotoId, onDone,
+  propertyId, point, rooms, photoId, setPhotoId, onDone, defaultKind = 'WATER_MAIN',
 }: {
   propertyId: string;
   point: (SafetyPoint & { room_id?: string | null }) | null;
@@ -169,7 +203,10 @@ function PointForm({
   photoId: string | null;
   setPhotoId: (id: string | null) => void;
   onDone: () => void;
+  defaultKind?: SafetyPointKind;
 }) {
+  const [kind, setKind] = useState<SafetyPointKind>(point?.kind ?? defaultKind);
+
   return (
     <form action={(fd) => { saveSafetyPoint(fd); onDone(); }} className="mt-3 space-y-3">
       <input type="hidden" name="property_id" value={propertyId} />
@@ -181,7 +218,8 @@ function PointForm({
           <select
             id={`sp_kind_${point?.id ?? 'new'}`}
             name="kind"
-            defaultValue={point?.kind ?? 'WATER_MAIN'}
+            value={kind}
+            onChange={(e) => setKind(e.target.value as SafetyPointKind)}
             className={inputClass}
           >
             {KINDS.map((k) => (
@@ -214,7 +252,10 @@ function PointForm({
           name="location_note"
           rows={2}
           defaultValue={point?.location_note ?? ''}
-          placeholder="Basement, northwest corner, on the wall just past the stairs where the line comes in."
+          placeholder={
+            WHERE_HINT[kind] ??
+            'Basement, northwest corner, on the wall just past the stairs where the line comes in.'
+          }
           className={textareaClass}
         />
       </Field>
@@ -229,7 +270,10 @@ function PointForm({
           name="how_to_note"
           rows={2}
           defaultValue={point?.how_to_note ?? ''}
-          placeholder="Red lever. Quarter turn so it sits across the pipe rather than along it."
+          placeholder={
+            HOW_TO_HINT[kind] ??
+            'Red lever. Quarter turn so it sits across the pipe rather than along it.'
+          }
           className={textareaClass}
         />
       </Field>

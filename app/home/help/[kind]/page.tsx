@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import PortalShell from '@/components/member/shell';
 import EmergencyGuide from '@/components/member/emergency-guide';
 import { loadSafetyPoints } from '@/lib/member/safety';
-import { emergencyByKind, EMERGENCIES } from '@/lib/emergency';
+import { emergencyByKind, adaptForFuel, EMERGENCIES, type HeatingFuel } from '@/lib/emergency';
 import { tierIncludes, type MembershipTier } from '@/lib/membership';
 import type { Asset } from '@/lib/types/database';
 
@@ -21,24 +21,30 @@ export default async function HelpKindPage({
 }) {
   await requireRole('member');
   const { kind } = await params;
-  const def = emergencyByKind(kind.toUpperCase());
-  if (!def) notFound();
+  const base = emergencyByKind(kind.toUpperCase());
+  if (!base) notFound();
 
   const supabase = await createClient();
 
   const [points, { data: properties }, { data: assets }] = await Promise.all([
     loadSafetyPoints(),
-    supabase.from('properties').select('tier').limit(1),
-    def.assetCategories?.length
+    supabase.from('properties').select('tier, heating_fuel').limit(1),
+    base.assetCategories?.length
       ? supabase
           .from('assets')
           .select('id, name, manufacturer, model, serial_number, location_notes')
-          .in('category', def.assetCategories)
+          .in('category', base.assetCategories)
           .order('name')
       : Promise.resolve({ data: [] }),
   ]);
 
-  const tier = ((properties ?? [])[0] as { tier?: MembershipTier } | undefined)?.tier ?? null;
+  const property = (properties ?? [])[0] as
+    { tier?: MembershipTier; heating_fuel?: HeatingFuel } | undefined;
+  const tier = property?.tier ?? null;
+
+  // Propane is not natural gas. Their fuel changes what this screen says —
+  // see the block at the foot of lib/emergency.ts for why.
+  const def = adaptForFuel(base, property?.heating_fuel ?? null);
 
   return (
     <PortalShell active="dashboard" title="I need help now" subtitle={def.label}>

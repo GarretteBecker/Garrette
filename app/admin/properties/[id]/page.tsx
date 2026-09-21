@@ -444,6 +444,7 @@ export default async function PropertyDetailPage({
                   room_name: roomRows.find((r) => r.id === sp.room_id)?.name ?? null,
                 }))}
                 rooms={roomRows.map((r) => ({ id: r.id, name: r.name }))}
+                fuel={p.heating_fuel ?? null}
               />
             </Card>
 

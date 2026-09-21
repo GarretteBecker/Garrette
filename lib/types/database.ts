@@ -6,6 +6,11 @@
  * Supabase CLI instead: `supabase gen types typescript`.)
  */
 
+// heating_fuel lives in lib/emergency.ts because there it is not a fact
+// about the house — it decides what a frightened member is told to do.
+import type { HeatingFuel } from '@/lib/emergency';
+export type { HeatingFuel };
+
 export type UserRole = 'admin' | 'tech' | 'member' | 'trade';
 
 export type FindingStatus =
@@ -41,7 +46,10 @@ export type DocumentType =
 export type PhotoKind = 'GENERAL' | 'DATA_PLATE' | 'DOCUMENT' | 'BEFORE' | 'AFTER';
 export type ScanStatus = 'NOT_REQUESTED' | 'PENDING' | 'DONE' | 'FAILED';
 
-export type ReportType = 'VISIT_SUMMARY' | 'ANNUAL_REVIEW' | 'HOME_RECORD' | 'HOME_PLAN';
+export type ReportType =
+  | 'VISIT_SUMMARY' | 'ANNUAL_REVIEW' | 'HOME_RECORD' | 'HOME_PLAN'
+  // 0016 — the first document a new member ever gets.
+  | 'BASELINE';
 
 export interface Profile {
   id: string;
@@ -76,6 +84,20 @@ export interface Property {
   member_discount_used_ytd: number;
   member_discount_year_start: string | null;
   member_since: string | null;
+  // 0013 — the facts about the house itself. Optional because most of the
+  // app only ever selects a handful of columns, and a partial row is still
+  // a Property.
+  construction_type?: string | null;
+  exterior_material?: string | null;
+  roof_material?: string | null;
+  roof_installed_year?: number | null;
+  water_source?: 'PUBLIC' | 'WELL' | 'SHARED_WELL' | 'OTHER' | null;
+  sewer_type?: 'PUBLIC' | 'SEPTIC' | 'MOUND' | 'OTHER' | null;
+  /** Changes what the emergency screen tells them. See lib/emergency.ts. */
+  heating_fuel?: HeatingFuel | null;
+  electrical_service_amps?: number | null;
+  stories?: number | null;
+  basement_type?: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;

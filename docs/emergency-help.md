@@ -33,12 +33,38 @@ gas screen:
 
 - opens with a full-width red **Get everyone out now** card and a 911 button,
   above everything else
-- **never** shows the gas shutoff location
+- **never** shows the natural gas shutoff location
 - explicitly says *"do not go looking for the gas shutoff inside the house"*
   and *"do not switch anything on or off — a light switch can make a spark"*
 
 The electrical screen works the same way: fire or smoke → out and 911, and
 the breaker step is conditioned on the panel being dry and reachable.
+
+**Propane is the one exception, and it is not really an exception.** On a
+propane home the screen does tell the member to close their tank valve —
+but only at step three, after "leave the house" and "stay out of the
+basement", and only "if you can reach it safely". The reason it is safe to
+say on propane and not on natural gas is physical, not editorial:
+
+| | Natural gas | Propane |
+|---|---|---|
+| Lighter or heavier than air | Lighter — rises and disperses | **Heavier — sinks and pools** in basements, crawlspaces and along the floor |
+| Where the shutoff is | At the meter, against the house | **On the tank, out in the yard** |
+| What we tell them | Leave it to the utility | Close it from outside, if they can do it safely |
+
+So the propane member is already outdoors and away from the building when
+they reach their valve, which is exactly what every propane supplier's own
+safety sheet says to do. The natural gas member would have to walk back
+towards the house, so we never send them.
+
+Two other things follow from propane being heavier than air: the screen
+says *"stay out of the basement and any low ground"* as its own numbered
+step, and the "do not" list carries *"do not go down to the basement to
+look for it — that is where propane collects."*
+
+Which version a member sees comes from `properties.heating_fuel`. **When we
+have not recorded their fuel they get the natural-gas screen**, which is the
+conservative one: leave, call, touch nothing.
 
 The ordering of the list on the picker screen is also part of this. "I smell
 gas" and "Burning smell, smoke or sparks" are first, because a frightened
@@ -126,7 +152,7 @@ home loses water pressure when the power goes out and a public home does
 not; a septic backup often means a full tank rather than a blockage.
 
 **Shutoffs & access points** — this is the one that matters. For each, record
-where it is, how to work it, and **take the photograph**. The six the
+where it is, how to work it, and **take the photograph**. The ones the
 emergency screens ask for are:
 
 | Point | Used by |
@@ -136,10 +162,21 @@ emergency screens ask for are:
 | Water heater shutoff | Water leak, no hot water |
 | Sump pump | Basement water |
 | Main drain cleanout | Sewage backup |
+| **Propane tank shutoff** | Gas smell (propane homes) — the one valve we ask a member to close. Also doubles as "where your gauge is" on a no-heat call |
+| **Oil tank shutoff** | No heat on an oil home — "check the gauge, you may be out" |
 | Main gas shutoff | Recorded for reference — deliberately never shown during a gas emergency |
 
-The card tells you which are still missing. Capture them on the baseline
-visit; it takes about ten minutes with the camera already in the app.
+**Which of those you are asked for depends on the heating fuel** you set in
+*About the house*. Set the fuel first: a propane home is asked for its tank
+valve and not for a gas meter it does not have, an all-electric home is
+asked for neither, and a house whose fuel we have not recorded is asked for
+the gas meter on the assumption that it probably has one. Chasing a
+technician for a shutoff that does not exist is how you teach them to ignore
+the prompt.
+
+The card tells you which are still missing, and opens the form on the first
+one. Capture them on the baseline visit; it takes about ten minutes with the
+camera already in the app.
 
 **Write the location note for somebody frightened, in the dark, who has never
 looked for it before.** Not "basement NW" — *"Basement, northwest corner, on
@@ -169,6 +206,7 @@ standing in the room can see. A key location is, so it stays out.
 | Loading their shutoffs, with signed photos | `lib/member/safety.ts` |
 | Recording shutoffs | `components/admin/safety-points.tsx` |
 | Table, RLS, cross-property guard | `supabase/migrations/0013_home_facts_and_safety.sql` |
+| The propane tank shutoff kind | `supabase/migrations/0017_propane_shutoff.sql` |
 
 ---
 

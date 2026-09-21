@@ -25,6 +25,7 @@ export type SafetyPointKind =
   | 'WATER_HEATER_SHUTOFF'
   | 'GAS_MAIN'
   | 'OIL_TANK_SHUTOFF'
+  | 'PROPANE_TANK_SHUTOFF'
   | 'ELECTRICAL_PANEL'
   | 'SUB_PANEL'
   | 'SUMP_PUMP'
@@ -42,6 +43,7 @@ export const SAFETY_POINT_LABEL: Record<SafetyPointKind, string> = {
   WATER_HEATER_SHUTOFF: 'Water heater shutoff',
   GAS_MAIN: 'Main gas shutoff',
   OIL_TANK_SHUTOFF: 'Oil tank shutoff',
+  PROPANE_TANK_SHUTOFF: 'Propane tank shutoff',
   ELECTRICAL_PANEL: 'Main electrical panel',
   SUB_PANEL: 'Sub panel',
   SUMP_PUMP: 'Sump pump',
@@ -67,7 +69,26 @@ export interface SafetyPoint {
   photo_url?: string | null;
 }
 
-export type EmergencyContactKey = 'GAS_UTILITY' | 'ELECTRIC_UTILITY' | 'WATER_UTILITY';
+export type EmergencyContactKey =
+  | 'GAS_UTILITY'
+  | 'PROPANE_SUPPLIER'
+  | 'ELECTRIC_UTILITY'
+  | 'WATER_UTILITY';
+
+/**
+ * How the house is heated, which changes the advice.
+ *
+ * Mirrors the heating_fuel enum in migration 0013. It is here rather than
+ * in the database types because in this file it is not a fact about the
+ * house — it decides what a frightened person is told to do.
+ */
+export type HeatingFuel =
+  | 'NATURAL_GAS'
+  | 'PROPANE'
+  | 'OIL'
+  | 'ELECTRIC'
+  | 'HEAT_PUMP'
+  | 'OTHER';
 
 export type EmergencyKind =
   | 'GAS_SMELL'
@@ -513,3 +534,174 @@ export function responsePromise(hasPriority: boolean): string {
 /** Always shown. B&M is who you call once you are safe, not instead of 911. */
 export const NOT_911_NOTICE =
   'B&M is not an emergency service. If anyone is in danger, or there is fire, gas or a medical emergency, call 911 first.';
+
+/* =====================================================================
+ * Propane is not natural gas, and the difference is a safety difference.
+ *
+ * Two facts drive everything below.
+ *
+ *  1. **Propane is heavier than air.** Natural gas rises and works its way
+ *     out of a house. Propane sinks. It runs downhill, along the floor and
+ *     down the basement stairs, and it sits there. So on a propane home
+ *     "stay out of the basement" is not general caution — the basement is
+ *     where the gas is, and it is the last place the smell clears.
+ *
+ *  2. **The propane shutoff is OUTSIDE, on the tank.** That is why this
+ *     file will tell a propane member to close their valve and will never
+ *     tell a natural gas member to go and find theirs. Every propane
+ *     supplier's own safety sheet says shut the tank valve if you can do
+ *     it safely, because you are already outside and away from the
+ *     building when you do it. A natural gas shutoff is at the meter,
+ *     often up against the house, and the utility's own advice is to leave
+ *     it to them — so we do.
+ *
+ * The rule from the top of this file still governs: LEAVE comes first,
+ * the valve comes after, and "if you can reach it safely" is not decoration.
+ * A member who reads only step one has still done the important thing.
+ *
+ * Which version a member sees comes from properties.heating_fuel. When we
+ * have not recorded their fuel they get the natural-gas screen, which is
+ * the conservative one — leave and call, touch nothing.
+ * ===================================================================== */
+
+const PROPANE_SMELL: EmergencyDefinition = {
+  kind: 'GAS_SMELL',
+  label: 'I smell gas',
+  examples: 'Rotten-egg smell, hissing near the tank or a gas line',
+  severity: 'EVACUATE',
+  evacuate:
+    'Get everyone out of the house now. Do not use light switches, appliances, or your phone until you are outside and away from the building.',
+  steps: [
+    {
+      title: 'Leave the house, taking everyone with you',
+      detail: 'Open a door on your way out if it is on your path. Do not stop to look for the leak.',
+    },
+    {
+      title: 'Stay out of the basement and any low ground',
+      detail:
+        'Propane is heavier than air. It sinks and collects in basements, crawlspaces and along the floor — so the lowest part of your property is the worst place to be, and the last place it clears.',
+    },
+    {
+      title: 'From outside, close the valve on the tank — if you can reach it safely',
+      detail:
+        'Your tank is outdoors, which is why this is safe to do and finding a shutoff indoors would not be. Lift the lid and turn the hand wheel clockwise until it stops. If the smell or the hissing is coming from the tank itself, stay away from it and skip this step.',
+      needs: 'PROPANE_TANK_SHUTOFF',
+    },
+    {
+      title: 'From outside, call 911 and your propane supplier',
+      detail:
+        'Call from the street or a neighbour’s — not from inside. Your supplier’s 24-hour number is on the sticker on your tank and on your delivery ticket.',
+      contact: 'PROPANE_SUPPLIER',
+    },
+    {
+      title: 'Keep everyone away until they say it is safe',
+      detail: 'Do not go back in for anything, and do not start a car in an attached garage.',
+    },
+    {
+      title: 'Nobody relights it but a technician — then tell us',
+      detail:
+        'After a leak the whole system has to be leak-tested and the pilots relit by a qualified person. That is the rule, not caution. We will get it done and put it on your record.',
+    },
+  ],
+  doNot: [
+    'Do not switch anything on or off — a light switch can make a spark',
+    'Do not go down to the basement to look for it — that is where propane collects',
+    'Do not light a match, candle or lighter',
+    'Do not use your phone until you are outside',
+    'Do not go near the tank if the smell or the hissing is coming from it',
+  ],
+  requestTitle: 'Propane smell — supplier called',
+  requestCategory: 'Heating & cooling',
+};
+
+/**
+ * "You are simply out of gas" is the commonest no-heat call on a delivered
+ * fuel, and the one a homeowner can answer themselves in thirty seconds.
+ *
+ * The relight warning is not us being careful. After a run-out, propane
+ * rules require the system to be leak-tested before it goes back into
+ * service — which is a job for whoever fills the tank, not the homeowner.
+ */
+const OUT_OF_PROPANE: EmergencyStep = {
+  title: 'Check the tank gauge — you may simply be out',
+  detail:
+    'Lift the lid on the tank and read the dial. Under 10% is low and worth a call; at zero the furnace has nothing to burn. This is the answer more often than anything else on this list.',
+  needs: 'PROPANE_TANK_SHUTOFF',
+};
+
+const NO_RELIGHT_AFTER_RUNOUT =
+  'Do not try to relight the system yourself after running out — it has to be leak-tested first, and your supplier does that when they fill you';
+
+const OUT_OF_OIL: EmergencyStep = {
+  title: 'Check the tank gauge — you may simply be out',
+  detail:
+    'The float gauge is on top of the tank. At the bottom of the sight glass the burner has nothing to burn, and a run-out usually pulls sludge into the line as well, so it needs a filter and a bleed rather than just a delivery.',
+  needs: 'OIL_TANK_SHUTOFF',
+};
+
+/**
+ * The same emergency, told for this house.
+ *
+ * Returns the definition unchanged for every fuel we have no special
+ * advice for — including an unrecorded one, which falls through to the
+ * conservative natural-gas wording on purpose.
+ */
+export function adaptForFuel(
+  def: EmergencyDefinition,
+  fuel: HeatingFuel | null | undefined,
+): EmergencyDefinition {
+  if (fuel === 'PROPANE') {
+    if (def.kind === 'GAS_SMELL') return PROPANE_SMELL;
+    if (def.kind === 'NO_HEAT') {
+      return {
+        ...def,
+        steps: [def.steps[0], OUT_OF_PROPANE, ...def.steps.slice(1)],
+        doNot: [...(def.doNot ?? []), NO_RELIGHT_AFTER_RUNOUT],
+      };
+    }
+  }
+
+  if (fuel === 'OIL' && def.kind === 'NO_HEAT') {
+    return { ...def, steps: [def.steps[0], OUT_OF_OIL, ...def.steps.slice(1)] };
+  }
+
+  return def;
+}
+
+/** Every emergency, told for this house. Used by the picker. */
+export function emergenciesForFuel(fuel: HeatingFuel | null | undefined): EmergencyDefinition[] {
+  return EMERGENCIES.map((e) => adaptForFuel(e, fuel));
+}
+
+/**
+ * The shutoffs a technician is expected to photograph on this house.
+ *
+ * Fuel-dependent, because chasing a technician for a natural gas meter on
+ * an all-electric house trains them to ignore the prompt — and a propane
+ * home with no tank valve recorded is a real gap, since that is the one
+ * valve we will actually ask a member to turn.
+ */
+export function coreSafetyKinds(fuel: HeatingFuel | null | undefined): SafetyPointKind[] {
+  const base: SafetyPointKind[] = [
+    'WATER_MAIN',
+    'ELECTRICAL_PANEL',
+    'WATER_HEATER_SHUTOFF',
+    'SUMP_PUMP',
+    'MAIN_CLEANOUT',
+  ];
+
+  switch (fuel) {
+    case 'PROPANE':
+      return ['WATER_MAIN', 'PROPANE_TANK_SHUTOFF', 'ELECTRICAL_PANEL', ...base.slice(2)];
+    case 'OIL':
+      return ['WATER_MAIN', 'OIL_TANK_SHUTOFF', 'ELECTRICAL_PANEL', ...base.slice(2)];
+    case 'ELECTRIC':
+    case 'HEAT_PUMP':
+      return base;
+    // Natural gas, and an unrecorded fuel. A house we have not asked about
+    // yet is more likely to have gas than not around here, and an extra
+    // prompt costs a technician one tap.
+    default:
+      return ['WATER_MAIN', 'GAS_MAIN', 'ELECTRICAL_PANEL', ...base.slice(2)];
+  }
+}

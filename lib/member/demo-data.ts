@@ -558,6 +558,16 @@ export const DEMO_SAFETY_POINTS: SafetyPoint[] = [
     photo_url: null,
   },
   {
+    id: 'sp6',
+    kind: 'PROPANE_TANK_SHUTOFF',
+    label: 'Propane tank shutoff',
+    location_note: '500 gallon tank behind the garage, off the gravel turnaround. The valve is under the green dome lid at the end nearest the house.',
+    how_to_note: 'Lift the lid. Turn the black hand wheel clockwise until it stops — it turns easily, no tools. The gauge beside it reads the level as a percentage.',
+    photo_id: null,
+    room_name: null,
+    photo_url: null,
+  },
+  {
     id: 'sp5',
     kind: 'MAIN_CLEANOUT',
     label: 'Main drain cleanout',
@@ -618,6 +628,11 @@ export const DEMO_PORTAL_DATA: PortalData = {
     bathrooms: 2.5,
     lot_size_acres: 0.31,
     plan_tier: 'HomeKeeper Response',
+    // The sample home is on propane — a 500 gallon tank behind the garage,
+    // which is a normal Lancaster County house and lets the demo show the
+    // propane version of "I smell gas". Change to 'NATURAL_GAS' to see the
+    // conservative version a gas home (or an unrecorded one) gets.
+    heating_fuel: 'PROPANE',
     // The sample home is a Response member, so the demo shows the whole
     // product. Flip this to 'CORE' to see what a Core member sees.
     tier: 'RESPONSE',

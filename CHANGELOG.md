@@ -713,6 +713,77 @@ wrapped in an explicit transaction, and the catch-up three times over.
 
 `/demo/reports/demo-r0` is a real one, so you can show it.
 
+### Phase 21 — Propane is not natural gas
+
+You sent three photographs — a water main, a gas meter, a propane tank —
+and the third one is the one this app had no answer for. The database has
+known since Phase 15 that a home can be heated by propane, but there was
+nowhere to record the propane shutoff and the gas-leak screen quietly
+assumed every home was on natural gas. Around here that is a lot of homes
+told the wrong thing.
+
+**The difference is physical, not editorial.**
+
+| | Natural gas | Propane |
+|---|---|---|
+| Lighter or heavier than air | Lighter — rises and disperses | **Heavier — sinks and pools** in basements and along the floor |
+| Where the shutoff is | At the meter, against the house | **On the tank, out in the yard** |
+| What the app now says | Leave it to the utility | Close it from outside, if you can reach it safely |
+
+**What a propane member sees when they tap "I smell gas":**
+
+1. Leave the house, taking everyone with you
+2. **Stay out of the basement and any low ground** — propane sinks, so the
+   lowest part of the property is the worst place to be and the last place
+   it clears
+3. **From outside, close the valve on the tank — if you can reach it
+   safely**, with their own tank's location, how the wheel turns, and the
+   photograph. If the smell or the hissing is coming from the tank itself,
+   the step tells them to stay away and skip it
+4. From outside, call 911 and their propane supplier
+5. Keep everyone away until they say it is safe
+6. Nothing gets relit except by a technician — then tell us
+
+Step 3 comes third, after *leave*, on purpose. A member who reads only step
+one has still done the important thing. The natural gas screen is unchanged
+and still never shows a shutoff during a leak — that member would have to
+walk back towards the house to reach theirs.
+
+**Also on a propane home:** "No heat" now starts with *check the tank gauge,
+you may simply be out*, which is the commonest no-heat call there is, and
+warns against relighting after a run-out — the system has to be leak-tested
+first, and the supplier does that when they fill you. An oil home gets the
+same step pointed at its own tank gauge.
+
+**When we have not recorded a home's fuel, it gets the natural-gas screen**
+— leave, call, touch nothing. The conservative one is the default.
+
+**For you and your techs.** `Propane tank shutoff` is now a kind you can
+record, and the *Shutoffs & access points* card asks for the right ones for
+that house: a propane home is asked for its tank valve and not for a gas
+meter it does not have, an all-electric home for neither. **Set the heating
+fuel in *About the house* first** — that is what drives it. The form also
+opens on the first thing still missing, and the "how to work it" placeholder
+now shows what a good note looks like for whichever kind you picked.
+
+**Verified.** Migrations applied in order on Postgres 16; `CATCH-UP.sql` and
+`SETUP-EVERYTHING.sql` each applied wrapped in one explicit transaction, and
+the catch-up's last line now reads *"Up to date. Everything through the
+propane tank shutoff is in."* With a propane shutoff recorded on two
+different houses, the member sees only her own — naming the other property's
+id directly returns zero rows, and her insert is refused. The screens were
+read at phone width.
+
+**A note on the migration.** Same one-statement rule as the baseline report:
+PostgreSQL will not let a new enum value be *used* in the transaction that
+adds it, so nothing downstream of it creates a safety point of that kind.
+
+**The photographs are still yours to take.** I did not put your three photos
+into the app. Two of them are not B&M's — one is a video thumbnail — and
+this app's rule is that it never shows a member a stock picture of somebody
+else's valve. The demo propane tank has the words but no picture, which is
+exactly what a real member sees until a tech photographs theirs.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

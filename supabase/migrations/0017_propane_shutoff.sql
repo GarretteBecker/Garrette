@@ -1,0 +1,27 @@
+-- =====================================================================
+-- B&M HomeKeeper — 0017 the propane tank shutoff
+--
+-- properties.heating_fuel has had 'PROPANE' in it since migration 0013,
+-- but safety_point_kind never had anywhere to record the valve. On a
+-- propane home that is the one shutoff we will actually ask a member to
+-- close, so its absence was the gap that mattered most.
+--
+-- Why propane gets a valve of its own and natural gas does not:
+--
+--   Propane is heavier than air and the tank is OUTSIDE. A member who is
+--   already out of the house can close the tank valve from the yard, and
+--   every propane supplier's own safety sheet says to do exactly that if
+--   it is safe. Natural gas is lighter than air and its shutoff is at the
+--   meter against the house — the utility's advice there is to leave it
+--   to them, so this app never sends anyone to find it during a leak.
+--
+-- The app logic that depends on this lives at the foot of lib/emergency.ts.
+--
+-- ⚠ ONE STATEMENT, ON PURPOSE — same reason as 0016. PostgreSQL will not
+-- let a newly added enum value be USED in the transaction that adds it,
+-- and the bundled catch-up script may run as one transaction. Nothing
+-- downstream of this inserts a safety point of this kind; the office adds
+-- the first one from the app, after this has committed.
+-- =====================================================================
+
+alter type public.safety_point_kind add value if not exists 'PROPANE_TANK_SHUTOFF';

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import PortalShell from '@/components/member/shell';
 import DemoBanner from '@/components/member/demo-banner';
 import EmergencyGuide from '@/components/member/emergency-guide';
-import { emergencyByKind, EMERGENCIES } from '@/lib/emergency';
+import { emergencyByKind, adaptForFuel, EMERGENCIES } from '@/lib/emergency';
 import { DEMO_SAFETY_POINTS, DEMO_PORTAL_DATA } from '@/lib/member/demo-data';
 
 export function generateStaticParams() {
@@ -15,8 +15,11 @@ export default async function DemoHelpKindPage({
   params: Promise<{ kind: string }>;
 }) {
   const { kind } = await params;
-  const def = emergencyByKind(kind.toUpperCase());
-  if (!def) notFound();
+  const base = emergencyByKind(kind.toUpperCase());
+  if (!base) notFound();
+
+  // The sample home runs on propane, so the demo shows the propane version.
+  const def = adaptForFuel(base, DEMO_PORTAL_DATA.property.heating_fuel ?? null);
 
   const assets = def.assetCategories?.length
     ? DEMO_PORTAL_DATA.assets.filter((a) => def.assetCategories!.includes(a.category))
