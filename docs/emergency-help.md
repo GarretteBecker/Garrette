@@ -85,6 +85,30 @@ it does not show a stock photograph of somebody else's valve.
 Showing nothing would be worse than an honest gap — it would read as though
 the step simply did not apply to them.
 
+**Reference photographs exist, and they are kept away from members.**
+`public/reference/` holds one example picture per shutoff kind, wired up in
+`lib/reference-photos.ts`. They appear in exactly two places, both of which
+say what they are:
+
+- the **technician's capture card**, behind a *"What you are looking for —
+  example, not this home"* toggle, so whoever is in the basement knows what
+  they are hunting for and what a usable photo looks like
+- the **sample home at `/demo`**, which is banner-labelled as sample data on
+  every screen, so a demo shutoff card shows a finished example rather than
+  an empty box
+
+A real member's emergency screen still shows their own photograph or an
+honest *"we have not recorded yours yet"*. It never falls back to one of
+these.
+
+`mine` in that file records provenance, because it decides what the picture
+may be used for. Only B&M's own photographs should ever reach a customer in
+marketing or a printed leave-behind. The gas meter and propane tank examples
+are placeholders taken from video stills — the gas one still has somebody
+else's title burned across it, **left uncropped on purpose** so nobody
+mistakes it for ours. Replace either by dropping a new file at the same path;
+nothing else needs changing.
+
 ---
 
 ## Phone numbers are never hard-coded
@@ -205,6 +229,7 @@ standing in the room can see. A key location is, so it stays out.
 | The guidance screen | `components/member/emergency-guide.tsx` |
 | Loading their shutoffs, with signed photos | `lib/member/safety.ts` |
 | Recording shutoffs | `components/admin/safety-points.tsx` |
+| Reference example photos, and their provenance | `lib/reference-photos.ts`, `public/reference/` |
 | Table, RLS, cross-property guard | `supabase/migrations/0013_home_facts_and_safety.sql` |
 | The propane tank shutoff kind | `supabase/migrations/0017_propane_shutoff.sql` |
 

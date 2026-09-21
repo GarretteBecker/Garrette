@@ -229,7 +229,7 @@ export const EMERGENCIES: EmergencyDefinition[] = [
     steps: [
       {
         title: 'Turn the water off at the main',
-        detail: 'This is the one that stops everything. Turn it clockwise until it stops, or turn the lever a quarter turn so it sits across the pipe.',
+        detail: 'This is the one that stops everything. A lever takes a quarter turn so it sits across the pipe; a round wheel turns clockwise and takes a lot of turns. If a wheel is stiff, turn it steadily — do not force it with a tool, because a valve that snaps leaves you with no way to stop the water at all.',
         needs: 'WATER_MAIN',
       },
       {
@@ -584,7 +584,7 @@ const PROPANE_SMELL: EmergencyDefinition = {
     {
       title: 'From outside, close the valve on the tank — if you can reach it safely',
       detail:
-        'Your tank is outdoors, which is why this is safe to do and finding a shutoff indoors would not be. Lift the lid and turn the hand wheel clockwise until it stops. If the smell or the hissing is coming from the tank itself, stay away from it and skip this step.',
+        'Your tank is outdoors, which is why this is safe to do and finding a shutoff indoors would not be. Lift the lid and turn the service valve clockwise until it stops — a round wheel on most tanks, a small lever on some, and no tools either way. If the smell or the hissing is coming from the tank itself, stay away from it and skip this step.',
       needs: 'PROPANE_TANK_SHUTOFF',
     },
     {

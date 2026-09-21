@@ -522,10 +522,13 @@ export const DEMO_SAFETY_POINTS: SafetyPoint[] = [
     kind: 'WATER_MAIN',
     label: 'Main water shutoff',
     location_note: 'Basement, northwest corner, on the wall just past the stairs where the line comes in through the foundation.',
-    how_to_note: 'Red lever. Turn it a quarter turn so it sits across the pipe rather than along it.',
-    photo_id: null,
+    how_to_note: 'Round wheel on the valve above the meter. Turn it clockwise until it stops — it takes a lot of turns, and it may be stiff. If it will not move, stop and call rather than forcing it.',
+    photo_id: 'demo-photo-water-main',
     room_name: 'Basement',
-    photo_url: null,
+    // A real photograph, so the demo shows a finished shutoff card rather
+    // than an empty one. Every /demo screen is banner-labelled as sample
+    // data, so nothing here is claiming to be anybody's house.
+    photo_url: '/reference/water-main.jpg',
   },
   {
     id: 'sp2',
@@ -562,10 +565,10 @@ export const DEMO_SAFETY_POINTS: SafetyPoint[] = [
     kind: 'PROPANE_TANK_SHUTOFF',
     label: 'Propane tank shutoff',
     location_note: '500 gallon tank behind the garage, off the gravel turnaround. The valve is under the green dome lid at the end nearest the house.',
-    how_to_note: 'Lift the lid. Turn the black hand wheel clockwise until it stops — it turns easily, no tools. The gauge beside it reads the level as a percentage.',
-    photo_id: null,
+    how_to_note: 'Lift the lid. Turn the service valve clockwise until it stops — a wheel or a small lever depending on the tank, and no tools either way. The gauge beside it reads the level as a percentage.',
+    photo_id: 'demo-photo-propane-tank',
     room_name: null,
-    photo_url: null,
+    photo_url: '/reference/propane-tank.jpg',
   },
   {
     id: 'sp5',

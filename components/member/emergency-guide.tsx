@@ -231,7 +231,10 @@ function YourPoint({ point }: { point: SafetyPoint }) {
         <img
           src={point.photo_url}
           alt={`${pointLabel(point)} in your home`}
-          className="block max-h-72 w-full object-cover"
+          // contain, not cover. A shutoff photograph is evidence — cropping
+          // it to fit a tidy box is how you lose the second valve, or the
+          // gauge, or the bit of wall that tells them which corner it is in.
+          className="block max-h-80 w-full bg-navy-900/5 object-contain"
         />
       ) : null}
     </div>

@@ -10,6 +10,7 @@ import {
   SAFETY_POINT_LABEL, coreSafetyKinds,
   type HeatingFuel, type SafetyPoint, type SafetyPointKind,
 } from '@/lib/emergency';
+import { REFERENCE_PHOTO, referenceCredit } from '@/lib/reference-photos';
 
 /** The order a tech walks a basement, roughly. */
 const KINDS: SafetyPointKind[] = [
@@ -29,9 +30,9 @@ const KINDS: SafetyPointKind[] = [
  */
 const HOW_TO_HINT: Partial<Record<SafetyPointKind, string>> = {
   WATER_MAIN:
-    'Red lever — quarter turn so it sits across the pipe rather than along it.',
+    'Lever: quarter turn, across the pipe. Round wheel: clockwise, many turns. Say which, and say if it is stiff.',
   PROPANE_TANK_SHUTOFF:
-    'Lift the dome lid. Black hand wheel, turn clockwise until it stops — no tools.',
+    'Lift the dome lid. Service valve clockwise until it stops — wheel or lever, no tools either way.',
   GAS_MAIN:
     'At the meter. Quarter turn with a wrench so the tab sits across the pipe. Utility work.',
   OIL_TANK_SHUTOFF:
@@ -287,6 +288,8 @@ function PointForm({
         />
       </Field>
 
+      <ReferenceExample kind={kind} />
+
       <div className="rounded-lg bg-slate-50 p-3">
         <p className="mb-2 text-[13px] font-semibold text-navy-800">
           Photograph it {photoId || point?.photo_id ? '— done' : ''}
@@ -305,5 +308,49 @@ function PointForm({
 
       <Submit label={point ? 'Save' : 'Add it'} />
     </form>
+  );
+}
+
+/**
+ * What you are looking for, for whoever is standing in the basement.
+ *
+ * Collapsed by default so it never gets between a technician and the
+ * camera button, and labelled "not this home" in the heading rather than
+ * in small print — a reference picture that could be mistaken for the
+ * member's own is worse than no picture at all.
+ */
+function ReferenceExample({ kind }: { kind: SafetyPointKind }) {
+  const [open, setOpen] = useState(false);
+  const ref = REFERENCE_PHOTO[kind];
+  if (!ref) return null;
+
+  return (
+    <div className="rounded-lg bg-white ring-1 ring-slate-200">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left"
+      >
+        <span className="text-[13px] font-semibold text-navy-800">
+          What you are looking for{' '}
+          <span className="font-normal text-slate-500">— example, not this home</span>
+        </span>
+        <span className="shrink-0 text-[13px] font-semibold text-brandgreen-600">
+          {open ? 'Hide' : 'Show'}
+        </span>
+      </button>
+      {open ? (
+        <div className="border-t border-slate-100 p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={ref.src}
+            alt={`Example of a ${SAFETY_POINT_LABEL[kind].toLowerCase()} — not this property`}
+            className="block max-h-64 w-full rounded-lg object-cover"
+          />
+          <p className="mt-2 text-[12px] leading-relaxed text-slate-600">{ref.caption}</p>
+          <p className="mt-1 text-[11px] text-slate-400">{referenceCredit(ref)}</p>
+        </div>
+      ) : null}
+    </div>
   );
 }

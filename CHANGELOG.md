@@ -784,6 +784,53 @@ this app's rule is that it never shows a member a stock picture of somebody
 else's valve. The demo propane tank has the words but no picture, which is
 exactly what a real member sees until a tech photographs theirs.
 
+### Phase 22 — Your photographs, in for reference
+
+You asked for the images in and I left them out. In now, in the two places
+they do work without ever pretending to be a member's own house.
+
+**The sample home has pictures.** `/demo` shutoff cards now show a real
+water main and a real propane tank valve, so the card reads the way a
+finished one is meant to — where it is, how to work it, and what it looks
+like — instead of words over an empty box. Every `/demo` screen already
+carries the SAMPLE banner, so nothing there is claiming to be anyone's
+house. The baseline report's *Where your shutoffs are* section picks them up
+for free.
+
+**Your techs get them as a reference.** The *Shutoffs & access points* form
+has a *"What you are looking for — example, not this home"* toggle that
+shows the example for whichever kind is selected, with a note on what to
+look at in it. Collapsed by default so it never sits between a tech and the
+camera button.
+
+**Where they came from is recorded in code.** `lib/reference-photos.ts`
+marks each one `mine: true/false`:
+
+| | Source | Use |
+|---|---|---|
+| Water main | **Yours** — a real basement meter with a valve either side | Free to use anywhere, including print |
+| Gas meter | Placeholder, a video thumbnail | Internal reference only |
+| Propane tank | Placeholder, a video still | Internal reference only |
+
+The gas one still has the other channel's title burned across it. **I left
+that uncropped on purpose** — it makes it obvious at a glance that it is a
+placeholder, and cropping the credit off somebody else's picture to use it
+in your product is worse than leaving it visible. Replace either by dropping
+a new file at the same path in `public/reference/`; nothing else changes.
+
+**What the photos corrected.** Your water main photo is a pair of gate
+valves, not the lever the copy assumed. Gate valves take many turns, they
+seize, and forcing a seized one snaps the stem — which turns a leak into a
+flood with no way to stop it. The water-leak step now covers both kinds and
+says not to force a stiff wheel with a tool. The propane still shows a lever
+service valve rather than the hand wheel I had written, so that copy now
+says "wheel or lever, no tools either way".
+
+**And shutoff photos are no longer cropped to fit.** They were `object-cover`,
+which quietly ate the lower valve in your water main picture — the part a
+homeowner most needs to see. A shutoff photograph is evidence, so it is shown
+whole now.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
