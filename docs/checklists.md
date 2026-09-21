@@ -101,6 +101,25 @@ by accident:
 
 ---
 
+## Where the items came from, and what is still missing
+
+`docs/inspection-standard.md` is the research behind the lists: what
+Pennsylvania actually requires of a home inspector, what their standard
+deliberately leaves out, and what is specific to this county — radon, karst
+limestone, unregulated private wells, old housing stock.
+
+It ends with a longer list of preventative maintenance items than the app
+currently carries, marking which are already in the draft and which are not.
+Work through it when you mark up a quarter.
+
+The biggest gap it identifies is not a missing item. It is that almost every
+item is pass/fail when about eight of them should **record a number** — A/C
+temperature split, flue CO in ppm, water pressure in psi, humidity, and so
+on. A number you can compare to last year is the one thing no home inspector
+can ever give a homeowner, and it is the argument for the membership.
+
+---
+
 ## Where it lives
 
 | What | Where |
