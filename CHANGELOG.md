@@ -645,6 +645,19 @@ record and a number presented as one would get somebody dropped for nothing.
 - 17 assertions on the display helpers — countdowns, overdue, tones, and the
   refusal to grade on a small sample.
 
+### Phase 19 — Dashboard order
+
+The home's status now sits between the emergency button and the two
+everyday actions, rather than below all three.
+
+Emergency stays first and alone — the moment it exists for is the moment
+nobody reads carefully. But "2 things need attention" is what a member opens
+the app to find out on any ordinary day, so it comes next, and the camera
+and Request service read better underneath it than stacked against the red.
+
+`QuickActions` split into `HelpNowButton` and `QuickActions` so the two can
+be placed separately.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

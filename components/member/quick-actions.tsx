@@ -1,16 +1,20 @@
 import Link from 'next/link';
 
 /**
- * What a homeowner opens this app to do.
+ * The emergency button.
  *
- * Deliberately the largest, loudest thing on the dashboard after the status
- * line. Help Now is full width and first, because the moment it exists for
- * is the moment nobody reads carefully: somebody standing in water at 11pm
- * should hit the right thing without aiming.
+ * First on the dashboard, above everything including the status line,
+ * because the moment it exists for is the moment nobody reads carefully:
+ * somebody standing in water at 11pm should hit the right thing without
+ * aiming.
+ *
+ * Split from QuickActions so the home's status can sit between them — the
+ * two calm actions read better underneath "here is how your home is" than
+ * stacked against the red.
  */
-export default function QuickActions({ hrefPrefix = '/home' }: { hrefPrefix?: string }) {
+export function HelpNowButton({ hrefPrefix = '/home' }: { hrefPrefix?: string }) {
   return (
-    <div className="mb-7 space-y-3">
+    <div className="mb-5">
       <Link
         href={`${hrefPrefix}/help`}
         className="flex items-center gap-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 px-4 py-5 text-white shadow-sm transition active:scale-[0.98]"
@@ -35,9 +39,19 @@ export default function QuickActions({ hrefPrefix = '/home' }: { hrefPrefix?: st
           <path d="m9 18 6-6-6-6" />
         </svg>
       </Link>
+    </div>
+  );
+}
 
-      <div className="grid grid-cols-2 gap-3">
-      {/* Camera first: a photo explains more than a paragraph. */}
+/**
+ * The two everyday actions.
+ *
+ * A photo explains more than a paragraph, so the camera comes first and
+ * lands them in the request form with the shot already attached.
+ */
+export default function QuickActions({ hrefPrefix = '/home' }: { hrefPrefix?: string }) {
+  return (
+    <div className="mb-7 grid grid-cols-2 gap-3">
       <Link
         href={`${hrefPrefix}/requests/new?camera=1`}
         className="flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-br from-brandgreen-600 to-brandgreen-700 px-3 py-6 text-white shadow-sm transition active:scale-[0.98]"
@@ -76,7 +90,6 @@ export default function QuickActions({ hrefPrefix = '/home' }: { hrefPrefix?: st
           </span>
         </span>
       </Link>
-      </div>
     </div>
   );
 }

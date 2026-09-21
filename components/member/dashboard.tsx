@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { FINDING_STATUS_STYLES, FINDING_STATUS_HEX } from '@/lib/types/finding-status';
 import { formatMoneyRange } from '@/components/ui';
 import { PortalSection } from './shell';
-import QuickActions from './quick-actions';
+import QuickActions, { HelpNowButton } from './quick-actions';
 import WarrantyWatch from './warranty-watch';
 import { expiringWarranties } from '@/lib/warranty';
 import {
@@ -72,7 +72,8 @@ export default function MemberDashboard({
 
   return (
     <>
-      <QuickActions hrefPrefix={hrefPrefix} />
+      {/* Emergency first, always. Everything below it is a calm day. */}
+      <HelpNowButton hrefPrefix={hrefPrefix} />
 
       {/* ---------------------------------------- hero: the one statement */}
       <div className={`mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${accent.ring}`}>
@@ -122,6 +123,11 @@ export default function MemberDashboard({
           </div>
         </div>
       </div>
+
+      {/* The two everyday actions, under the home's status — they read
+          better below "here is how your home is" than stacked against the
+          red of the emergency button. */}
+      <QuickActions hrefPrefix={hrefPrefix} />
 
       {/* ---------------------------------------------- warranty watch */}
       <WarrantyWatch items={expiring} hrefPrefix={hrefPrefix} demo={demo} />
