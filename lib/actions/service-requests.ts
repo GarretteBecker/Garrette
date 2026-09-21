@@ -108,7 +108,7 @@ export async function createServiceRequest(
   });
 
   revalidatePath('/home/requests');
-  revalidatePath('/admin/requests');
+  revalidatePath('/team/requests');
 
   return { ok: true, requestId: data.id };
 }
@@ -211,7 +211,7 @@ export async function requestPlanWork(
 
   revalidatePath('/home/plan');
   revalidatePath('/home/requests');
-  revalidatePath('/admin/requests');
+  revalidatePath('/team/requests');
 
   return { ok: true, requestId: data.id };
 }
@@ -253,8 +253,8 @@ export async function moveStage(formData: FormData): Promise<void> {
 
   await notifyStage(current.property_id, requestId, current.title, current.stage, toStage);
 
-  revalidatePath('/admin/requests');
-  revalidatePath(`/admin/requests/${requestId}`);
+  revalidatePath('/team/requests');
+  revalidatePath(`/team/requests/${requestId}`);
   revalidatePath('/home/requests');
 }
 
@@ -274,7 +274,7 @@ export async function triageRequest(formData: FormData): Promise<void> {
     })
     .eq('id', requestId);
 
-  revalidatePath(`/admin/requests/${requestId}`);
+  revalidatePath(`/team/requests/${requestId}`);
 }
 
 /** Price it and put the ball in the member's court. */
@@ -315,7 +315,7 @@ export async function setEstimate(formData: FormData): Promise<void> {
     });
   }
 
-  revalidatePath(`/admin/requests/${requestId}`);
+  revalidatePath(`/team/requests/${requestId}`);
   revalidatePath('/home/requests');
 }
 
@@ -353,7 +353,7 @@ export async function scheduleRequest(formData: FormData): Promise<void> {
     });
   }
 
-  revalidatePath(`/admin/requests/${requestId}`);
+  revalidatePath(`/team/requests/${requestId}`);
   revalidatePath('/home/requests');
 }
 
@@ -400,8 +400,8 @@ export async function completeRequest(
     });
   }
 
-  revalidatePath(`/admin/requests/${requestId}`);
-  revalidatePath('/admin/requests');
+  revalidatePath(`/team/requests/${requestId}`);
+  revalidatePath('/team/requests');
   revalidatePath('/home/requests');
   return { ok: true };
 }
@@ -447,6 +447,6 @@ export async function respondToEstimate(
 
   revalidatePath(`/home/requests/${requestId}`);
   revalidatePath('/home/requests');
-  revalidatePath('/admin/requests');
+  revalidatePath('/team/requests');
   return { ok: true };
 }

@@ -3130,6 +3130,397 @@ comment on view public.trade_performance is
 -- nothing in this migration — or anywhere downstream of it in those
 -- bundled scripts — may insert a report of this type. The office creates
 -- the first baseline from the app, after this has committed.
+
+-- (schema continues: everything added after the first release)
+
+-- =====================================================================
+-- Seasonal checklists you can edit  (migration 0018)
+--
+-- The Q1-Q4 lists live here rather than in a code file, edited at
+-- /admin/checklists. Deliberately empty: until a quarter has items the
+-- app uses the built-in draft, and the screen offers to copy it in.
+-- =====================================================================
+create type public.quarter as enum ('Q1', 'Q2', 'Q3', 'Q4');
+
+create table public.checklist_templates (
+  id          uuid primary key default gen_random_uuid(),
+  quarter     public.quarter not null,
+  -- What the visit is called on the calendar and on the report.
+  name        text not null,
+  season      text not null,
+  months      text not null,
+  -- One line on why this quarter looks the way it does. It prints on the
+  -- report, so a member can see the visit had a point.
+  focus       text,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+-- One live list per quarter. Older ones can be kept, deactivated, for the
+-- record — a report from 2026 should still be explainable in 2029.
+create unique index checklist_templates_one_active_per_quarter
+  on public.checklist_templates (quarter)
+  where is_active;
+
+create table public.checklist_template_items (
+  id           uuid primary key default gen_random_uuid(),
+  template_id  uuid not null references public.checklist_templates (id) on delete cascade,
+  category     text not null,
+  label        text not null,
+  -- What "good" looks like, for a technician who has not done this one
+  -- before. Shows on the field screen, never on the member's report.
+  help_note    text,
+  sort_order   integer not null default 0,
+
+  -- Only put this item on the list when the house matches. NULL means
+  -- every house. A septic item on a public-sewer home is noise, and noise
+  -- is how a checklist stops being read.
+  only_water_source public.water_source[],
+  only_sewer_type   public.sewer_type[],
+  only_heating_fuel public.heating_fuel[],
+
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+create index checklist_template_items_template_idx
+  on public.checklist_template_items (template_id, sort_order);
+
+create trigger checklist_templates_set_updated_at
+  before update on public.checklist_templates
+  for each row execute function public.set_updated_at();
+
+create trigger checklist_template_items_set_updated_at
+  before update on public.checklist_template_items
+  for each row execute function public.set_updated_at();
+
+comment on table public.checklist_templates is
+  'The seasonal visit lists, owned and edited by the office rather than by '
+  'a developer. Until a quarter has an active row with items, the app uses '
+  'the built-in draft in lib/checklist-templates.ts.';
+
+comment on column public.checklist_template_items.only_sewer_type is
+  'Restricts the item to matching houses. NULL means every house. Keeps a '
+  'septic item off a public-sewer list — a checklist with items that do not '
+  'apply is a checklist people stop reading.';
+
+-- ---------------------------------------------------------------------
+-- RLS.
+--
+-- Readable by everyone signed in, including members. "Here is exactly what
+-- we check, every quarter" is the product — it is not property data, and
+-- there is nothing about one member's home in it.
+--
+-- Written by admin only. A tech changing the standard mid-visit is not a
+-- feature; a tech logging a finding is.
+-- ---------------------------------------------------------------------
+alter table public.checklist_templates       enable row level security;
+alter table public.checklist_templates       force  row level security;
+alter table public.checklist_template_items  enable row level security;
+alter table public.checklist_template_items  force  row level security;
+
+create policy checklist_templates_select on public.checklist_templates
+  for select to authenticated using (true);
+
+create policy checklist_templates_admin_write on public.checklist_templates
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+create policy checklist_template_items_select on public.checklist_template_items
+  for select to authenticated using (true);
+
+create policy checklist_template_items_admin_write on public.checklist_template_items
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+-- ---------------------------------------------------------------------
+-- The note travels with the visit, not just with the template.
+--
+-- A visit takes its own copy of the list when it starts, and it has to
+-- keep the whole thing — including the "what good looks like" note. The
+-- field app works offline off the stamped rows, and a report written in
+-- 2029 should be explainable by what the technician was actually shown in
+-- 2026, not by whatever the template says by then.
+--
+-- Member-facing screens never render this column. It is written for a
+-- technician, in a technician's voice.
+-- ---------------------------------------------------------------------
+alter table public.checklist_items
+  add column help_note text;
+
+comment on column public.checklist_items.help_note is
+  'Copied from the template when the visit starts. Field app only — never '
+  'shown to a member.';
+
+-- =====================================================================
+-- The six results, core items and readings  (migrations 0019 + 0020)
+-- =====================================================================
+alter type public.checklist_result add value if not exists 'MONITOR';
+alter type public.checklist_result add value if not exists 'MAINTENANCE_DUE';
+alter type public.checklist_result add value if not exists 'REPAIR_RECOMMENDED';
+alter type public.checklist_result add value if not exists 'SAFETY_URGENT';
+alter type public.checklist_result add value if not exists 'SPECIALIST_REVIEW';
+
+alter table public.checklist_template_items
+  add column is_core boolean not null default false,
+  add column measurement_label text,
+  add column measurement_unit  text,
+  add column measurement_low   numeric(10,2),
+  add column measurement_high  numeric(10,2);
+
+create index checklist_template_items_core_idx
+  on public.checklist_template_items (is_core)
+  where is_core;
+
+alter table public.checklist_items
+  add column measurement_label text,
+  add column measurement_unit  text,
+  add column measurement_low   numeric(10,2),
+  add column measurement_high  numeric(10,2),
+  add column measurement_value numeric(10,2);
+
+
+-- =====================================================================
+-- The office role, invite-only access, and COI  (migrations 0021 + 0022)
+-- =====================================================================
+alter type public.user_role add value if not exists 'ops';
+
+-- ---------------------------------------------------------------------
+-- 1. The office
+--
+-- is_staff() is the new "anyone who works here" test. is_admin() keeps
+-- meaning the owner alone, and every policy that guards pricing,
+-- membership terms, user accounts or the checklist standard keeps using
+-- it — so adding ops widens nothing it should not.
+-- ---------------------------------------------------------------------
+create or replace function public.is_staff()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  -- ::text on purpose. Comparing against an enum LITERAL would make this
+  -- function unusable in the same transaction that added 'ops' — and the
+  -- catch-up script runs as one transaction. Casting to text sidesteps the
+  -- literal entirely, so 0021 and this file can apply together.
+  select coalesce(public.current_user_role()::text in ('admin', 'ops'), false)
+$$;
+
+comment on function public.is_staff is
+  'Owner or office. NOT the same as is_admin, which stays owner-only and '
+  'still guards pricing, membership terms and user accounts.';
+
+-- The office sees every property, same as the owner. A tech still sees
+-- only what they are assigned; a member still sees only their own home.
+create or replace function public.can_access_property(target_property_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case public.current_user_role()::text   -- ::text: see is_staff above
+    when 'admin' then true
+    when 'ops' then true
+    when 'tech' then exists (
+      select 1 from public.property_techs pt
+      where pt.property_id = target_property_id
+        and pt.profile_id = auth.uid()
+    )
+    when 'member' then exists (
+      select 1 from public.members m
+      where m.property_id = target_property_id
+        and m.profile_id = auth.uid()
+    )
+    else false
+  end
+$$;
+
+-- The office writes the Home Record, books visits, runs requests.
+create or replace function public.can_write_property(target_property_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select case public.current_user_role()::text   -- ::text: see is_staff above
+    when 'admin' then true
+    when 'ops' then true
+    when 'tech' then exists (
+      select 1 from public.property_techs pt
+      where pt.property_id = target_property_id
+        and pt.profile_id = auth.uid()
+    )
+    else false
+  end
+$$;
+
+-- Creating and deleting properties is still the owner's alone; the office
+-- edits the ones that exist through can_write_property above.
+-- (properties_admin_write is unchanged on purpose.)
+
+-- The office needs the staff directory to assign visits, and needs to see
+-- members to run the office. It does NOT get profiles_admin_write, so it
+-- cannot change anybody's role.
+drop policy if exists profiles_select_staff on public.profiles;
+create policy profiles_select_staff on public.profiles
+  for select to authenticated
+  using (role::text in ('admin', 'ops', 'tech') or public.is_staff());
+
+-- Trade partners: the office maintains the bench, the owner still owns
+-- who is on it.
+drop policy if exists trade_partners_select_staff on public.trade_partners;
+create policy trade_partners_select_staff on public.trade_partners
+  for select to authenticated
+  using (public.current_user_role()::text in ('admin', 'ops', 'tech'));
+
+drop policy if exists trade_partners_staff_update on public.trade_partners;
+create policy trade_partners_staff_update on public.trade_partners
+  for update to authenticated
+  using (public.is_staff()) with check (public.is_staff());
+
+drop policy if exists trade_coverage_ops_write on public.trade_coverage;
+create policy trade_coverage_ops_write on public.trade_coverage
+  for all to authenticated
+  using (public.is_staff()) with check (public.is_staff());
+
+-- ---------------------------------------------------------------------
+-- 2. Invite only
+--
+-- A row here is permission to exist. handle_new_user refuses any sign-up
+-- whose email has no unexpired invite, which means invite-only survives
+-- somebody toggling "allow signups" in the Supabase dashboard, and
+-- survives anyone finding the public anon key — which is public by design.
+--
+-- The role comes from THIS table, written by an admin, never from the
+-- sign-up metadata. That was the 0007 lesson and it still holds: metadata
+-- is attacker-controlled.
+-- ---------------------------------------------------------------------
+create table public.invites (
+  id           uuid primary key default gen_random_uuid(),
+  email        text not null,
+  role         public.user_role not null,
+  -- For a member invite: the home they are being given access to.
+  property_id  uuid references public.properties (id) on delete cascade,
+  full_name    text,
+  note         text,
+  invited_by   uuid references public.profiles (id) on delete set null,
+  expires_at   timestamptz not null default (now() + interval '14 days'),
+  accepted_at  timestamptz,
+  created_at   timestamptz not null default now()
+);
+
+-- Email is the identity here, so normalise it. Two invites for the same
+-- person with different roles is an argument nobody wants to have at 8am.
+create unique index invites_email_open_idx
+  on public.invites (lower(email))
+  where accepted_at is null;
+
+create index invites_email_idx on public.invites (lower(email));
+
+comment on table public.invites is
+  'Permission to create an account. handle_new_user refuses any sign-up '
+  'without an unexpired row here, so access is invite-only in the '
+  'database rather than by a dashboard setting.';
+
+alter table public.invites enable row level security;
+alter table public.invites force  row level security;
+
+-- Only the owner invites. The office can see who is outstanding.
+create policy invites_select_staff on public.invites
+  for select to authenticated using (public.is_staff());
+
+create policy invites_admin_write on public.invites
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  inv public.invites%rowtype;
+begin
+  select * into inv
+    from public.invites
+   where lower(email) = lower(new.email)
+     and accepted_at is null
+     and expires_at > now()
+   order by created_at desc
+   limit 1;
+
+  -- No invite, no account. This is the whole of "no public signup": it
+  -- holds whatever the dashboard says and whoever has the anon key.
+  if inv.id is null then
+    raise exception 'This email has not been invited to B&M HomeKeeper.'
+      using errcode = 'insufficient_privilege';
+  end if;
+
+  -- The role comes from the invite, written by an admin — never from
+  -- new.raw_user_meta_data, which the person signing up controls.
+  insert into public.profiles (id, role, full_name, email)
+  values (
+    new.id,
+    inv.role,
+    coalesce(inv.full_name, new.raw_user_meta_data ->> 'full_name', ''),
+    new.email
+  )
+  on conflict (id) do nothing;
+
+  -- A member invite also links them to their home, so they land on their
+  -- own Home Record rather than an empty portal.
+  if inv.role = 'member' and inv.property_id is not null then
+    update public.members
+       set profile_id = new.id
+     where property_id = inv.property_id
+       and profile_id is null
+       and lower(coalesce(email, '')) = lower(new.email);
+  end if;
+
+  update public.invites set accepted_at = now() where id = inv.id;
+
+  return new;
+end;
+$$;
+
+comment on function public.handle_new_user is
+  'Invite-only. Refuses any sign-up with no unexpired invite, and takes '
+  'the role from the invite rather than from client-supplied metadata.';
+
+-- ---------------------------------------------------------------------
+-- 3. Certificates of insurance
+--
+-- An expired COI on a partner standing in a member''s kitchen is B&M''s
+-- problem, not theirs. Recording the date is what makes it visible before
+-- it matters.
+-- ---------------------------------------------------------------------
+alter table public.trade_partners
+  add column coi_expires        date,
+  add column coi_carrier        text,
+  add column workers_comp_expires date;
+
+comment on column public.trade_partners.coi_expires is
+  'General liability certificate expiry. Surfaced on the trade board so an '
+  'expired partner is obvious before they are dispatched, not after.';
+
+
+-- =====================================================================
+-- Keeping the sales demo out of the books  (migration 0023)
+-- =====================================================================
+alter table public.properties
+  add column is_demo boolean not null default false;
+
+create index properties_is_demo_idx on public.properties (is_demo) where is_demo;
+
+comment on column public.properties.is_demo is
+  'A sales-demo home. Excluded from member counts, MRR and renewals, and '
+  'labelled everywhere it appears. Never a paying member.';
+
 -- =====================================================================
 
 alter type public.report_type add value if not exists 'BASELINE';
@@ -3152,6 +3543,24 @@ alter type public.report_type add value if not exists 'BASELINE';
 --
 -- Re-runnable: every insert is keyed on a fixed uuid and upserts.
 -- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- 0. Invites
+--
+-- Since migration 0022 an account cannot be created without one: the
+-- handle_new_user trigger refuses any sign-up whose email has no unexpired
+-- invite. That is what makes access invite-only in the database rather
+-- than by a dashboard setting — and it applies to this seed too.
+--
+-- invited_by is null because no profile exists yet. These are marked
+-- accepted immediately below by the trigger itself.
+-- ---------------------------------------------------------------------
+insert into public.invites (email, role, full_name, expires_at)
+values
+  ('admin@bmhomekeeper.test',  'admin',  'Garrette Becker', now() + interval '1 year'),
+  ('tech@bmhomekeeper.test',   'tech',   'Dave Reinhart',   now() + interval '1 year'),
+  ('member@bmhomekeeper.test', 'member', 'Sarah Miller',    now() + interval '1 year')
+on conflict do nothing;
 
 -- ---------------------------------------------------------------------
 -- 1. Auth users
@@ -3238,7 +3647,10 @@ insert into public.properties (
   year_built, square_feet, bedrooms, bathrooms, lot_size_acres,
   plan_tier, member_since, notes,
   tier, billing_cycle, commitment_start, commitment_months,
-  member_discount_used_ytd, member_discount_year_start
+  member_discount_used_ytd, member_discount_year_start,
+  -- ⚠ The sales demo, not a member. Excluded from member counts, monthly
+  -- recurring revenue and renewals, and labelled wherever it appears.
+  is_demo
 )
 values (
   'b0000000-0000-4000-8000-000000000001',
@@ -3247,7 +3659,8 @@ values (
   'HomeKeeper Response', '2024-03-01',
   'Two-story colonial, original owners until 2019. Vinyl siding, architectural shingle roof replaced 2016. Municipal water and sewer, natural gas.',
   'RESPONSE', 'ANNUAL_PREPAID', '2024-03-01', 12,
-  0, '2026-03-01'
+  0, '2026-03-01',
+  true
 )
 on conflict (id) do update
   set name = excluded.name,
@@ -3255,6 +3668,7 @@ on conflict (id) do update
       square_feet = excluded.square_feet,
       bathrooms = excluded.bathrooms,
       notes = excluded.notes,
+      is_demo = true,
       plan_tier = excluded.plan_tier,
       tier = excluded.tier,
       billing_cycle = excluded.billing_cycle,
@@ -3796,150 +4210,3 @@ insert into public.trade_coverage (trade_partner_id, category, rank) values
   ('f0000000-0000-4000-8000-000000000003', 'Appliance',           'SECONDARY'),
   ('f0000000-0000-4000-8000-000000000001', 'Appliance',           'PRIMARY')
 on conflict (trade_partner_id, category) do nothing;
-
--- =====================================================================
--- Seasonal checklists you can edit  (migration 0018)
---
--- The Q1-Q4 lists live here rather than in a code file, edited at
--- /admin/checklists. Deliberately empty: until a quarter has items the
--- app uses the built-in draft, and the screen offers to copy it in.
--- =====================================================================
-create type public.quarter as enum ('Q1', 'Q2', 'Q3', 'Q4');
-
-create table public.checklist_templates (
-  id          uuid primary key default gen_random_uuid(),
-  quarter     public.quarter not null,
-  -- What the visit is called on the calendar and on the report.
-  name        text not null,
-  season      text not null,
-  months      text not null,
-  -- One line on why this quarter looks the way it does. It prints on the
-  -- report, so a member can see the visit had a point.
-  focus       text,
-  is_active   boolean not null default true,
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
-);
-
--- One live list per quarter. Older ones can be kept, deactivated, for the
--- record — a report from 2026 should still be explainable in 2029.
-create unique index checklist_templates_one_active_per_quarter
-  on public.checklist_templates (quarter)
-  where is_active;
-
-create table public.checklist_template_items (
-  id           uuid primary key default gen_random_uuid(),
-  template_id  uuid not null references public.checklist_templates (id) on delete cascade,
-  category     text not null,
-  label        text not null,
-  -- What "good" looks like, for a technician who has not done this one
-  -- before. Shows on the field screen, never on the member's report.
-  help_note    text,
-  sort_order   integer not null default 0,
-
-  -- Only put this item on the list when the house matches. NULL means
-  -- every house. A septic item on a public-sewer home is noise, and noise
-  -- is how a checklist stops being read.
-  only_water_source public.water_source[],
-  only_sewer_type   public.sewer_type[],
-  only_heating_fuel public.heating_fuel[],
-
-  created_at   timestamptz not null default now(),
-  updated_at   timestamptz not null default now()
-);
-
-create index checklist_template_items_template_idx
-  on public.checklist_template_items (template_id, sort_order);
-
-create trigger checklist_templates_set_updated_at
-  before update on public.checklist_templates
-  for each row execute function public.set_updated_at();
-
-create trigger checklist_template_items_set_updated_at
-  before update on public.checklist_template_items
-  for each row execute function public.set_updated_at();
-
-comment on table public.checklist_templates is
-  'The seasonal visit lists, owned and edited by the office rather than by '
-  'a developer. Until a quarter has an active row with items, the app uses '
-  'the built-in draft in lib/checklist-templates.ts.';
-
-comment on column public.checklist_template_items.only_sewer_type is
-  'Restricts the item to matching houses. NULL means every house. Keeps a '
-  'septic item off a public-sewer list — a checklist with items that do not '
-  'apply is a checklist people stop reading.';
-
--- ---------------------------------------------------------------------
--- RLS.
---
--- Readable by everyone signed in, including members. "Here is exactly what
--- we check, every quarter" is the product — it is not property data, and
--- there is nothing about one member's home in it.
---
--- Written by admin only. A tech changing the standard mid-visit is not a
--- feature; a tech logging a finding is.
--- ---------------------------------------------------------------------
-alter table public.checklist_templates       enable row level security;
-alter table public.checklist_templates       force  row level security;
-alter table public.checklist_template_items  enable row level security;
-alter table public.checklist_template_items  force  row level security;
-
-create policy checklist_templates_select on public.checklist_templates
-  for select to authenticated using (true);
-
-create policy checklist_templates_admin_write on public.checklist_templates
-  for all to authenticated
-  using (public.is_admin()) with check (public.is_admin());
-
-create policy checklist_template_items_select on public.checklist_template_items
-  for select to authenticated using (true);
-
-create policy checklist_template_items_admin_write on public.checklist_template_items
-  for all to authenticated
-  using (public.is_admin()) with check (public.is_admin());
-
--- ---------------------------------------------------------------------
--- The note travels with the visit, not just with the template.
---
--- A visit takes its own copy of the list when it starts, and it has to
--- keep the whole thing — including the "what good looks like" note. The
--- field app works offline off the stamped rows, and a report written in
--- 2029 should be explainable by what the technician was actually shown in
--- 2026, not by whatever the template says by then.
---
--- Member-facing screens never render this column. It is written for a
--- technician, in a technician's voice.
--- ---------------------------------------------------------------------
-alter table public.checklist_items
-  add column help_note text;
-
-comment on column public.checklist_items.help_note is
-  'Copied from the template when the visit starts. Field app only — never '
-  'shown to a member.';
-
--- =====================================================================
--- The six results, core items and readings  (migrations 0019 + 0020)
--- =====================================================================
-alter type public.checklist_result add value if not exists 'MONITOR';
-alter type public.checklist_result add value if not exists 'MAINTENANCE_DUE';
-alter type public.checklist_result add value if not exists 'REPAIR_RECOMMENDED';
-alter type public.checklist_result add value if not exists 'SAFETY_URGENT';
-alter type public.checklist_result add value if not exists 'SPECIALIST_REVIEW';
-
-alter table public.checklist_template_items
-  add column is_core boolean not null default false,
-  add column measurement_label text,
-  add column measurement_unit  text,
-  add column measurement_low   numeric(10,2),
-  add column measurement_high  numeric(10,2);
-
-create index checklist_template_items_core_idx
-  on public.checklist_template_items (is_core)
-  where is_core;
-
-alter table public.checklist_items
-  add column measurement_label text,
-  add column measurement_unit  text,
-  add column measurement_low   numeric(10,2),
-  add column measurement_high  numeric(10,2),
-  add column measurement_value numeric(10,2);

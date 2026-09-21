@@ -13,6 +13,24 @@
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
+-- 0. Invites
+--
+-- Since migration 0022 an account cannot be created without one: the
+-- handle_new_user trigger refuses any sign-up whose email has no unexpired
+-- invite. That is what makes access invite-only in the database rather
+-- than by a dashboard setting — and it applies to this seed too.
+--
+-- invited_by is null because no profile exists yet. These are marked
+-- accepted immediately below by the trigger itself.
+-- ---------------------------------------------------------------------
+insert into public.invites (email, role, full_name, expires_at)
+values
+  ('admin@bmhomekeeper.test',  'admin',  'Garrette Becker', now() + interval '1 year'),
+  ('tech@bmhomekeeper.test',   'tech',   'Dave Reinhart',   now() + interval '1 year'),
+  ('member@bmhomekeeper.test', 'member', 'Sarah Miller',    now() + interval '1 year')
+on conflict do nothing;
+
+-- ---------------------------------------------------------------------
 -- 1. Auth users
 -- ---------------------------------------------------------------------
 insert into auth.users (
@@ -92,21 +110,25 @@ on conflict (id) do update
 insert into public.properties (
   id, name, address_line1, city, state, postal_code,
   year_built, square_feet, bedrooms, bathrooms, lot_size_acres,
-  plan_tier, member_since, notes
+  plan_tier, member_since, notes, is_demo
 )
 values (
   'b0000000-0000-4000-8000-000000000001',
   'The Miller Home', '123 Maple Ave', 'Lancaster', 'PA', '17601',
   1998, 2400, 4, 2.5, 0.31,
   'HomeKeeper Premier', '2024-03-01',
-  'Two-story colonial, original owners until 2019. Vinyl siding, architectural shingle roof replaced 2016. Municipal water and sewer, natural gas.'
+  'Two-story colonial, original owners until 2019. Vinyl siding, architectural shingle roof replaced 2016. Municipal water and sewer, natural gas.',
+  -- ⚠ The sales demo, not a member. Excluded from member counts, monthly
+  -- recurring revenue and renewals, and labelled wherever it appears.
+  true
 )
 on conflict (id) do update
   set name = excluded.name,
       year_built = excluded.year_built,
       square_feet = excluded.square_feet,
       bathrooms = excluded.bathrooms,
-      notes = excluded.notes;
+      notes = excluded.notes,
+      is_demo = true;
 
 -- Homeowners
 insert into public.members (id, property_id, profile_id, first_name, last_name, email, phone, is_primary, relationship)

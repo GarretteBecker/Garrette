@@ -1,10 +1,13 @@
 import Link from 'next/link';
-import { requireRole } from '@/lib/auth';
+import { requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import { Card, EmptyState, formatDate } from '@/components/ui';
 import { STAGE_META, STAGE_ORDER, TONE_STYLE, urgencyLabel } from '@/lib/service-requests';
 import type { ServiceRequest, Property, ServiceRequestStage } from '@/lib/types/database';
+
+// Staff data behind a login is never safe to prerender and cache.
+export const dynamic = 'force-dynamic';
 
 /**
  * The request board.
@@ -18,7 +21,7 @@ export default async function AdminRequestsPage({
 }: {
   searchParams: Promise<{ stage?: string }>;
 }) {
-  const profile = await requireRole('admin');
+  const profile = await requireStaff();
   const { stage: stageFilter } = await searchParams;
   const supabase = await createClient();
 
@@ -58,13 +61,13 @@ export default async function AdminRequestsPage({
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <AppHeader profile={profile} title="Request board" subtitle={`${showing.length} showing`} backHref="/admin" />
+      <AppHeader profile={profile} title="Request board" subtitle={`${showing.length} showing`} backHref="/team" />
 
       <nav className="sticky top-[60px] z-10 overflow-x-auto border-b border-slate-200 bg-white">
         <ul className="flex min-w-max gap-1 px-2 py-2">
           <li>
             <Link
-              href="/admin/requests"
+              href="/team/requests"
               className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium ${
                 !stageFilter ? 'bg-navy-700 text-white' : 'text-slate-600'
               }`}
@@ -78,7 +81,7 @@ export default async function AdminRequestsPage({
             return (
               <li key={s}>
                 <Link
-                  href={`/admin/requests?stage=${s}`}
+                  href={`/team/requests?stage=${s}`}
                   className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium ${
                     stageFilter === s ? 'bg-navy-700 text-white' : 'text-slate-600'
                   }`}
@@ -103,7 +106,7 @@ export default async function AdminRequestsPage({
               {approved.map((r) => (
                 <li key={r.id}>
                   <Link
-                    href={`/admin/requests/${r.id}`}
+                    href={`/team/requests/${r.id}`}
                     className="flex items-baseline gap-2 text-[13px] text-navy-800 underline-offset-2 hover:underline"
                   >
                     <span className="font-semibold">{r.title}</span>
@@ -146,7 +149,7 @@ export default async function AdminRequestsPage({
                   <ul className="space-y-2">
                     {group.items.map((r) => (
                       <li key={r.id}>
-                        <Link href={`/admin/requests/${r.id}`}>
+                        <Link href={`/team/requests/${r.id}`}>
                           <Card className="p-4 active:bg-slate-50">
                             <div className="flex items-start justify-between gap-3">
                               <p className="font-semibold leading-snug text-navy-800">{r.title}</p>

@@ -81,12 +81,12 @@ export default function AgreementEditor({
           {notice === 'OVERDUE' ? (
             <p className="mt-1.5 rounded bg-red-100 px-2 py-1 font-medium text-red-900">
               Renewal reminder is late.{' '}
-              <Link href="/admin/compliance" className="underline">Send it</Link>
+              <Link href="/team/compliance" className="underline">Send it</Link>
             </p>
           ) : notice === 'DUE' ? (
             <p className="mt-1.5 rounded bg-amber-100 px-2 py-1 font-medium text-amber-900">
               Renewal reminder is due.{' '}
-              <Link href="/admin/compliance" className="underline">Send it</Link>
+              <Link href="/team/compliance" className="underline">Send it</Link>
             </p>
           ) : null}
           {!agreement.document_id ? (

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireRole } from '@/lib/auth';
+import { requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import { Card, EmptyState, formatDate } from '@/components/ui';
@@ -35,7 +35,7 @@ interface WatchRow {
  * costs somebody money first.
  */
 export default async function WarrantiesPage() {
-  const profile = await requireRole('admin');
+  const profile = await requireStaff();
   const supabase = await createClient();
 
   const { data } = await supabase.from('warranty_watch').select('*');
@@ -51,7 +51,7 @@ export default async function WarrantiesPage() {
         profile={profile}
         title="Warranty watch"
         subtitle={`${rows.length} running out`}
-        backHref="/admin"
+        backHref="/team"
       />
 
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-5">
@@ -138,7 +138,7 @@ function Group({
             <div key={r.asset_id} className="p-4">
               <div className="flex items-baseline justify-between gap-3">
                 <Link
-                  href={`/admin/properties/${r.property_id}?tab=record`}
+                  href={`/team/properties/${r.property_id}?tab=record`}
                   className="font-semibold text-navy-800 hover:underline"
                 >
                   {r.asset_name}

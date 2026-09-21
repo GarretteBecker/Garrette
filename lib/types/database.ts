@@ -11,7 +11,14 @@
 import type { HeatingFuel } from '@/lib/emergency';
 export type { HeatingFuel };
 
-export type UserRole = 'admin' | 'tech' | 'member' | 'trade';
+/**
+ * Who someone is.
+ *
+ * 'ops' is the office (0021): members, scheduling, the request board,
+ * reports, trade partners. Deliberately NOT pricing, membership terms,
+ * user accounts or the checklist standard — those stay with 'admin'.
+ */
+export type UserRole = 'admin' | 'ops' | 'tech' | 'member' | 'trade';
 
 // 0013 — the facts about the house that change what we check and what we
 // tell them in an emergency.
@@ -122,6 +129,8 @@ export interface Property {
   electrical_service_amps?: number | null;
   stories?: number | null;
   basement_type?: string | null;
+  /** 0023 — a sales-demo home. Never counted as a member or as revenue. */
+  is_demo?: boolean;
   notes: string | null;
   created_at: string;
   updated_at: string;

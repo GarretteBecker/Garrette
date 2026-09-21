@@ -55,7 +55,7 @@ export async function scheduleVisit(formData: FormData): Promise<void> {
     booked_by: user?.id ?? null,
   });
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   revalidatePath('/field');
 }
 
@@ -194,8 +194,8 @@ export async function completeVisit(formData: FormData): Promise<void> {
   }
 
   revalidatePath(`/field/visits/${visitId}`);
-  revalidatePath(`/admin/properties/${visit.property_id}`);
-  revalidatePath('/admin/reports');
+  revalidatePath(`/team/properties/${visit.property_id}`);
+  revalidatePath('/team/reports');
 }
 
 function periodForQuarter(quarter: Quarter, year: number) {
@@ -207,4 +207,41 @@ function periodForQuarter(quarter: Quarter, year: number) {
   };
   const [start, end] = ranges[quarter];
   return { start, end };
+}
+
+/**
+ * Put a technician on a visit.
+ *
+ * Also records the assignment in property_techs, because that is what the
+ * RLS policies read: a tech who is not on a property cannot open it, so
+ * assigning the visit without assigning the property would give somebody a
+ * job they are refused the moment they tap it.
+ */
+export async function assignVisitTech(formData: FormData): Promise<void> {
+  const visitId = String(formData.get('visit_id') ?? '');
+  const techId = String(formData.get('tech_id') ?? '') || null;
+  if (!visitId) return;
+
+  const supabase = await createClient();
+
+  const { data: visit } = await supabase
+    .from('visits')
+    .select('id, property_id')
+    .eq('id', visitId)
+    .maybeSingle();
+  if (!visit) return;
+
+  await supabase.from('visits').update({ tech_id: techId }).eq('id', visitId);
+
+  if (techId) {
+    await supabase
+      .from('property_techs')
+      .upsert(
+        { property_id: (visit as { property_id: string }).property_id, profile_id: techId },
+        { onConflict: 'property_id,profile_id' },
+      );
+  }
+
+  revalidatePath('/team/visits');
+  revalidatePath('/field');
 }

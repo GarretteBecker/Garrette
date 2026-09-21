@@ -57,7 +57,7 @@ export async function saveRoom(
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   return { ok: true };
 }
 
@@ -66,7 +66,7 @@ export async function deleteRoom(formData: FormData): Promise<void> {
   const id = String(formData.get('id'));
   const propertyId = String(formData.get('property_id'));
   await supabase.from('rooms').delete().eq('id', id);
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
 }
 
 // -------------------------------------------------------------- assets
@@ -110,7 +110,7 @@ export async function saveAsset(
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   return { ok: true };
 }
 
@@ -119,7 +119,7 @@ export async function deleteAsset(formData: FormData): Promise<void> {
   const id = String(formData.get('id'));
   const propertyId = String(formData.get('property_id'));
   await supabase.from('assets').delete().eq('id', id);
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
 }
 
 // ----------------------------------------------------------- documents
@@ -149,7 +149,7 @@ export async function saveDocumentRecord(
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   return { ok: true };
 }
 
@@ -162,7 +162,7 @@ export async function deleteDocument(formData: FormData): Promise<void> {
   await supabase.from('documents').delete().eq('id', id);
   if (path) await supabase.storage.from('property-docs').remove([path]);
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
 }
 
 // ------------------------------------------------------- trade partners
@@ -196,7 +196,7 @@ export async function saveTradePartner(
 
   if (error) return { error: error.message };
 
-  revalidatePath('/admin/trade-partners');
+  revalidatePath('/team/trade-partners');
   return { ok: true };
 }
 
@@ -214,6 +214,6 @@ export async function saveMembership(formData: FormData): Promise<void> {
     })
     .eq('id', propertyId);
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   revalidatePath('/home');
 }

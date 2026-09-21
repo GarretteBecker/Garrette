@@ -50,7 +50,7 @@ export default async function CompliancePage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <AppHeader profile={profile} title="Compliance" subtitle="Agreements, notices and cancellations" backHref="/admin" />
+      <AppHeader profile={profile} title="Compliance" subtitle="Agreements, notices and cancellations" backHref="/team" />
 
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-5">
         <p className="rounded-xl bg-slate-100 px-4 py-3 text-[12px] leading-relaxed text-slate-600">
@@ -98,7 +98,7 @@ export default async function CompliancePage() {
             const w = rescissionWindow(a);
             return (
               <li key={a.id} className="flex items-baseline justify-between gap-3 py-2 text-[14px]">
-                <Link href={`/admin/properties/${a.property_id}`} className="font-semibold text-navy-800 hover:underline">
+                <Link href={`/team/properties/${a.property_id}`} className="font-semibold text-navy-800 hover:underline">
                   {name(a)}
                 </Link>
                 <span className="shrink-0 text-[13px] text-slate-500">
@@ -120,7 +120,7 @@ export default async function CompliancePage() {
         >
           {noDocument.map((a) => (
             <li key={a.id} className="flex items-baseline justify-between gap-3 py-2 text-[14px]">
-              <Link href={`/admin/properties/${a.property_id}`} className="font-semibold text-navy-800 hover:underline">
+              <Link href={`/team/properties/${a.property_id}`} className="font-semibold text-navy-800 hover:underline">
                 {name(a)}
               </Link>
               <span className="shrink-0 text-[13px] text-slate-500">
@@ -139,7 +139,7 @@ export default async function CompliancePage() {
         >
           {propertiesWithoutAgreement.map((p) => (
             <li key={p.id} className="py-2 text-[14px]">
-              <Link href={`/admin/properties/${p.id}`} className="font-semibold text-navy-800 hover:underline">
+              <Link href={`/team/properties/${p.id}`} className="font-semibold text-navy-800 hover:underline">
                 {p.name}
               </Link>
             </li>
@@ -158,7 +158,7 @@ export default async function CompliancePage() {
               {rows.map((a) => (
                 <div key={a.id} className="flex items-baseline justify-between gap-3 px-4 py-3">
                   <div className="min-w-0">
-                    <Link href={`/admin/properties/${a.property_id}`} className="font-semibold text-navy-800 hover:underline">
+                    <Link href={`/team/properties/${a.property_id}`} className="font-semibold text-navy-800 hover:underline">
                       {name(a)}
                     </Link>
                     <p className="text-[12px] text-slate-500">
@@ -234,7 +234,7 @@ function AgreementRow({
   return (
     <li className="py-3">
       <div className="flex items-baseline justify-between gap-3">
-        <Link href={`/admin/properties/${agreement.property_id}`} className="font-semibold text-navy-800 hover:underline">
+        <Link href={`/team/properties/${agreement.property_id}`} className="font-semibold text-navy-800 hover:underline">
           {propertyName}
         </Link>
         <span className={`shrink-0 text-[13px] ${late ? 'font-semibold text-red-700' : 'text-slate-500'}`}>

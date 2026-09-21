@@ -40,7 +40,7 @@ export async function releaseReport(formData: FormData): Promise<void> {
     });
   }
 
-  revalidatePath('/admin/reports');
+  revalidatePath('/team/reports');
   revalidatePath(`/reports/${reportId}`);
 }
 
@@ -54,7 +54,7 @@ export async function unreleaseReport(formData: FormData): Promise<void> {
     .update({ status: 'DRAFT', released_at: null, released_by: null })
     .eq('id', reportId);
 
-  revalidatePath('/admin/reports');
+  revalidatePath('/team/reports');
   revalidatePath(`/reports/${reportId}`);
 }
 
@@ -102,8 +102,8 @@ export async function createBaselineReport(formData: FormData): Promise<void> {
     period_end: today,
   });
 
-  revalidatePath('/admin/reports');
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath('/team/reports');
+  revalidatePath(`/team/properties/${propertyId}`);
 }
 
 export async function createAnnualReport(formData: FormData): Promise<void> {
@@ -119,5 +119,5 @@ export async function createAnnualReport(formData: FormData): Promise<void> {
     period_end: `${year}-12-31`,
   });
 
-  revalidatePath('/admin/reports');
+  revalidatePath('/team/reports');
 }

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireRole } from '@/lib/auth';
+import { requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import {
@@ -49,7 +49,7 @@ export default async function PropertyDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const profile = await requireRole('admin');
+  const profile = await requireStaff();
   const { id } = await params;
   const { tab } = await searchParams;
 
@@ -169,7 +169,7 @@ export default async function PropertyDetailPage({
         profile={profile}
         title={p.name}
         subtitle={`${p.address_line1}, ${p.city} ${p.state}`}
-        backHref="/admin"
+        backHref="/team"
       />
 
       {/* Horizontally scrollable tabs — works one-handed on a phone. */}
@@ -178,7 +178,7 @@ export default async function PropertyDetailPage({
           {TABS.map((t) => (
             <li key={t.key}>
               <Link
-                href={`/admin/properties/${id}?tab=${t.key}`}
+                href={`/team/properties/${id}?tab=${t.key}`}
                 className={`inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium ${
                   active === t.key
                     ? 'bg-navy-700 text-white'
@@ -311,7 +311,7 @@ export default async function PropertyDetailPage({
                 What they signed, when, and when it renews. The three-business-day
                 cancellation deadline is worked out from the signing date — you
                 do not type it in.{' '}
-                <Link href="/admin/compliance" className="font-semibold text-brandgreen-600">
+                <Link href="/team/compliance" className="font-semibold text-brandgreen-600">
                   Compliance desk
                 </Link>
               </p>
@@ -568,7 +568,7 @@ export default async function PropertyDetailPage({
                         </p>
                       </div>
                       <Link
-                        href={`/admin/visits/${v.id}`}
+                        href={`/team/visits/${v.id}`}
                         className="rounded-lg px-3 py-2 text-sm font-medium text-navy-700 ring-1 ring-slate-300"
                       >
                         Open

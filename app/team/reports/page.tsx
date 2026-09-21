@@ -1,10 +1,13 @@
 import Link from 'next/link';
-import { requireRole } from '@/lib/auth';
+import { requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import { Card, EmptyState, formatDate } from '@/components/ui';
 import { releaseReport, unreleaseReport } from '@/lib/actions/reports';
 import type { Property } from '@/lib/types/database';
+
+// Staff data behind a login is never safe to prerender and cache.
+export const dynamic = 'force-dynamic';
 
 interface ReportRow {
   id: string;
@@ -19,7 +22,7 @@ interface ReportRow {
 }
 
 export default async function AdminReportsPage() {
-  const profile = await requireRole('admin');
+  const profile = await requireStaff();
   const supabase = await createClient();
 
   const [{ data: reports }, { data: properties }] = await Promise.all([
@@ -37,7 +40,7 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <AppHeader profile={profile} title="Reports" subtitle="Review before release" backHref="/admin" />
+      <AppHeader profile={profile} title="Reports" subtitle="Review before release" backHref="/team" />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5">
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500">

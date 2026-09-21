@@ -45,7 +45,7 @@ export async function saveSafetyPoint(formData: FormData): Promise<void> {
     await supabase.from('safety_points').insert(row);
   }
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   revalidatePath('/home/help');
 }
 
@@ -57,7 +57,7 @@ export async function deleteSafetyPoint(formData: FormData): Promise<void> {
   const supabase = await createClient();
   await supabase.from('safety_points').delete().eq('id', id);
 
-  if (propertyId) revalidatePath(`/admin/properties/${propertyId}`);
+  if (propertyId) revalidatePath(`/team/properties/${propertyId}`);
   revalidatePath('/home/help');
 }
 
@@ -90,6 +90,6 @@ export async function saveHomeFacts(formData: FormData): Promise<void> {
     })
     .eq('id', propertyId);
 
-  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath(`/team/properties/${propertyId}`);
   revalidatePath('/home/record');
 }

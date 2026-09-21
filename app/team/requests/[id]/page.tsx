@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireRole } from '@/lib/auth';
+import { requireStaff } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import { Card, Field, inputClass, formatDate, formatMoneyRange } from '@/components/ui';
@@ -19,7 +19,7 @@ export default async function AdminRequestDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const profile = await requireRole('admin');
+  const profile = await requireStaff();
   const { id } = await params;
   const supabase = await createClient();
 
@@ -131,7 +131,7 @@ export default async function AdminRequestDetailPage({
         profile={profile}
         title={r.title}
         subtitle={(property as { name?: string } | null)?.name ?? 'Request'}
-        backHref="/admin/requests"
+        backHref="/team/requests"
       />
 
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-5 px-4 py-5">
@@ -214,7 +214,7 @@ export default async function AdminRequestDetailPage({
               also clear the item from their plan.
             </p>
             <Link
-              href={`/admin/properties/${r.property_id}?tab=plan`}
+              href={`/team/properties/${r.property_id}?tab=plan`}
               className="mt-2 inline-block text-[13px] font-semibold text-brandgreen-600"
             >
               Open their Home Plan
@@ -395,7 +395,7 @@ export default async function AdminRequestDetailPage({
                   <>
                     {' — '}
                     <Link
-                      href={`/admin/properties/${r.property_id}?tab=record`}
+                      href={`/team/properties/${r.property_id}?tab=record`}
                       className="font-semibold underline underline-offset-2"
                     >
                       {linkedAsset.name}

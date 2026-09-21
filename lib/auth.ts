@@ -2,6 +2,9 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type { Profile, UserRole } from '@/lib/types/database';
+import { isStaff } from '@/lib/auth-roles';
+
+export { isStaff };
 
 /**
  * The signed-in user's profile, or null.
@@ -51,11 +54,25 @@ export async function requireRole(...roles: UserRole[]): Promise<Profile> {
   return profile;
 }
 
+/**
+ * Require an owner or an office user.
+ *
+ * The mirror of is_staff() in the database. Same caveat as requireRole:
+ * this is where somebody lands, not what keeps data safe. Delete it and
+ * RLS still refuses an ops user the pricing columns.
+ */
+export async function requireStaff(): Promise<Profile> {
+  const profile = await requireProfile();
+  if (!isStaff(profile.role)) redirect(homeForRole(profile.role));
+  return profile;
+}
+
 /** Where each role belongs after signing in. */
 export function homeForRole(role: UserRole): string {
   switch (role) {
     case 'admin':
-      return '/admin';
+    case 'ops':
+      return '/team';
     case 'tech':
       return '/field';
     case 'member':

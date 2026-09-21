@@ -48,7 +48,7 @@ export async function rescindAgreement(
       agreement_id: agreementId,
       member_message: 'Cancelled within the three-business-day window.',
     });
-    revalidatePath('/admin/compliance');
+    revalidatePath('/team/compliance');
   }
 
   revalidatePath('/home/membership');
@@ -91,8 +91,8 @@ export async function saveAgreement(formData: FormData): Promise<void> {
     await supabase.from('membership_agreements').insert(row);
   }
 
-  revalidatePath(`/admin/properties/${propertyId}`);
-  revalidatePath('/admin/compliance');
+  revalidatePath(`/team/properties/${propertyId}`);
+  revalidatePath('/team/compliance');
   revalidatePath('/home/membership');
 }
 
@@ -157,6 +157,6 @@ export async function logRenewalNotice(formData: FormData): Promise<void> {
     });
   }
 
-  revalidatePath('/admin/compliance');
+  revalidatePath('/team/compliance');
   revalidatePath('/home/membership');
 }

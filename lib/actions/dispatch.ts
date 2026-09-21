@@ -77,8 +77,8 @@ export async function offerToNext(
     });
   }
 
-  revalidatePath(`/admin/requests/${requestId}`);
-  revalidatePath('/admin/requests');
+  revalidatePath(`/team/requests/${requestId}`);
+  revalidatePath('/team/requests');
   revalidatePath('/trade');
   return { ok: true };
 }
@@ -100,7 +100,7 @@ export async function saveCoverage(formData: FormData): Promise<void> {
     { onConflict: 'trade_partner_id,category' },
   );
 
-  revalidatePath('/admin/trade-partners');
+  revalidatePath('/team/trade-partners');
 }
 
 export async function removeCoverage(formData: FormData): Promise<void> {
@@ -108,7 +108,7 @@ export async function removeCoverage(formData: FormData): Promise<void> {
   if (!id) return;
   const supabase = await createClient();
   await supabase.from('trade_coverage').delete().eq('id', id);
-  revalidatePath('/admin/trade-partners');
+  revalidatePath('/team/trade-partners');
 }
 
 // -------------------------------------------------------------- trade
@@ -139,6 +139,6 @@ export async function respondToOffer(
   if (error) return { error: error.message };
 
   revalidatePath('/trade');
-  revalidatePath('/admin/requests');
+  revalidatePath('/team/requests');
   return { ok: true };
 }

@@ -32,7 +32,7 @@ export default async function ChecklistsPage({
         profile={profile}
         title="Seasonal checklists"
         subtitle="What B&M checks, and when"
-        backHref="/admin"
+        backHref="/team"
       />
       <main className="mx-auto w-full max-w-3xl flex-1 space-y-5 px-4 py-5">
         <p className="text-[14px] leading-relaxed text-slate-600">
@@ -64,7 +64,7 @@ export default async function ChecklistsPage({
             return (
               <Link
                 key={quarter}
-                href={`/admin/checklists?q=${quarter}`}
+                href={`/team/checklists?q=${quarter}`}
                 className={`flex-1 rounded-xl px-2 py-2.5 text-center ring-1 ${
                   isActive
                     ? 'bg-navy-700 text-white ring-navy-700'

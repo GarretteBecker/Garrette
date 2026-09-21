@@ -120,7 +120,7 @@ export async function requestWarrantyCheck(
 
   revalidatePath('/home');
   revalidatePath('/home/requests');
-  revalidatePath('/admin/warranties');
+  revalidatePath('/team/warranties');
 
   return { ok: true, requestId: data.id };
 }
@@ -134,7 +134,7 @@ export async function declineWarranty(formData: FormData): Promise<void> {
   await supabase.rpc('member_decline_warranty', { target_asset_id: assetId });
 
   revalidatePath('/home');
-  revalidatePath('/admin/warranties');
+  revalidatePath('/team/warranties');
 }
 
 // -------------------------------------------------------------- staff
@@ -200,6 +200,6 @@ export async function sendWarrantyNotice(formData: FormData): Promise<void> {
     });
   }
 
-  revalidatePath('/admin/warranties');
+  revalidatePath('/team/warranties');
   revalidatePath('/home');
 }

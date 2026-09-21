@@ -32,7 +32,7 @@ function facts<T extends string>(fd: FormData, key: string): T[] | null {
   return all.length ? all : null;
 }
 
-const ADMIN_PATH = '/admin/checklists';
+const ADMIN_PATH = '/team/checklists';
 
 function done() {
   revalidatePath(ADMIN_PATH);
