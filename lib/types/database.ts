@@ -13,6 +13,14 @@ export type { HeatingFuel };
 
 export type UserRole = 'admin' | 'tech' | 'member' | 'trade';
 
+// 0013 — the facts about the house that change what we check and what we
+// tell them in an emergency.
+export type WaterSource = 'PUBLIC' | 'WELL' | 'SHARED_WELL' | 'OTHER';
+export type SewerType = 'PUBLIC' | 'SEPTIC' | 'MOUND' | 'OTHER';
+
+// 0018 — seasonal checklists.
+export type Quarter = 'Q1' | 'Q2' | 'Q3' | 'Q4';
+
 export type FindingStatus =
   | 'GOOD'
   | 'MONITOR'
@@ -91,8 +99,8 @@ export interface Property {
   exterior_material?: string | null;
   roof_material?: string | null;
   roof_installed_year?: number | null;
-  water_source?: 'PUBLIC' | 'WELL' | 'SHARED_WELL' | 'OTHER' | null;
-  sewer_type?: 'PUBLIC' | 'SEPTIC' | 'MOUND' | 'OTHER' | null;
+  water_source?: WaterSource | null;
+  sewer_type?: SewerType | null;
   /** Changes what the emergency screen tells them. See lib/emergency.ts. */
   heating_fuel?: HeatingFuel | null;
   electrical_service_amps?: number | null;
@@ -168,6 +176,8 @@ export interface ChecklistItem {
   result: ChecklistResult;
   notes: string | null;
   sort_order: number;
+  /** 0018 — copied from the template. Field app only, never the member. */
+  help_note?: string | null;
 }
 
 export interface Finding {

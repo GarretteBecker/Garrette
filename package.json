@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --experimental-strip-types tests/checklists.test.mjs",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },

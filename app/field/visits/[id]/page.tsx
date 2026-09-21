@@ -6,7 +6,7 @@ import SyncBanner from '@/components/field/sync-banner';
 import VisitWorkspace, { type VisitPhoto } from '@/components/field/visit-workspace';
 import { startVisit } from '@/lib/actions/visits';
 import { Card, formatDate } from '@/components/ui';
-import { quarterFor, CHECKLIST_TEMPLATES } from '@/lib/checklist-templates';
+import { loadTemplateForDate } from '@/lib/checklists';
 import type { Visit, Property, Room, Asset, ChecklistItem, Finding } from '@/lib/types/database';
 
 export default async function FieldVisitPage({
@@ -62,8 +62,9 @@ export default async function FieldVisitPage({
       .createSignedUrl(row.storage_path, 3600);
     photoList.push({ ...row, url: signed?.signedUrl ?? null });
   }
-  const quarter = quarterFor(v.scheduled_for ? new Date(v.scheduled_for) : new Date());
-  const template = CHECKLIST_TEMPLATES[quarter];
+  const template = await loadTemplateForDate(
+    v.scheduled_for ? new Date(v.scheduled_for) : new Date(),
+  );
 
   // Not started yet: show the big green start button and nothing else.
   if (v.status === 'SCHEDULED' || items.length === 0) {

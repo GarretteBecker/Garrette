@@ -95,7 +95,7 @@ export default async function AdminHomePage() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
             Properties
           </h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <LinkButton href="/admin/requests" variant="secondary">
               Requests
             </LinkButton>
@@ -104,6 +104,9 @@ export default async function AdminHomePage() {
             </LinkButton>
             <LinkButton href="/admin/warranties" variant="secondary">
               Warranties
+            </LinkButton>
+            <LinkButton href="/admin/checklists" variant="secondary">
+              Checklists
             </LinkButton>
             <LinkButton href="/admin/compliance" variant="secondary">
               Compliance

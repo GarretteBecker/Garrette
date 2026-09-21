@@ -831,13 +831,82 @@ which quietly ate the lower valve in your water main picture — the part a
 homeowner most needs to see. A shutoff photograph is evidence, so it is shown
 whole now.
 
+### Phase 23 — The seasonal checklists, and who owns them
+
+The Q1–Q4 lists have been hardcoded in a TypeScript file since the first
+build, and I have been asking you for your real ones for weeks. That was the
+wrong ask. **A checklist you cannot edit is somebody else's checklist** — if
+the only way to add an item is to send me a message, the lists were never
+going to become yours.
+
+So they moved. **Admin → Checklists.** Four tabs, edit any of them, no
+developer. Full guide in `docs/checklists.md`.
+
+**What you can change:** what the visit is called, the season and months,
+the one line on why the quarter looks like this (that line prints on the
+member's report), and every item — wording, category, order, and a note for
+your techs.
+
+**The tech note is new and it is techs-only.** "What good looks like",
+shown under the item on the field screen, never printed on a member's
+report. A few that are in the draft:
+
+> *A frozen discharge is a working pump with nowhere to go. Walk outside
+> and look.*
+>
+> *Probe the deck posts, do not look. A post that is sound at eye level can
+> be gone at the ground.*
+>
+> *Auto-reverse on a 2x4 laid flat. Two minutes, and it is the one that
+> matters.*
+
+**Items can now be limited to the homes they apply to.** A septic check
+stays off a public-sewer house, a well check off a house on public water, a
+propane tank check off an all-electric one. It reads from *About the house*,
+so fill in water source, sewer type and heating fuel and the lists tidy
+themselves. A house whose facts you have not recorded keeps every item —
+better a tech ticking "not applicable" than a check silently never offered.
+
+**Editing never rewrites history.** A visit takes its own copy of the list
+when it starts and owns it from then on. Changing Q3 in March cannot alter
+what a tech recorded last August, which matters because that record is what
+the member was shown and what their report was built from.
+
+**The draft got a serious pass while I was in there.** Q3 was the thin one
+at 13 items and is now 18–19; every quarter now lands between 16 and 19
+depending on the house. Added, among others: exercising the main water
+shutoff so it cannot seize, reading the *date stamp* on smoke and CO alarms
+rather than just testing them, radon (Lancaster County is a high-radon
+area), attic ventilation in August, dryer vent, washing machine hose dates,
+garage door auto-reverse, chimney and flue, and propane and oil tank checks
+before the cold.
+
+**It is still a draft and the screen says so.** Every quarter you have not
+been through is marked "draft" on its tab and carries an amber card saying
+it is a competent stranger's list, not B&M's. Press *start from the built-in
+list* and mark it up.
+
+**Verified.** Migrations applied in order on Postgres 16; `CATCH-UP.sql` and
+`SETUP-EVERYTHING.sql` each applied wrapped in one explicit transaction, and
+the catch-up now ends *"Up to date. Everything through the editable seasonal
+checklists is in."* RLS: an admin can write the lists, a tech and a member
+can both read them and neither can change a word — the tech's UPDATE matched
+zero rows and the member's INSERT was refused. Two live lists for one quarter
+are refused; an archived one is allowed, so a 2026 report stays explainable
+in 2029. Deleting a list takes its items with it rather than orphaning them.
+
+**And the repo has its first test.** `npm test` — 30 assertions on which
+items each kind of house gets. That one is worth a test precisely because
+its failures are silent: nobody notices a check that was never offered.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
 - `docs/homekeeper-spec.md` is referenced by `CLAUDE.md` but does not exist;
   everything I had to invent in its absence is listed in `docs/ASSUMPTIONS.md`
 - Trade portal is a placeholder (later phase, per the brief)
-- No automated tests yet
+- Almost no automated tests — `npm test` covers the checklist house-matching
+  rule only
 - **The scan's actual Claude call has never been run** — this environment has
   no API credentials. Everything around it is verified; the call itself is
   not. See `docs/ASSUMPTIONS.md` §9.

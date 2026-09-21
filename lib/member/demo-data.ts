@@ -600,6 +600,7 @@ function checks(
     visit_id: visitId,
     category: t.category,
     label: t.label,
+    help_note: t.help ?? null,
     result: attention.some((a) => t.label.toLowerCase().includes(a))
       ? ('ATTENTION' as const)
       : ('PASS' as const),

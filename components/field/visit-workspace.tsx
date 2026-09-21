@@ -149,8 +149,17 @@ export default function VisitWorkspace({
                             >
                               {style.label}
                             </span>
-                            <span className="min-w-0 flex-1 text-sm font-medium text-navy-800">
-                              {item.label}
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-sm font-medium text-navy-800">
+                                {item.label}
+                              </span>
+                              {/* What good looks like, from the template.
+                                  Techs only — this never reaches a member. */}
+                              {item.help_note ? (
+                                <span className="mt-0.5 block text-xs leading-snug text-slate-500">
+                                  {item.help_note}
+                                </span>
+                              ) : null}
                             </span>
                           </button>
 

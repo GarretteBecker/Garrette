@@ -1495,6 +1495,91 @@ alter type public.report_type add value if not exists 'BASELINE';
 alter type public.safety_point_kind add value if not exists 'PROPANE_TANK_SHUTOFF';
 
 -- ---------------------------------------------------------------------
+-- Seasonal checklists you can edit  (migration 0018)
+--
+-- The Q1–Q4 lists move out of a code file and into the database, with a
+-- screen at /admin/checklists to write them on. Nothing is seeded here:
+-- until a quarter has a list with items in it, the app keeps using the
+-- built-in draft exactly as before, so this changes no behaviour on its
+-- own. Press "start from the built-in list" on the screen to get a copy
+-- to mark up.
+-- ---------------------------------------------------------------------
+
+do $$ begin
+  create type public.quarter as enum ('Q1', 'Q2', 'Q3', 'Q4');
+exception when duplicate_object then null; end $$;
+
+create table if not exists public.checklist_templates (
+  id          uuid primary key default gen_random_uuid(),
+  quarter     public.quarter not null,
+  name        text not null,
+  season      text not null,
+  months      text not null,
+  focus       text,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create unique index if not exists checklist_templates_one_active_per_quarter
+  on public.checklist_templates (quarter)
+  where is_active;
+
+create table if not exists public.checklist_template_items (
+  id           uuid primary key default gen_random_uuid(),
+  template_id  uuid not null references public.checklist_templates (id) on delete cascade,
+  category     text not null,
+  label        text not null,
+  help_note    text,
+  sort_order   integer not null default 0,
+  only_water_source public.water_source[],
+  only_sewer_type   public.sewer_type[],
+  only_heating_fuel public.heating_fuel[],
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz not null default now()
+);
+
+create index if not exists checklist_template_items_template_idx
+  on public.checklist_template_items (template_id, sort_order);
+
+drop trigger if exists checklist_templates_set_updated_at on public.checklist_templates;
+create trigger checklist_templates_set_updated_at
+  before update on public.checklist_templates
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists checklist_template_items_set_updated_at on public.checklist_template_items;
+create trigger checklist_template_items_set_updated_at
+  before update on public.checklist_template_items
+  for each row execute function public.set_updated_at();
+
+alter table public.checklist_items
+  add column if not exists help_note text;
+
+alter table public.checklist_templates       enable row level security;
+alter table public.checklist_templates       force  row level security;
+alter table public.checklist_template_items  enable row level security;
+alter table public.checklist_template_items  force  row level security;
+
+drop policy if exists checklist_templates_select on public.checklist_templates;
+create policy checklist_templates_select on public.checklist_templates
+  for select to authenticated using (true);
+
+drop policy if exists checklist_templates_admin_write on public.checklist_templates;
+create policy checklist_templates_admin_write on public.checklist_templates
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists checklist_template_items_select on public.checklist_template_items;
+create policy checklist_template_items_select on public.checklist_template_items
+  for select to authenticated using (true);
+
+drop policy if exists checklist_template_items_admin_write on public.checklist_template_items;
+create policy checklist_template_items_admin_write on public.checklist_template_items
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+
+-- ---------------------------------------------------------------------
 -- Did it work?
 -- ---------------------------------------------------------------------
 select
@@ -1549,7 +1634,12 @@ select
        where t.typname = 'safety_point_kind' and e.enumlabel = 'PROPANE_TANK_SHUTOFF'
     )
       then 'The propane tank shutoff did not apply — send this result to Claude.'
-    else 'Up to date. Everything through the propane tank shutoff is in.'
+    when not exists (
+      select 1 from information_schema.tables
+       where table_schema = 'public' and table_name = 'checklist_templates'
+    )
+      then 'Editable checklists did not apply — send this result to Claude.'
+    else 'Up to date. Everything through the editable seasonal checklists is in.'
   end as result,
   (select string_agg(name || ' — ' || tier, ', ' order by name)
      from public.properties) as your_homes;

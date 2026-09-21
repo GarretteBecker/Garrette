@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { CHECKLIST_TEMPLATES, quarterFor, type Quarter } from '@/lib/checklist-templates';
+import { appliesToProperty, quarterFor, type Quarter } from '@/lib/checklist-templates';
+import { loadTemplateForDate } from '@/lib/checklists';
 import { notify } from '@/lib/ghl/notify';
 import type { VisitType } from '@/lib/types/database';
 
@@ -21,8 +22,7 @@ export async function scheduleVisit(formData: FormData): Promise<void> {
   if (!propertyId || !scheduledFor) return;
 
   const supabase = await createClient();
-  const quarter = quarterFor(new Date(scheduledFor));
-  const template = CHECKLIST_TEMPLATES[quarter];
+  const template = await loadTemplateForDate(new Date(scheduledFor));
 
   const {
     data: { user },
@@ -69,7 +69,7 @@ export async function startVisit(formData: FormData): Promise<void> {
 
   const { data: visit } = await supabase
     .from('visits')
-    .select('id, status, scheduled_for, started_at')
+    .select('id, status, scheduled_for, started_at, property_id')
     .eq('id', visitId)
     .maybeSingle();
 
@@ -82,14 +82,27 @@ export async function startVisit(formData: FormData): Promise<void> {
 
   if (!count) {
     const when = visit.scheduled_for ? new Date(visit.scheduled_for) : new Date();
-    const quarter: Quarter = quarterFor(when);
-    const template = CHECKLIST_TEMPLATES[quarter];
+    const template = await loadTemplateForDate(when);
 
+    // The house decides which items it gets: no septic check on a public
+    // sewer, no propane tank on an all-electric home. An item that cannot
+    // apply is noise, and noise is how a checklist stops being read.
+    const { data: facts } = await supabase
+      .from('properties')
+      .select('water_source, sewer_type, heating_fuel')
+      .eq('id', (visit as { property_id?: string }).property_id ?? '')
+      .maybeSingle();
+
+    const items = template.items.filter((item) => appliesToProperty(item, facts ?? null));
+
+    // The visit takes its own copy here and owns it from now on. Editing
+    // the Q3 list in March must never rewrite what a tech recorded in August.
     await supabase.from('checklist_items').insert(
-      template.items.map((item, i) => ({
+      items.map((item, i) => ({
         visit_id: visitId,
         category: item.category,
         label: item.label,
+        help_note: item.help ?? null,
         result: 'NOT_CHECKED' as const,
         sort_order: (i + 1) * 10,
       })),

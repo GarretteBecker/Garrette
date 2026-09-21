@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import { Card, EmptyState, formatDate } from '@/components/ui';
-import { templateFor } from '@/lib/checklist-templates';
+import { loadTemplateForDate } from '@/lib/checklists';
 import SyncBanner from '@/components/field/sync-banner';
 import type { Visit, Property } from '@/lib/types/database';
 
@@ -41,7 +41,7 @@ export default async function FieldHomePage() {
 
   const today = visitRows.filter((v) => isToday(v.scheduled_for) || v.status === 'IN_PROGRESS');
   const upcoming = visitRows.filter((v) => !today.includes(v));
-  const template = templateFor();
+  const template = await loadTemplateForDate();
 
   return (
     <div className="flex min-h-dvh flex-col bg-slate-100">
