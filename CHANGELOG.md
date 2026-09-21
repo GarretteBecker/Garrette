@@ -645,18 +645,28 @@ record and a number presented as one would get somebody dropped for nothing.
 - 17 assertions on the display helpers — countdowns, overdue, tones, and the
   refusal to grade on a small sample.
 
-### Phase 19 — Dashboard order
+### Phase 19 — Emergency moves into the header
 
-The home's status now sits between the emergency button and the two
-everyday actions, rather than below all three.
+The full-width red banner is gone. Emergency is now a small red button in
+the top right of the header.
 
-Emergency stays first and alone — the moment it exists for is the moment
-nobody reads carefully. But "2 things need attention" is what a member opens
-the app to find out on any ordinary day, so it comes next, and the camera
-and Request service read better underneath it than stacked against the red.
+It is **better placed, not just quieter**. The banner only existed on the
+dashboard, so a member who needed it from their Home Record or a report had
+to navigate home first — which is not what anyone does when water is coming
+through the ceiling. In the header it is in the same place on **every**
+portal screen.
 
-`QuickActions` split into `HelpNowButton` and `QuickActions` so the two can
-be placed separately.
+It is still a 40px tap target with the word *Emergency* on it, not a bare
+icon, so it is findable without reading carefully.
+
+The dashboard is calmer for it: the home's status is now the first thing a
+member sees, with the camera and Request service under it, and the whole
+thing fits one screen without scrolling.
+
+The house icon that sat left of the title went with it — the title *is* the
+home's name, so the icon was spending 32px to say the same thing twice, and
+the emergency button needed that room. Checked at 375px with Sign out
+present: nothing truncates.
 
 ### Known gaps
 

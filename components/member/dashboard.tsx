@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { FINDING_STATUS_STYLES, FINDING_STATUS_HEX } from '@/lib/types/finding-status';
 import { formatMoneyRange } from '@/components/ui';
 import { PortalSection } from './shell';
-import QuickActions, { HelpNowButton } from './quick-actions';
+import QuickActions from './quick-actions';
 import WarrantyWatch from './warranty-watch';
 import { expiringWarranties } from '@/lib/warranty';
 import {
@@ -72,9 +72,6 @@ export default function MemberDashboard({
 
   return (
     <>
-      {/* Emergency first, always. Everything below it is a calm day. */}
-      <HelpNowButton hrefPrefix={hrefPrefix} />
-
       {/* ---------------------------------------- hero: the one statement */}
       <div className={`mb-6 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ${accent.ring}`}>
         <div className={`h-1.5 w-full ${accent.bar}`} />

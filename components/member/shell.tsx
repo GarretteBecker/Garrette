@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { signOut } from '@/app/login/actions';
-import { HomeKeeperMark } from '@/components/brand';
 
 export type PortalTab = 'dashboard' | 'record' | 'plan' | 'reports' | 'documents';
 
@@ -102,8 +101,10 @@ export default function PortalShell({
   return (
     <div className="flex min-h-dvh flex-col bg-slate-50">
       <header className="safe-top sticky top-0 z-20 bg-gradient-to-b from-navy-700 to-navy-800 text-white">
-        <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-4">
-          <HomeKeeperMark className="h-6 w-6 shrink-0 text-white/80" />
+        <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-3">
+          {/* The title IS the home's name, so a house icon beside it was
+              costing 32px to say the same thing twice — and the emergency
+              button needs that room more. */}
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-[17px] font-semibold leading-tight tracking-tight">
               {title}
@@ -112,13 +113,36 @@ export default function PortalShell({
               <p className="truncate text-xs text-navy-200">{subtitle}</p>
             ) : null}
           </div>
+          {/* Emergency lives in the header, not on the dashboard, so it is in
+              the same place on every screen. A member who needs it is not
+              going to navigate home first. */}
+          <Link
+            href={`${hrefPrefix}/help`}
+            aria-label="I need help now — emergency"
+            className="flex h-10 shrink-0 items-center gap-1.5 rounded-lg bg-red-600 px-3 text-[13px] font-bold text-white shadow-sm active:bg-red-700"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+                 className="h-4 w-4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 9v4" />
+              <path d="M10.4 3.9 2.5 17.3A2 2 0 0 0 4.2 20.3h15.6a2 2 0 0 0 1.7-3L13.6 3.9a2 2 0 0 0-3.2 0z" />
+              <path d="M12 17h.01" />
+            </svg>
+            Emergency
+          </Link>
+
           {showSignOut ? (
             <form action={signOut}>
               <button
                 type="submit"
-                className="rounded-lg px-2 py-2 text-xs font-medium text-navy-200 active:bg-white/10"
+                aria-label="Sign out"
+                className="flex h-10 w-9 items-center justify-center rounded-lg text-navy-200 active:bg-white/10"
               >
-                Sign out
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+                     className="h-5 w-5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <path d="m16 17 5-5-5-5" />
+                  <path d="M21 12H9" />
+                </svg>
               </button>
             </form>
           ) : null}
