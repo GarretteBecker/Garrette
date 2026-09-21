@@ -987,6 +987,77 @@ Target Date, Responsible Trade), the member dashboard buckets (Immediate /
 Health Record as a single exportable document, and the monthly homeowner
 reminder between visits.
 
+### Phase 25 — The team console, the office role, and invite-only access
+
+**You can get in at `/login`.** One login page for everyone; it sends you
+where you belong. Full list of every account and URL in `docs/going-live.md`.
+
+**There is a fifth role now: Office.** Until this, anybody in the office had
+to be a full admin — the person booking visits also held pricing and staff
+accounts. Office gets members, properties, scheduling, requests, reports and
+the trade bench. It does not get pricing, membership terms, creating or
+deleting properties, user accounts, or the checklist standard.
+
+**`/admin` became `/team`.** 138 path references moved; `/admin` still
+redirects, because people bookmark things.
+
+**New screens:** a dashboard ordered by who is waiting (today's visits,
+work where the ball is with B&M, open ACTION findings, reports awaiting
+release, renewals inside 30 days, membership counts with MRR for the owner
+only); a members list keyed on the property rather than the person, with
+tier, payment option, start and renewal date; a visits calendar with
+technician assignment; and a people screen for invites.
+
+**Assigning a tech to a visit now also writes `property_techs`**, because
+that is the table RLS reads. Assigning the visit alone would hand somebody
+a job they are refused the moment they tap it.
+
+**Sign-up is invite-only, enforced in the database.** A sign-up whose email
+has no unexpired row in `public.invites` is refused by a trigger, and the
+role comes from the invite rather than from the sign-up form. That matters
+because the anon key is public by design — it ships to every browser. If
+invite-only were a dashboard checkbox, one wrong click would open the doors.
+
+There is no service-role client (CLAUDE.md), so an invite grants permission
+to create an account rather than creating one. You still tell the person
+yourself.
+
+**The Miller Home was quietly in your books.** `/demo` is hardcoded and was
+always safe, but the seeded Miller Home is a *real row in the real
+database*, and `SETUP-EVERYTHING.sql` contains that seed — so the script
+that sets up production also added a fake member to the member count, to
+monthly recurring revenue, and to the renewal list. It is now flagged
+`is_demo`: excluded from every number, labelled **Sales demo** wherever it
+appears, still fully clickable for selling.
+
+**Three staff pages were being statically prerendered** and are now
+force-dynamic. Authenticated data is never safe to cache.
+
+**The seed broke and that was the point.** The new trigger refused the
+seed's own three users until they were given invites of their own — exactly
+what would have happened to a real sign-up.
+
+**Verified on Postgres 16.** All 23 tables have RLS **enabled and forced**,
+every one with policies. The office matrix: books visits, edits the Home
+Record, moves requests — yes; promotes itself, invites anyone, creates or
+deletes a property, changes pricing or the checklist standard — no.
+
+Isolation was re-tested **with real data on a second property first**,
+because counts prove nothing when the other house is empty. Owner and
+office reach exactly 1 row of it in every table; technician and homeowner
+reach **0** in all of them. A sign-up claiming `"role":"admin"` in its
+metadata gets the role from the invite instead. Expired and reused invites
+are both refused.
+
+**Docs:** `docs/going-live.md` (logins, hosting, the `app.` subdomain, PWA
+install, demo isolation, what still needs a human) and
+`docs/adding-a-member.md` (a one-page walkthrough to print for the office).
+
+**Still to build:** the request board as a drag-to-move kanban — it is
+grouped by stage down the page today, which works on a phone but is not the
+desktop board you asked for. And COI expiry now has columns
+(`coi_expires`, `workers_comp_expires`) but no screen yet.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7
