@@ -277,44 +277,6 @@ export async function triageRequest(formData: FormData): Promise<void> {
   revalidatePath(`/admin/requests/${requestId}`);
 }
 
-/** Dispatch to a trade partner, which also advances the stage. */
-export async function assignTradePartner(formData: FormData): Promise<void> {
-  const requestId = String(formData.get('request_id'));
-  const tradePartnerId = text(formData, 'trade_partner_id');
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data: current } = await supabase
-    .from('service_requests')
-    .select('stage, property_id, title')
-    .eq('id', requestId)
-    .maybeSingle();
-
-  await supabase
-    .from('service_requests')
-    .update({ trade_partner_id: tradePartnerId, stage: 'DISPATCHED' })
-    .eq('id', requestId);
-
-  await supabase.from('service_request_events').insert({
-    service_request_id: requestId,
-    from_stage: current?.stage ?? null,
-    to_stage: 'DISPATCHED',
-    note: 'Dispatched to a trade partner.',
-    actor_id: user?.id ?? null,
-  });
-
-  if (current) {
-    await notifyStage(current.property_id, requestId, current.title, current.stage, 'DISPATCHED');
-  }
-
-  revalidatePath(`/admin/requests/${requestId}`);
-  revalidatePath('/admin/requests');
-  revalidatePath('/home/requests');
-}
-
 /** Price it and put the ball in the member's court. */
 export async function setEstimate(formData: FormData): Promise<void> {
   const requestId = String(formData.get('request_id'));

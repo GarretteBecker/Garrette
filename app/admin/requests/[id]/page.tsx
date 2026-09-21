@@ -5,9 +5,11 @@ import { createClient } from '@/lib/supabase/server';
 import { AppHeader, BrandFooter } from '@/components/brand';
 import { Card, Field, inputClass, formatDate, formatMoneyRange } from '@/components/ui';
 import { STAGE_META, TONE_STYLE, nextStages, urgencyLabel, REQUEST_CATEGORIES, URGENCY_OPTIONS } from '@/lib/service-requests';
-import { moveStage, triageRequest, assignTradePartner, setEstimate, scheduleRequest } from '@/lib/actions/service-requests';
+import { moveStage, triageRequest, setEstimate, scheduleRequest } from '@/lib/actions/service-requests';
 import CompletionForm from '@/components/admin/completion-form';
 import JobPhotos, { type JobPhoto } from '@/components/admin/job-photos';
+import DispatchPanel from '@/components/admin/dispatch-panel';
+import type { DispatchOffer } from '@/lib/dispatch';
 import type { ServiceRequest, Asset, Room, TradePartner, ServiceRequestStage } from '@/lib/types/database';
 
 export const dynamic = 'force-dynamic';
@@ -57,6 +59,45 @@ export default async function AdminRequestDetailPage({
   const roomRows = (rooms ?? []) as Room[];
   const assetRows = (assets ?? []) as Asset[];
   const partnerRows = (partners ?? []) as TradePartner[];
+
+  // Dispatch: every offer on this job, and who covers its category.
+  const [{ data: offerRows }, { data: coverageRows }] = await Promise.all([
+    supabase
+      .from('dispatch_offers')
+      .select('id, service_request_id, trade_partner_id, rank, offered_at, respond_by, response, responded_at, decline_reason')
+      .eq('service_request_id', id)
+      .order('offered_at'),
+    r.category
+      ? supabase
+          .from('trade_coverage')
+          .select('trade_partner_id, category, rank')
+          .eq('category', r.category)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const partnerById = new Map(partnerRows.map((tp) => [tp.id, tp]));
+  const offers: DispatchOffer[] = ((offerRows ?? []) as DispatchOffer[]).map((o) => ({
+    ...o,
+    company_name: partnerById.get(o.trade_partner_id)?.company_name ?? null,
+    phone: partnerById.get(o.trade_partner_id)?.phone ?? null,
+  }));
+
+  const rankOrder = { PRIMARY: 1, SECONDARY: 2, BACKUP: 3 } as const;
+  const bench = ((coverageRows ?? []) as { trade_partner_id: string; rank: keyof typeof rankOrder }[])
+    .map((c) => {
+      const tp = partnerById.get(c.trade_partner_id);
+      return tp && tp.is_active
+        ? {
+            id: tp.id,
+            company_name: tp.company_name,
+            rank: c.rank as string,
+            offered: offers.some((o) => o.trade_partner_id === tp.id),
+          }
+        : null;
+    })
+    .filter((b): b is NonNullable<typeof b> => b !== null)
+    .sort((a, b) => rankOrder[a.rank as 'PRIMARY'] - rankOrder[b.rank as 'PRIMARY']);
+
   const linkedAsset = assetRows.find((a) => a.id === r.asset_id) ?? null;
   const meta = STAGE_META[r.stage];
 
@@ -249,24 +290,25 @@ export default async function AdminRequestDetailPage({
 
         {/* ------------------------------------------- dispatch */}
         <Card className="p-4">
-          <h2 className="mb-3 font-semibold text-navy-800">Dispatch</h2>
-          <form action={assignTradePartner} className="space-y-3">
-            <input type="hidden" name="request_id" value={r.id} />
-            <select
-              name="trade_partner_id"
-              defaultValue={r.trade_partner_id ?? ''}
-              aria-label="Trade partner"
-              className={inputClass}
-            >
-              <option value="">Choose a trade partner…</option>
-              {partnerRows.map((p) => (
-                <option key={p.id} value={p.id}>{p.company_name} — {p.trade}</option>
-              ))}
-            </select>
-            <button type="submit" className="h-12 w-full rounded-lg bg-navy-700 font-semibold text-white">
-              Dispatch
-            </button>
-          </form>
+          <h2 className="mb-1 font-semibold text-navy-800">Dispatch</h2>
+          <p className="mb-3 text-[13px] leading-relaxed text-slate-500">
+            A job is <span className="font-semibold">offered</span>, not assigned.
+            The partner gets a clock to answer; if they decline or go quiet,
+            roll it to the next one. Every step stays on the record.
+          </p>
+          <DispatchPanel
+            requestId={r.id}
+            category={r.category}
+            offers={offers}
+            bench={bench.length > 0 ? bench : partnerRows
+              .filter((tp) => tp.is_active)
+              .map((tp) => ({
+                id: tp.id,
+                company_name: `${tp.company_name} — ${tp.trade}`,
+                rank: null,
+                offered: offers.some((o) => o.trade_partner_id === tp.id),
+              }))}
+          />
         </Card>
 
         {/* ------------------------------------------- money + date */}

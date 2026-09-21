@@ -20,7 +20,10 @@ export type GhlEventType =
   | 'membership.rescinded'
   // Warranty watch. The one event that puts money back in a member's
   // pocket, so it is worth its own workflow.
-  | 'warranty.expiring';
+  | 'warranty.expiring'
+  // Dispatch. Lets a workflow text the trade partner the moment a job is
+  // offered — the clock starts whether or not they are at a desk.
+  | 'dispatch.offered';
 
 export interface GhlContact {
   first_name: string | null;

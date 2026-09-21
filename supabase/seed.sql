@@ -623,3 +623,23 @@ update public.assets
 update public.assets
    set warranty_expires = current_date + 112
  where id = 'e0000000-0000-4000-8000-000000000012';   -- Culligan water softener
+
+-- ---------------------------------------------------------------------
+-- 13. Who covers what, and in what order
+--
+-- The bench behind real dispatch. A job goes to the primary with a clock
+-- on it; if they decline or go quiet it rolls to the secondary.
+-- ---------------------------------------------------------------------
+update public.trade_partners set response_sla_hours = 2, emergency_available = true
+ where trade in ('Plumbing', 'HVAC');
+
+insert into public.trade_coverage (trade_partner_id, category, rank) values
+  ('f0000000-0000-4000-8000-000000000002', 'Plumbing',            'PRIMARY'),
+  ('f0000000-0000-4000-8000-000000000002', 'Water damage or leak','PRIMARY'),
+  ('f0000000-0000-4000-8000-000000000001', 'Heating & cooling',   'PRIMARY'),
+  ('f0000000-0000-4000-8000-000000000003', 'Electrical',          'PRIMARY'),
+  ('f0000000-0000-4000-8000-000000000004', 'Roof & gutters',      'PRIMARY'),
+  ('f0000000-0000-4000-8000-000000000004', 'Exterior & siding',   'PRIMARY'),
+  ('f0000000-0000-4000-8000-000000000003', 'Appliance',           'SECONDARY'),
+  ('f0000000-0000-4000-8000-000000000001', 'Appliance',           'PRIMARY')
+on conflict (trade_partner_id, category) do nothing;

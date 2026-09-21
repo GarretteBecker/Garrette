@@ -40,6 +40,11 @@ tiers, pricing, the Hub, the Passport, the legal disclosures — is the gap.
 > **And after the clean-quarter phase.** Item 5's zero-findings gap is
 > closed, and the demo can now open a real report — including one showing a
 > quarter where nothing was wrong.
+>
+> **And after real dispatch.** Item 8 is closed: ranked bench, offers with a
+> clock, rollover, a working trade portal and measured performance. The
+> caveat under item 16 — that trade-partner isolation was correct in the
+> schema but untested in practice — is now tested.
 
 ---
 
@@ -164,20 +169,26 @@ Doors & windows.
 no fixed-price approve-and-schedule, no instant preliminary range, no
 professional-review path. Completion has no warranty or permit fields.
 
-## 8. Trade Network dispatch — **MISSING**
+## 8. Trade Network dispatch — ~~MISSING~~ → **PRESENT**
 
-What exists is a flat partner list: company, trade, contact, phone, email,
-licence, active flag. Dispatch sets one partner and moves the stage.
+**At audit:** a flat partner list — company, trade, contact, phone, email,
+licence, active flag. Dispatch set one partner and moved the stage. The
+trade portal was a placeholder; the RLS policies existed but nothing
+exercised them.
 
-Not present: Primary/Secondary/Backup ranking per category; service area;
-COI tracking; pricing arrangement; hours; emergency capability; response SLA;
-the partner-facing Accept / Need Information / Decline flow; rollover to
-Secondary on decline or timeout; any performance tracking (acceptance rate,
-response time, callback rate, documentation compliance, satisfaction,
-revenue).
+**Now present:** Primary/Secondary/Backup ranking per category (one primary
+and one secondary each, enforced in the database); service area and
+emergency-available flags; a per-partner response SLA; offers with a clock;
+the partner-facing accept/decline flow on their own phone; rollover to the
+next in line on decline or timeout; and performance tracking — acceptance
+rate, average response time, jobs completed. Every offer stays on the
+record, including the ones nobody answered. The trade RLS policies are now
+exercised and tested.
 
-The trade portal is a placeholder screen. The RLS policies for trade access
-exist and are correct, but nothing exercises them.
+**Still not present:** COI tracking, pricing arrangement, working hours,
+callback rate, documentation compliance, satisfaction scores and revenue per
+partner. "Need Information" is not a third answer — a partner either takes
+it or sends it back with a reason.
 
 **One thing is right by default:** the member never sees a sub's phone
 number, because there is nowhere in the app that shows it to them.
@@ -315,7 +326,8 @@ exercise it.
 ## Tier 3 — substantial products in their own right
 
 12. **Response Hub** — the reason the $299 tier exists.
-13. **Trade Network dispatch** — ranking, SLA, accept/decline, rollover,
+13. ~~**Trade Network dispatch**~~ **DONE.** Ranking, per-partner SLA,
+    accept/decline from the trade's own phone, rollover, and measured
     performance.
 14. **Property Passport & transfer.**
 15. **AI assistant** over the property record.

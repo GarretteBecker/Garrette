@@ -582,6 +582,69 @@ credibility rests partly on that number, and 13 is thin for a full seasonal
 visit. The audit already flags that the Q1-Q4 *themes* do not match your
 spec; their *length* is worth a look at the same time.
 
+### Phase 18 — Real dispatch, and a trade portal that works
+
+"Dispatch" used to mean picking one partner from a flat list and moving a
+stage. Whether anyone actually turned up depended on who you happened to
+pick, and nothing recorded whether they answered, how long they took, or
+whether they were any good.
+
+A job is now **offered**, not assigned. The difference is the whole feature:
+an offer has a deadline, an answer and a next step.
+
+**A ranked bench per category.** Primary, secondary, backups — one primary
+and one secondary each, enforced in the database, because two primaries is
+not a ranking, it is the flat list this replaces. The Trades page calls out
+any category with no primary: those are the jobs that wait for somebody to
+think of a name.
+
+**A clock on every offer.** Each partner has their own response window (a
+roofer and an emergency plumber do not live at the same speed). The office
+sees "2h 40m left" or "40m overdue" at a glance.
+
+**Rollover.** Decline or go quiet and it rolls to the next in line. The
+chain stays on the record — a primary who never answered reads as "no
+answer in time", not as though they were skipped. When the bench runs out
+the app says so plainly rather than failing silently: that is the moment to
+pick up the phone.
+
+**A trade portal that actually works.** It was a placeholder. A partner now
+sees what they have been offered with the clock on it and answers with one
+tap — accept, or decline with a reason. Without this, dispatch is still a
+phone call somebody has to remember to log.
+
+RLS does the scoping, not the UI: a partner reads only their own offers, and
+only sees a request while they hold a live one on it. There is no property
+list, no member list, and no route to the customer database from that
+screen.
+
+**Performance, measured rather than remembered.** Acceptance rate, average
+response time, jobs completed — shown against each partner on the bench, so
+ranking can be based on something. EXPIRED counts against a partner on
+purpose: silence costs the member the whole clock. It refuses to grade
+anyone on fewer than three answered offers, because three is not a track
+record and a number presented as one would get somebody dropped for nothing.
+
+**Also**
+
+- New `dispatch.offered` GoHighLevel event. Point it at a workflow that
+  **texts the trade**, not the member.
+- `is_trade_for_request` extended so a partner can see a job they have been
+  offered, not only one already assigned — otherwise they cannot decide
+  whether to take it.
+- The old one-dropdown assign action is gone; `dispatch_next` supersedes it.
+- Verified on PostgreSQL 16 through the whole chain: primary offered → goes
+  quiet → tries to answer late and is refused → rolls to the secondary on
+  *their* SLA → secondary declines with a reason and the job returns to
+  TRIAGE unassigned → rolls to the backup → bench runs out and returns
+  nothing. Plus: a partner cannot answer another partner's offer (retested
+  with a literal id after the first attempt turned out to be passing NULL
+  through an RLS-filtered subquery), a member sees zero offers, two
+  primaries in one category is refused, and the performance view reports
+  50% / 0% / 0% correctly across three partners.
+- 17 assertions on the display helpers — countdowns, overdue, tones, and the
+  refusal to grade on a small sample.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

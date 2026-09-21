@@ -173,6 +173,7 @@ GHL_WEBHOOK_URL_VISIT_SCHEDULED=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_RENEWAL_NOTICE=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_MEMBERSHIP_RESCINDED=https://services.leadconnectorhq.com/hooks/...
 GHL_WEBHOOK_URL_WARRANTY_EXPIRING=https://services.leadconnectorhq.com/hooks/...
+GHL_WEBHOOK_URL_DISPATCH_OFFERED=https://services.leadconnectorhq.com/hooks/...
 ```
 
 Each workflow then has one trigger and one message, with no branching.
@@ -187,6 +188,11 @@ The last two are the compliance events:
 - **`membership.rescinded`** fires the moment a member cancels inside their
   three-business-day window. Point this one at *yourself*, not the member —
   it is the office that needs to know today.
+- **`dispatch.offered`** fires the moment a job is offered to a trade
+  partner, carrying the partner and the deadline to answer. Point it at a
+  workflow that **texts the trade**, not the member — the clock starts
+  whether or not they are sitting at a desk, and a partner who never sees
+  the offer is a member left waiting.
 - **`warranty.expiring`** fires when you press *Tell them* on the warranty
   worklist. `member_message` is written for you, and the payload carries the
   item, make, model, serial, expiry date and days left. This is the highest
