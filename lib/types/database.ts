@@ -44,7 +44,23 @@ export type ServiceRequestStage =
 
 export type VisitStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 export type VisitType = 'ONBOARDING' | 'SEASONAL' | 'ANNUAL' | 'SERVICE' | 'FOLLOW_UP';
-export type ChecklistResult = 'PASS' | 'ATTENTION' | 'FAIL' | 'NOT_APPLICABLE' | 'NOT_CHECKED';
+export type ChecklistResult =
+  // The six the program actually uses. PASS is labelled "Good" — it is
+  // kept rather than replaced so old visits do not have to be rewritten.
+  | 'PASS'
+  | 'MAINTENANCE_DUE'
+  | 'MONITOR'
+  | 'REPAIR_RECOMMENDED'
+  | 'SAFETY_URGENT'
+  | 'SPECIALIST_REVIEW'
+  // Housekeeping, not verdicts.
+  | 'NOT_APPLICABLE'
+  | 'NOT_CHECKED'
+  // 0019 — retired. Still readable so pre-2026 visits render, never
+  // offered as a choice. ATTENTION became MONITOR; FAIL split into the
+  // three results that say what to do about it.
+  | 'ATTENTION'
+  | 'FAIL';
 export type AssetCondition = 'NEW' | 'GOOD' | 'FAIR' | 'POOR' | 'END_OF_LIFE' | 'UNKNOWN';
 export type PlanItemStatus = 'PROPOSED' | 'APPROVED' | 'SCHEDULED' | 'DONE' | 'DECLINED' | 'DEFERRED';
 export type PriorityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
@@ -178,6 +194,17 @@ export interface ChecklistItem {
   sort_order: number;
   /** 0018 — copied from the template. Field app only, never the member. */
   help_note?: string | null;
+  /**
+   * 0020 — an item that asks for a reading instead of a tick.
+   *
+   * The band is copied alongside the value so a report written in 2030
+   * knows what counted as healthy in 2026.
+   */
+  measurement_label?: string | null;
+  measurement_unit?: string | null;
+  measurement_low?: number | null;
+  measurement_high?: number | null;
+  measurement_value?: number | null;
 }
 
 export interface Finding {

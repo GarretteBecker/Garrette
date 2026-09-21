@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import {
-  CHECKLIST_TEMPLATES, QUARTERS, quarterFor,
+  CHECKLIST_TEMPLATES, QUARTERS, quarterFor, itemsFor,
   type ChecklistTemplate, type ChecklistTemplateItem, type Quarter,
 } from '@/lib/checklist-templates';
 import type { HeatingFuel, SewerType, WaterSource } from '@/lib/types/database';
@@ -45,6 +45,11 @@ export interface TemplateItemRow {
   only_water_source: WaterSource[] | null;
   only_sewer_type: SewerType[] | null;
   only_heating_fuel: HeatingFuel[] | null;
+  is_core: boolean;
+  measurement_label: string | null;
+  measurement_unit: string | null;
+  measurement_low: number | null;
+  measurement_high: number | null;
 }
 
 /** A stored row in the shape the rest of the app already understands. */
@@ -59,11 +64,23 @@ export function rowToItem(r: TemplateItemRow): ChecklistTemplateItem {
     label: r.label,
     ...(r.help_note ? { help: r.help_note } : {}),
     ...(Object.keys(only).length ? { only } : {}),
+    ...(r.is_core ? { core: true } : {}),
+    ...(r.measurement_unit
+      ? {
+          measure: {
+            label: r.measurement_label ?? 'Reading',
+            unit: r.measurement_unit,
+            ...(r.measurement_low != null ? { low: Number(r.measurement_low) } : {}),
+            ...(r.measurement_high != null ? { high: Number(r.measurement_high) } : {}),
+          },
+        }
+      : {}),
   };
 }
 
 function builtIn(quarter: Quarter): LoadedTemplate {
-  return { ...CHECKLIST_TEMPLATES[quarter], source: 'builtin', id: null };
+  // itemsFor puts the core list in front of the season's deep dive.
+  return { ...CHECKLIST_TEMPLATES[quarter], items: itemsFor(quarter), source: 'builtin', id: null };
 }
 
 /**
@@ -86,13 +103,20 @@ export async function loadTemplate(quarter: Quarter): Promise<LoadedTemplate> {
   if (!t) return builtIn(quarter);
   const row = t as TemplateRow;
 
-  const { data: items } = await supabase
-    .from('checklist_template_items')
-    .select('*')
-    .eq('template_id', row.id)
-    .order('sort_order');
+  // Core items belong to no quarter. They are stored against whichever
+  // template they were written on and collected here for every visit,
+  // which is what makes "edit it once, changes all four" true.
+  const [{ data: core }, { data: seasonal }] = await Promise.all([
+    supabase.from('checklist_template_items').select('*').eq('is_core', true).order('sort_order'),
+    supabase
+      .from('checklist_template_items')
+      .select('*')
+      .eq('template_id', row.id)
+      .eq('is_core', false)
+      .order('sort_order'),
+  ]);
 
-  const rows = (items ?? []) as TemplateItemRow[];
+  const rows = [...((core ?? []) as TemplateItemRow[]), ...((seasonal ?? []) as TemplateItemRow[])];
   if (rows.length === 0) return builtIn(quarter);
 
   return {
@@ -105,6 +129,16 @@ export async function loadTemplate(quarter: Quarter): Promise<LoadedTemplate> {
     source: 'db',
     id: row.id,
   };
+}
+
+/** Whether the core list has been written into the database at all yet. */
+export async function coreItemsExist(): Promise<boolean> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from('checklist_template_items')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_core', true);
+  return (count ?? 0) > 0;
 }
 
 /** The list for a date — what a visit on that day should carry. */

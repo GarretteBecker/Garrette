@@ -1,4 +1,7 @@
-import { FINDING_STATUSES, FINDING_STATUS_STYLES } from '@/lib/types/finding-status';
+import {
+  FINDING_STATUSES, FINDING_STATUS_STYLES,
+  CHECKLIST_RESULT_STYLES, needsAttention,
+} from '@/lib/types/finding-status';
 import { formatDate, formatMoneyRange } from '@/components/ui';
 import {
   visitOutcome, cleanQuarterDetail, nothingFoundLine, CLEAN_HEADLINE,
@@ -284,17 +287,11 @@ export default function ReportDocument({
               <p className="mb-5 text-[15px] leading-relaxed text-slate-700">{v.summary}</p>
             ) : null}
             {completed.length > 0 ? (
-              <ul className="grid grid-cols-2 gap-x-6 gap-y-1.5">
-                {completed.map((item) => (
-                  <li key={item.id} className="flex gap-2 text-[13px] text-slate-700">
-                    <span className="mt-[3px] text-brandgreen-600">✓</span>
-                    <span>{item.label}</span>
-                  </li>
-                ))}
-              </ul>
+              <ChecklistSummary items={completed} />
             ) : (
               <p className="text-sm text-slate-500">No checklist recorded for this period.</p>
             )}
+            <Readings items={items} />
           </Section>
 
           {/* ------------------------------------ 5. findings */}
@@ -528,4 +525,133 @@ function solidHex(status: Finding['status']): string {
     IMPROVEMENT: '#6d28d9',
   };
   return map[status];
+}
+
+/**
+ * Three hundred ticks is not a report, it is a wall.
+ *
+ * A member wants to know it was thorough and then wants to know what was
+ * wrong. So the sections carry the count — the proof of thoroughness —
+ * and only the items that need something are written out in full.
+ */
+function ChecklistSummary({ items }: { items: ChecklistItem[] }) {
+  const byCategory = new Map<string, ChecklistItem[]>();
+  for (const i of items) {
+    const list = byCategory.get(i.category) ?? [];
+    list.push(i);
+    byCategory.set(i.category, list);
+  }
+
+  const flagged = items.filter((i) => needsAttention(i.result));
+
+  return (
+    <>
+      <p className="mb-3 text-[15px] leading-relaxed text-slate-700">
+        We worked through{' '}
+        <span className="font-semibold text-navy-800">{items.length} checks</span>{' '}
+        across {byCategory.size} areas of the home.
+      </p>
+
+      <ul className="mb-5 grid grid-cols-2 gap-x-6 gap-y-1.5">
+        {[...byCategory.entries()].map(([category, list]) => {
+          const bad = list.filter((i) => needsAttention(i.result)).length;
+          return (
+            <li key={category} className="flex gap-2 text-[13px] text-slate-700">
+              <span className={`mt-[3px] ${bad ? 'text-amber-600' : 'text-brandgreen-600'}`}>
+                {bad ? '!' : '✓'}
+              </span>
+              <span>
+                {category}
+                <span className="text-slate-500">
+                  {' '}— {list.length} checked{bad ? `, ${bad} flagged` : ''}
+                </span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+
+      {flagged.length > 0 ? (
+        <div className="break-inside-avoid rounded-xl bg-amber-50 p-4 ring-1 ring-amber-600/20">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-amber-800">
+            What needed something
+          </p>
+          <ul className="mt-2 space-y-2">
+            {flagged.map((i) => (
+              <li key={i.id} className="text-[13px] leading-relaxed text-amber-900">
+                <span className="font-semibold">
+                  {CHECKLIST_RESULT_STYLES[i.result].label}
+                </span>{' '}
+                · {i.category} — {i.label}
+                {i.notes ? <span className="block text-amber-900/80">{i.notes}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * The readings.
+ *
+ * This is the part of the report a home inspector cannot produce, because
+ * they see a house once. Next year the same table sits beside this one and
+ * the member can see which direction their house is going.
+ */
+function Readings({ items }: { items: ChecklistItem[] }) {
+  const taken = items.filter((i) => i.measurement_unit && i.measurement_value != null);
+  if (taken.length === 0) return null;
+
+  const inBand = (i: ChecklistItem) => {
+    const v = i.measurement_value as number;
+    if (i.measurement_low != null && v < i.measurement_low) return false;
+    if (i.measurement_high != null && v > i.measurement_high) return false;
+    return true;
+  };
+
+  return (
+    <div className="mt-6 break-inside-avoid">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+        What we measured
+      </p>
+      <p className="mb-3 mt-1 text-[13px] leading-relaxed text-slate-600">
+        We record these every visit so you can see which way your home is
+        moving, rather than only whether something is broken today.
+      </p>
+      <table className="w-full text-[13px]">
+        <tbody>
+          {taken.map((i) => {
+            const good = inBand(i);
+            return (
+              <tr key={i.id} className="border-b border-slate-100 last:border-0">
+                <td className="py-1.5 pr-3 text-slate-700">
+                  {i.measurement_label ?? i.label}
+                  <span className="block text-[12px] text-slate-500">{i.category}</span>
+                </td>
+                <td className="py-1.5 pr-3 text-right font-semibold text-navy-800 whitespace-nowrap">
+                  {i.measurement_value} {i.measurement_unit}
+                </td>
+                <td className="py-1.5 text-right text-[12px] whitespace-nowrap">
+                  {i.measurement_low != null || i.measurement_high != null ? (
+                    <span className={good ? 'text-brandgreen-700' : 'text-amber-700'}>
+                      {good ? 'in range' : 'outside range'}
+                      <span className="block text-slate-500">
+                        {i.measurement_low ?? ''}
+                        {i.measurement_low != null && i.measurement_high != null ? '–' : ''}
+                        {i.measurement_high ?? ''} {i.measurement_unit}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-slate-400">recorded</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
 }

@@ -18,7 +18,7 @@ import type {
 import type { StatusEvent } from '@/components/member/request-status';
 import type { Agreement } from '@/lib/agreements';
 import type { SafetyPoint } from '@/lib/emergency';
-import { CHECKLIST_TEMPLATES, type Quarter } from '@/lib/checklist-templates';
+import { itemsFor, type Quarter } from '@/lib/checklist-templates';
 
 const PROPERTY_ID = 'demo-property';
 
@@ -593,20 +593,38 @@ function checks(
   quarter: Quarter,
   attention: string[] = [],
 ): ChecklistItem[] {
-  // Real seasonal labels, not "Check 1" — the report prints these, and a
-  // prospect reading forty-seven of them is exactly the point.
-  return CHECKLIST_TEMPLATES[quarter].items.map((t, i) => ({
-    id: `${visitId}-c${i}`,
-    visit_id: visitId,
-    category: t.category,
-    label: t.label,
-    help_note: t.help ?? null,
-    result: attention.some((a) => t.label.toLowerCase().includes(a))
-      ? ('ATTENTION' as const)
-      : ('PASS' as const),
-    notes: null,
-    sort_order: i,
-  }));
+  // Real labels, not "Check 1" — the report prints these, and a prospect
+  // reading three hundred of them is exactly the point. itemsFor puts the
+  // core list in front of the season's deep dive, same as a real visit.
+  return itemsFor(quarter).map((t, i) => {
+    const flagged = attention.some((a) => t.label.toLowerCase().includes(a));
+
+    // A plausible reading for the demo: mid-band where there is a band,
+    // and nothing invented where there is not.
+    let measurement_value: number | null = null;
+    if (t.measure) {
+      const { low, high } = t.measure;
+      if (low != null && high != null) measurement_value = Math.round(((low + high) / 2) * 10) / 10;
+      else if (high != null) measurement_value = high;
+      else if (low != null) measurement_value = low;
+    }
+
+    return {
+      id: `${visitId}-c${i}`,
+      visit_id: visitId,
+      category: t.category,
+      label: t.label,
+      help_note: t.help ?? null,
+      result: flagged ? ('REPAIR_RECOMMENDED' as const) : ('PASS' as const),
+      notes: null,
+      sort_order: i,
+      measurement_label: t.measure?.label ?? null,
+      measurement_unit: t.measure?.unit ?? null,
+      measurement_low: t.measure?.low ?? null,
+      measurement_high: t.measure?.high ?? null,
+      measurement_value,
+    };
+  });
 }
 
 export const DEMO_CHECKLISTS: Record<string, ChecklistItem[]> = {

@@ -4,22 +4,18 @@ import { useMemo, useState } from 'react';
 import { enqueue } from '@/lib/offline/outbox';
 import { syncNow } from '@/lib/offline/sync';
 import { completeVisit } from '@/lib/actions/visits';
-import { CHECKLIST_RESULT_STYLES } from '@/lib/types/finding-status';
+import { CHECKLIST_RESULT_STYLES, CHECKLIST_RESULT_CHOICES, needsAttention } from '@/lib/types/finding-status';
 import { Card, StatusPill, textareaClass } from '@/components/ui';
 import QuickFinding from './quick-finding';
 import AssetQuickEdit from './asset-quick-edit';
 import PhotoCapture from '@/components/capture/photo-capture';
 import type {
-  Visit, Property, Room, Asset, ChecklistItem, Finding, ChecklistResult,
+  Visit, Property, Room, Asset, ChecklistItem, Finding,
 } from '@/lib/types/database';
 
-/** Tapping a checklist row cycles through the results a tech actually uses. */
-const CYCLE: ChecklistResult[] = ['NOT_CHECKED', 'PASS', 'ATTENTION', 'FAIL', 'NOT_APPLICABLE'];
-
-function nextResult(current: ChecklistResult): ChecklistResult {
-  const i = CYCLE.indexOf(current);
-  return CYCLE[(i + 1) % CYCLE.length];
-}
+// Six results is too many to tap through, so a row opens a picker instead
+// of cycling. The common case — everything fine — is handled in one tap at
+// the section level. See markRestGood.
 
 export interface VisitPhoto {
   id: string;
@@ -59,6 +55,9 @@ export default function VisitWorkspace({
   const [showAsset, setShowAsset] = useState<Asset | 'new' | null>(null);
   const [showComplete, setShowComplete] = useState(false);
   const [noteFor, setNoteFor] = useState<string | null>(null);
+  // One section open at a time. Three hundred items in one scroll is not a
+  // list anybody reads — it is a wall.
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   const done = items.filter((i) => i.result !== 'NOT_CHECKED').length;
   const progress = items.length ? Math.round((done / items.length) * 100) : 0;
@@ -73,6 +72,23 @@ export default function VisitWorkspace({
     return [...map.entries()];
   }, [items]);
 
+  /**
+   * The speed valve.
+   *
+   * A visit is 250–320 items. A technician walks a section, marks the two
+   * things that are wrong, and taps this — everything still untouched in
+   * that section becomes Good. Without it the program is unusable on a
+   * phone, and CLAUDE.md rule 1 is field speed above everything.
+   *
+   * It only ever touches NOT_CHECKED items, so it can never overwrite a
+   * judgement somebody already made.
+   */
+  async function markRestGood(section: ChecklistItem[]) {
+    const untouched = section.filter((i) => i.result === 'NOT_CHECKED');
+    if (untouched.length === 0) return;
+    for (const item of untouched) await updateItem(item, { result: 'PASS' });
+  }
+
   /** Optimistic local update + queued write. Never blocks on the network. */
   async function updateItem(item: ChecklistItem, patch: Partial<ChecklistItem>) {
     const updated = { ...item, ...patch };
@@ -86,6 +102,7 @@ export default function VisitWorkspace({
         itemId: item.id,
         result: updated.result,
         notes: updated.notes,
+        measurement_value: updated.measurement_value ?? null,
       },
     });
     void syncNow();
@@ -126,73 +143,26 @@ export default function VisitWorkspace({
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-40 pt-4">
         {tab === 'checklist' ? (
-          <div className="space-y-5">
+          <div className="space-y-3">
+            <p className="rounded-xl bg-navy-50 px-3.5 py-2.5 text-[12px] leading-relaxed text-navy-800 ring-1 ring-navy-600/15">
+              Work a section, mark what is wrong, then tap{' '}
+              <span className="font-semibold">Rest all good</span>. Core
+              sections are on every visit; the rest are this season&rsquo;s.
+            </p>
             {grouped.map(([category, list]) => (
-              <section key={category}>
-                <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  {category}
-                </h2>
-                <ul className="space-y-2">
-                  {list.map((item) => {
-                    const style = CHECKLIST_RESULT_STYLES[item.result];
-                    return (
-                      <li key={item.id}>
-                        <Card className="overflow-hidden">
-                          {/* Whole row is the tap target — one thumb, no aiming. */}
-                          <button
-                            type="button"
-                            onClick={() => void updateItem(item, { result: nextResult(item.result) })}
-                            className="flex w-full items-center gap-3 p-4 text-left active:bg-slate-50"
-                          >
-                            <span
-                              className={`flex h-10 w-16 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold uppercase ${style.chip}`}
-                            >
-                              {style.label}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block text-sm font-medium text-navy-800">
-                                {item.label}
-                              </span>
-                              {/* What good looks like, from the template.
-                                  Techs only — this never reaches a member. */}
-                              {item.help_note ? (
-                                <span className="mt-0.5 block text-xs leading-snug text-slate-500">
-                                  {item.help_note}
-                                </span>
-                              ) : null}
-                            </span>
-                          </button>
-
-                          {item.notes ? (
-                            <p className="border-t border-slate-100 bg-slate-50 px-4 py-2 text-xs text-slate-600">
-                              {item.notes}
-                            </p>
-                          ) : null}
-
-                          <button
-                            type="button"
-                            onClick={() => setNoteFor(noteFor === item.id ? null : item.id)}
-                            className="w-full border-t border-slate-100 px-4 py-2 text-left text-xs font-medium text-navy-600"
-                          >
-                            {noteFor === item.id ? 'Close note' : item.notes ? 'Edit note' : '+ Add note'}
-                          </button>
-
-                          {noteFor === item.id ? (
-                            <div className="border-t border-slate-100 p-3">
-                              <textarea
-                                defaultValue={item.notes ?? ''}
-                                placeholder="What did you see?"
-                                className={textareaClass}
-                                onBlur={(e) => void updateItem(item, { notes: e.target.value || null })}
-                              />
-                            </div>
-                          ) : null}
-                        </Card>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
+              <ChecklistSection
+                key={category}
+                category={category}
+                items={list}
+                open={openSection === category}
+                onToggle={() =>
+                  setOpenSection(openSection === category ? null : category)
+                }
+                onUpdate={updateItem}
+                onMarkRestGood={() => void markRestGood(list)}
+                noteFor={noteFor}
+                setNoteFor={setNoteFor}
+              />
             ))}
           </div>
         ) : null}
@@ -387,5 +357,210 @@ export default function VisitWorkspace({
         </div>
       ) : null}
     </>
+  );
+}
+
+/**
+ * One collapsible section of the checklist.
+ *
+ * The header carries the whole story so a technician can scan the list
+ * closed: how many items, how many still untouched, and whether anything
+ * in there needs to reach the member. Only the open section renders its
+ * rows, which is what keeps a 320-item visit usable on a phone.
+ */
+function ChecklistSection({
+  category, items, open, onToggle, onUpdate, onMarkRestGood, noteFor, setNoteFor,
+}: {
+  category: string;
+  items: ChecklistItem[];
+  open: boolean;
+  onToggle: () => void;
+  onUpdate: (item: ChecklistItem, patch: Partial<ChecklistItem>) => void | Promise<void>;
+  onMarkRestGood: () => void;
+  noteFor: string | null;
+  setNoteFor: (id: string | null) => void;
+}) {
+  const untouched = items.filter((i) => i.result === 'NOT_CHECKED').length;
+  const flagged = items.filter((i) => needsAttention(i.result)).length;
+
+  return (
+    <section className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left active:bg-slate-50"
+      >
+        <span
+          aria-hidden="true"
+          className={`flex h-2.5 w-2.5 shrink-0 rounded-full ${
+            flagged > 0 ? 'bg-amber-500' : untouched === 0 ? 'bg-brandgreen-600' : 'bg-slate-300'
+          }`}
+        />
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] font-semibold text-navy-800">{category}</span>
+          <span className="block text-[12px] text-slate-500">
+            {items.length} items
+            {untouched > 0 ? ` · ${untouched} to go` : ' · done'}
+            {flagged > 0 ? ` · ${flagged} flagged` : ''}
+          </span>
+        </span>
+        <span aria-hidden="true" className="shrink-0 text-slate-300">{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open ? (
+        <div className="border-t border-slate-100">
+          {untouched > 0 ? (
+            <button
+              type="button"
+              onClick={onMarkRestGood}
+              className="w-full bg-brandgreen-50 px-4 py-3 text-[14px] font-semibold text-brandgreen-800 active:bg-brandgreen-100"
+            >
+              Rest all good — {untouched} {untouched === 1 ? 'item' : 'items'}
+            </button>
+          ) : null}
+
+          <ul className="divide-y divide-slate-100">
+            {items.map((item) => (
+              <ChecklistRow
+                key={item.id}
+                item={item}
+                onUpdate={onUpdate}
+                noteOpen={noteFor === item.id}
+                onToggleNote={() => setNoteFor(noteFor === item.id ? null : item.id)}
+              />
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function ChecklistRow({
+  item, onUpdate, noteOpen, onToggleNote,
+}: {
+  item: ChecklistItem;
+  onUpdate: (item: ChecklistItem, patch: Partial<ChecklistItem>) => void | Promise<void>;
+  noteOpen: boolean;
+  onToggleNote: () => void;
+}) {
+  const [picking, setPicking] = useState(false);
+  const style = CHECKLIST_RESULT_STYLES[item.result];
+  const unit = item.measurement_unit;
+
+  // Out of band is a prompt to look harder, never an automatic failure.
+  const value = item.measurement_value;
+  const outOfBand =
+    value != null &&
+    ((item.measurement_low != null && value < item.measurement_low) ||
+      (item.measurement_high != null && value > item.measurement_high));
+
+  return (
+    <li className="px-4 py-3">
+      <div className="flex items-start gap-3">
+        <button
+          type="button"
+          onClick={() => setPicking(!picking)}
+          aria-label={`Result for ${item.label}: ${style.label}`}
+          className={`flex h-9 w-[4.5rem] shrink-0 items-center justify-center rounded-lg text-[11px] font-bold uppercase ${style.chip}`}
+        >
+          {style.label}
+        </button>
+        <button
+          type="button"
+          onClick={() => setPicking(!picking)}
+          className="min-w-0 flex-1 text-left"
+        >
+          <span className="block text-[14px] font-medium leading-snug text-navy-800">
+            {item.label}
+          </span>
+          {item.help_note ? (
+            <span className="mt-0.5 block text-[12px] leading-snug text-slate-500">
+              {item.help_note}
+            </span>
+          ) : null}
+        </button>
+      </div>
+
+      {picking ? (
+        <div className="mt-2.5 grid grid-cols-2 gap-1.5">
+          {CHECKLIST_RESULT_CHOICES.map((r) => {
+            const st = CHECKLIST_RESULT_STYLES[r];
+            const active = item.result === r;
+            return (
+              <button
+                key={r}
+                type="button"
+                onClick={() => { void onUpdate(item, { result: r }); setPicking(false); }}
+                className={`rounded-lg px-2.5 py-2.5 text-left text-[13px] font-semibold ring-1 ${
+                  active ? `${st.chip} ring-transparent` : 'bg-white text-navy-800 ring-slate-200'
+                }`}
+              >
+                {st.label}
+                {st.blurb ? (
+                  <span className={`mt-0.5 block text-[11px] font-normal ${active ? 'opacity-80' : 'text-slate-500'}`}>
+                    {st.blurb}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {unit ? (
+        <div className="mt-2.5 flex items-center gap-2">
+          <label className="text-[12px] font-medium text-slate-600" htmlFor={`m_${item.id}`}>
+            {item.measurement_label ?? 'Reading'}
+          </label>
+          <input
+            id={`m_${item.id}`}
+            type="number"
+            inputMode="decimal"
+            step="any"
+            defaultValue={value ?? ''}
+            onBlur={(e) =>
+              void onUpdate(item, {
+                measurement_value: e.target.value === '' ? null : Number(e.target.value),
+              })
+            }
+            className={`h-11 w-24 rounded-lg border px-3 text-[16px] font-semibold ${
+              outOfBand ? 'border-amber-500 bg-amber-50 text-amber-900' : 'border-slate-300 bg-white text-navy-800'
+            }`}
+          />
+          <span className="text-[13px] text-slate-500">{unit}</span>
+          {item.measurement_low != null || item.measurement_high != null ? (
+            <span className="text-[11px] text-slate-400">
+              healthy {item.measurement_low ?? ''}
+              {item.measurement_low != null && item.measurement_high != null ? '–' : ''}
+              {item.measurement_high != null ? item.measurement_high : item.measurement_low != null ? '+' : ''}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+
+      {item.notes ? (
+        <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-[12px] leading-relaxed text-slate-600">
+          {item.notes}
+        </p>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={onToggleNote}
+        className="mt-1.5 text-[12px] font-semibold text-navy-600"
+      >
+        {noteOpen ? 'Close note' : item.notes ? 'Edit note' : '+ Add note'}
+      </button>
+
+      {noteOpen ? (
+        <textarea
+          defaultValue={item.notes ?? ''}
+          placeholder="What did you see?"
+          className={`${textareaClass} mt-1.5`}
+          onBlur={(e) => void onUpdate(item, { notes: e.target.value || null })}
+        />
+      ) : null}
+    </li>
   );
 }

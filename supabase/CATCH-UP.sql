@@ -1580,6 +1580,52 @@ create policy checklist_template_items_admin_write on public.checklist_template_
 
 
 -- ---------------------------------------------------------------------
+-- The six results  (migration 0019)
+--
+-- Pass / Watch / Fail was a home inspector's vocabulary and it never said
+-- what happens next. PASS is kept and relabelled "Good" so old visits do
+-- not have to be rewritten; ATTENTION and FAIL stay readable but the app
+-- stops offering them.
+--
+-- ⚠ Enum values again: nothing below this line may USE one of these.
+-- ---------------------------------------------------------------------
+
+alter type public.checklist_result add value if not exists 'MONITOR';
+alter type public.checklist_result add value if not exists 'MAINTENANCE_DUE';
+alter type public.checklist_result add value if not exists 'REPAIR_RECOMMENDED';
+alter type public.checklist_result add value if not exists 'SAFETY_URGENT';
+alter type public.checklist_result add value if not exists 'SPECIALIST_REVIEW';
+
+
+-- ---------------------------------------------------------------------
+-- Core items and readings  (migration 0020)
+--
+-- Core items go on every visit whatever the season, because fire and
+-- water do not wait for the right quarter. And an item can now ask for a
+-- number instead of a tick — a reading you can hold against last year's
+-- is the one thing a home inspector can never give a homeowner.
+-- ---------------------------------------------------------------------
+
+alter table public.checklist_template_items
+  add column if not exists is_core boolean not null default false,
+  add column if not exists measurement_label text,
+  add column if not exists measurement_unit  text,
+  add column if not exists measurement_low   numeric(10,2),
+  add column if not exists measurement_high  numeric(10,2);
+
+create index if not exists checklist_template_items_core_idx
+  on public.checklist_template_items (is_core)
+  where is_core;
+
+alter table public.checklist_items
+  add column if not exists measurement_label text,
+  add column if not exists measurement_unit  text,
+  add column if not exists measurement_low   numeric(10,2),
+  add column if not exists measurement_high  numeric(10,2),
+  add column if not exists measurement_value numeric(10,2);
+
+
+-- ---------------------------------------------------------------------
 -- Did it work?
 -- ---------------------------------------------------------------------
 select
@@ -1639,7 +1685,13 @@ select
        where table_schema = 'public' and table_name = 'checklist_templates'
     )
       then 'Editable checklists did not apply — send this result to Claude.'
-    else 'Up to date. Everything through the editable seasonal checklists is in.'
+    when not exists (
+      select 1 from information_schema.columns
+       where table_schema = 'public' and table_name = 'checklist_items'
+         and column_name = 'measurement_value'
+    )
+      then 'Readings and the six results did not apply — send this result to Claude.'
+    else 'Up to date. Everything through the quarterly program is in.'
   end as result,
   (select string_agg(name || ' — ' || tier, ', ' order by name)
      from public.properties) as your_homes;

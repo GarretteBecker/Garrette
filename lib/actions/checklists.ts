@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { CHECKLIST_TEMPLATES, QUARTERS, type Quarter } from '@/lib/checklist-templates';
+import { CHECKLIST_TEMPLATES, CORE_ITEMS, QUARTERS, type Quarter } from '@/lib/checklist-templates';
+import { coreItemsExist } from '@/lib/checklists';
 import type { HeatingFuel, SewerType, WaterSource } from '@/lib/types/database';
 
 /**
@@ -73,17 +74,30 @@ export async function seedQuarterFromBuiltIn(formData: FormData): Promise<void> 
     .single();
 
   if (!created) return;
+  const templateId = (created as { id: string }).id;
+
+  // The core list belongs to no quarter and is written exactly once. It is
+  // parked on whichever quarter gets set up first; every quarter picks it
+  // up. Seeding the second, third and fourth quarters must not copy it
+  // again, or "edit it once" quietly becomes "edit it four times".
+  const alreadyHaveCore = await coreItemsExist();
+  const items = alreadyHaveCore ? draft.items : [...CORE_ITEMS, ...draft.items];
 
   await supabase.from('checklist_template_items').insert(
-    draft.items.map((item, i) => ({
-      template_id: (created as { id: string }).id,
+    items.map((item, i) => ({
+      template_id: templateId,
       category: item.category,
       label: item.label,
       help_note: item.help ?? null,
       sort_order: (i + 1) * 10,
+      is_core: item.core ?? false,
       only_water_source: item.only?.waterSource ?? null,
       only_sewer_type: item.only?.sewerType ?? null,
       only_heating_fuel: item.only?.heatingFuel ?? null,
+      measurement_label: item.measure?.label ?? null,
+      measurement_unit: item.measure?.unit ?? null,
+      measurement_low: item.measure?.low ?? null,
+      measurement_high: item.measure?.high ?? null,
     })),
   );
 
@@ -118,14 +132,30 @@ export async function saveChecklistItem(formData: FormData): Promise<void> {
 
   const supabase = await createClient();
 
+  const num = (key: string) => {
+    const v = text(formData, key);
+    if (v == null) return null;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const unit = text(formData, 'measurement_unit');
+
   const row = {
     template_id: templateId,
     category,
     label,
     help_note: text(formData, 'help_note'),
+    is_core: formData.get('is_core') != null,
     only_water_source: facts<WaterSource>(formData, 'only_water_source'),
     only_sewer_type: facts<SewerType>(formData, 'only_sewer_type'),
     only_heating_fuel: facts<HeatingFuel>(formData, 'only_heating_fuel'),
+    // No unit means no reading. Clearing the unit clears the whole band,
+    // so an item cannot be left half-measurement.
+    measurement_unit: unit,
+    measurement_label: unit ? text(formData, 'measurement_label') ?? 'Reading' : null,
+    measurement_low: unit ? num('measurement_low') : null,
+    measurement_high: unit ? num('measurement_high') : null,
   };
 
   const id = text(formData, 'id');

@@ -166,11 +166,28 @@ export default function ChecklistEditor({
                       {it.help_note ? (
                         <p className="mt-1 text-[12px] leading-relaxed text-slate-500">{it.help_note}</p>
                       ) : null}
-                      {only ? (
-                        <p className="mt-1 inline-block rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">
-                          Only on: {only}
-                        </p>
-                      ) : null}
+                      <p className="mt-1 flex flex-wrap gap-1.5">
+                        {it.is_core ? (
+                          <span className="rounded bg-navy-700 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                            Every visit
+                          </span>
+                        ) : null}
+                        {it.measurement_unit ? (
+                          <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-900">
+                            Records a number — {it.measurement_unit}
+                            {it.measurement_low != null || it.measurement_high != null
+                              ? ` (${it.measurement_low ?? ''}${
+                                  it.measurement_low != null && it.measurement_high != null ? '–' : ''
+                                }${it.measurement_high ?? ''})`
+                              : ''}
+                          </span>
+                        ) : null}
+                        {only ? (
+                          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600">
+                            Only on: {only}
+                          </span>
+                        ) : null}
+                      </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-0.5">
                       {(['up', 'down'] as const).map((d) => (
@@ -268,6 +285,60 @@ function ItemForm({
                   placeholder="A frozen discharge is a working pump with nowhere to go. Walk outside and look."
                   className={textareaClass} />
       </Field>
+
+      <label className="flex items-start gap-2.5 rounded-lg bg-slate-50 p-3">
+        <input
+          type="checkbox"
+          name="is_core"
+          defaultChecked={item?.is_core ?? false}
+          className="mt-0.5 h-4 w-4 shrink-0"
+        />
+        <span>
+          <span className="block text-[13px] font-semibold text-navy-800">
+            Check this on every visit
+          </span>
+          <span className="block text-[12px] leading-relaxed text-slate-500">
+            For fire, water and moisture — the things that do not wait for the
+            right season. Written once here, it appears on all four quarters,
+            and editing it here changes all four.
+          </span>
+        </span>
+      </label>
+
+      <fieldset className="rounded-lg bg-slate-50 p-3">
+        <legend className="px-1 text-[12px] font-semibold text-slate-600">
+          Record a number instead of a tick
+        </legend>
+        <p className="mb-2 text-[12px] leading-relaxed text-slate-500">
+          Leave the unit blank for a normal pass/fail item. Fill it in and the
+          tech gets a number box. A reading you can hold against last year&rsquo;s is
+          the one thing a home inspector can never give a homeowner.
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="What is measured" htmlFor={`ml_${id}`}>
+            <input id={`ml_${id}`} name="measurement_label"
+                   defaultValue={item?.measurement_label ?? ''}
+                   placeholder="Temperature split" className={inputClass} />
+          </Field>
+          <Field label="Unit" htmlFor={`mu_${id}`} hint="°F, ppm, psi, %, A">
+            <input id={`mu_${id}`} name="measurement_unit"
+                   defaultValue={item?.measurement_unit ?? ''}
+                   placeholder="°F" className={inputClass} />
+          </Field>
+          <Field label="Healthy from" htmlFor={`mlo_${id}`}>
+            <input id={`mlo_${id}`} name="measurement_low" type="number" step="any"
+                   defaultValue={item?.measurement_low ?? ''} className={inputClass} />
+          </Field>
+          <Field label="Healthy to" htmlFor={`mhi_${id}`}>
+            <input id={`mhi_${id}`} name="measurement_high" type="number" step="any"
+                   defaultValue={item?.measurement_high ?? ''} className={inputClass} />
+          </Field>
+        </div>
+        <p className="mt-2 text-[12px] leading-relaxed text-slate-500">
+          Outside the range highlights on the tech&rsquo;s screen. It is a prompt to
+          look harder, never an automatic failure.
+        </p>
+      </fieldset>
 
       <fieldset className="rounded-lg bg-slate-50 p-3">
         <legend className="px-1 text-[12px] font-semibold text-slate-600">

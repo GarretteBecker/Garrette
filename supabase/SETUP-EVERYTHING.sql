@@ -3917,3 +3917,29 @@ comment on column public.checklist_items.help_note is
   'Copied from the template when the visit starts. Field app only — never '
   'shown to a member.';
 
+-- =====================================================================
+-- The six results, core items and readings  (migrations 0019 + 0020)
+-- =====================================================================
+alter type public.checklist_result add value if not exists 'MONITOR';
+alter type public.checklist_result add value if not exists 'MAINTENANCE_DUE';
+alter type public.checklist_result add value if not exists 'REPAIR_RECOMMENDED';
+alter type public.checklist_result add value if not exists 'SAFETY_URGENT';
+alter type public.checklist_result add value if not exists 'SPECIALIST_REVIEW';
+
+alter table public.checklist_template_items
+  add column is_core boolean not null default false,
+  add column measurement_label text,
+  add column measurement_unit  text,
+  add column measurement_low   numeric(10,2),
+  add column measurement_high  numeric(10,2);
+
+create index checklist_template_items_core_idx
+  on public.checklist_template_items (is_core)
+  where is_core;
+
+alter table public.checklist_items
+  add column measurement_label text,
+  add column measurement_unit  text,
+  add column measurement_low   numeric(10,2),
+  add column measurement_high  numeric(10,2),
+  add column measurement_value numeric(10,2);

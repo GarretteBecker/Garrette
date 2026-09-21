@@ -101,6 +101,86 @@ by accident:
 
 ---
 
+## Core items — the ones on every visit
+
+Tick **"Check this on every visit"** and an item leaves the seasons
+behind. It goes on all four quarters, it is written once, and editing it
+once changes all four.
+
+That is where the whole Life Safety, Water Leaks, Moisture, Electrical,
+Plumbing, HVAC, Water Heater, Basement, Exterior and Garage sections live —
+197 items that never rotate out, because fire and water do not wait for the
+right quarter.
+
+Internally the core list is parked on whichever quarter was set up first.
+That is bookkeeping; it makes no difference to what a visit shows.
+
+---
+
+## Items that record a number
+
+Fill in a **unit** on an item and the technician gets a number box instead
+of a tick. Fill in the healthy range too and anything outside it highlights
+on their screen — a prompt to look harder, never an automatic failure.
+
+Fifteen items do this as shipped: A/C temperature split, furnace
+temperature rise, flue CO, ambient CO, water pressure, three humidity
+readings, moisture meter, radon manometer, compressor amps, propane level,
+attic insulation depth and the widest marked foundation crack.
+
+**This is the part no home inspector can do.** They see a house once. The
+reading goes on the member's report in a *What we measured* table with its
+healthy range, and next year's report sits beside it. "Your temperature
+split has gone from 18° to 13° over two years" is a sentence only a
+quarterly membership can write.
+
+---
+
+## The six results
+
+A technician picks one per item. Each names the action rather than the
+severity, because "Repair recommended" tells a member what happens next in
+a way "Fail" never did.
+
+| | Means |
+|---|---|
+| **Good** | No action needed |
+| **Maintenance** | Routine work recommended |
+| **Monitor** | Not failing yet — track it |
+| **Repair** | Plan the repair |
+| **Urgent** | Safety — address now |
+| **Specialist** | Needs the right trade |
+
+Plus **N/A** for anything not on this house.
+
+These are *not* the finding statuses. A checklist result is what a
+technician saw at one item; a finding is what B&M has decided to tell the
+member about it. GOOD / MONITOR / PLAN / ACTION / IMPROVEMENT is untouched.
+
+Visits done before this change still read correctly — the old "Watch" and
+"Fail" render as they always did, they just cannot be chosen any more.
+
+---
+
+## Three hundred items on a phone
+
+A visit is 240–320 items depending on the house. That works because of one
+button.
+
+Open a section, mark what is wrong, then tap **"Rest all good — N items"**.
+Everything still untouched in that section becomes Good. It only ever
+touches untouched items, so it can never overwrite a judgement somebody
+already made.
+
+Sections are collapsed by default and the header carries the whole story —
+how many items, how many left, how many flagged — so the list is scannable
+closed.
+
+The tapping is not the work. A genuine 300-point inspection is a two to
+four hour visit; the app should never be the reason it takes longer.
+
+---
+
 ## Where the items came from, and what is still missing
 
 `docs/inspection-standard.md` is the research behind the lists: what

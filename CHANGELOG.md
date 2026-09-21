@@ -899,6 +899,94 @@ in 2029. Deleting a list takes its items with it rather than orphaning them.
 items each kind of house gets. That one is worth a test precisely because
 its failures are silent: nobody notices a check that was never offered.
 
+### Phase 24 — The Quarterly Home Safety & Preventive Maintenance Program
+
+Garrette wrote the real program. This is it, built.
+
+**The promise it implements:** four times a year we inspect for safety
+concerns, water intrusion, developing failures, deferred maintenance,
+current-standard concerns, and anything that could get expensive or cause
+trouble at a future sale. **Market-ready all year, not "nothing is broken
+today."**
+
+**The numbers.** 197 core items plus a seasonal deep dive of 64–123, which
+lands a visit at **240–320 items** depending on the house:
+
+| | Q1 | Q2 | Q3 | Q4 |
+|---|---|---|---|---|
+| Public sewer, natural gas | 261 | 285 | 298 | 314 |
+| Well + septic, propane | 261 | 307 | 299 | 319 |
+| All electric, public | 242 | 279 | 291 | 304 |
+
+**Core items.** Life Safety, Water Leaks, Moisture, Electrical, Plumbing,
+HVAC, Water Heater, Basement, Exterior and Garage never rotate out — fire
+and water do not wait for the right quarter. Written once, appearing four
+times, and editing one changes all four.
+
+**Items that record a number.** Fifteen of them: A/C temperature split,
+furnace temperature rise, flue CO, ambient CO, water pressure, three
+humidity readings, moisture meter, radon manometer, compressor amps,
+propane level, attic insulation depth, widest marked foundation crack.
+Outside the healthy range highlights on the tech's screen — a prompt to
+look harder, never an automatic failure.
+
+**And the readings reach the member.** The report now carries a *What we
+measured* table with each value and its healthy range. That is the table no
+home inspector can ever produce, because they see a house once.
+
+**The six results** replace Pass / Watch / Fail, which was an inspector's
+vocabulary and never said what happens next: Good · Maintenance ·
+Monitor · Repair · Urgent · Specialist, plus N/A. Old visits still read —
+"Watch" and "Fail" render as they always did, they just cannot be chosen.
+
+**Three hundred items on a phone.** Sections collapse, and each one has
+**"Rest all good — N items"**: mark what is wrong, then clear the section in
+one tap. It only ever touches untouched items, so it cannot overwrite a
+judgement anyone made. CLAUDE.md rule 1 is field speed, and without that
+button the program would be unusable.
+
+**The report stopped being a wall.** 300 ticks in two columns is not a
+report. It now reads *"We worked through 316 checks across 18 areas"* with
+a per-section count, and only the flagged items written out in full.
+
+**Q4 carries the Market-Ready audit**, which is the commercial heart of it:
+every system's age recorded, every repair documented with invoice and
+permit, a seventeen-point review mirroring the categories PA's Seller
+Disclosure Law asks a seller about, and a 32-item *Marketability Watch*.
+That last section is deliberately worded as **current-standard concerns,
+never code violations** — PA's UCC adopts the 2021 IRC and 2020 NEC from
+1 January 2026, municipalities enforce it, and most existing conditions are
+lawfully grandfathered. B&M flags what a buyer's inspector will raise; the
+municipality and the trade make code calls.
+
+**Two editorial calls on the spec, both noted in `lib/checklist-content.ts`.**
+The "signs to look for" lists — dripping, rust, corrosion, swollen
+cabinets — were written as their own checkboxes. Twenty-eight fixtures
+times eleven signs is three hundred ticks for one section, so they became
+the section's help note, where a tech reads them while doing the work.
+And "current-standard concern" is used throughout in place of "code
+violation", for the reason above.
+
+**Verified.** Migrations in order on Postgres 16; `CATCH-UP.sql` and
+`SETUP-EVERYTHING.sql` each applied wrapped in one explicit transaction,
+the catch-up ending *"Up to date. Everything through the quarterly program
+is in."* Core items confirmed shared across quarters and editable once.
+All seven result choices accepted by the database. A reading stored with
+its band intact. RLS re-checked: a tech cannot change the standard
+(`is_core` update matched zero rows), a member can still read it.
+
+**A bug the database caught.** `MONITOR` existed on the *finding* statuses
+but never on `checklist_result`. The app offered it and it typechecked
+clean — a tech tapping "Monitor" in the field would have hit an enum error
+at sync, offline, with no way to recover the tick. Added to the enum in
+0019. Typechecking cannot catch a value that is only wrong in Postgres.
+
+**Still to build, in order:** the finding detail fields (Why It Matters,
+Target Date, Responsible Trade), the member dashboard buckets (Immediate /
+30 days / 90 days / 12 months / capital plan / market ready), the Property
+Health Record as a single exportable document, and the monthly homeowner
+reminder between visits.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

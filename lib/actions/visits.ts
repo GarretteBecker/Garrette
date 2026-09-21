@@ -105,6 +105,12 @@ export async function startVisit(formData: FormData): Promise<void> {
         help_note: item.help ?? null,
         result: 'NOT_CHECKED' as const,
         sort_order: (i + 1) * 10,
+        // The band travels with the reading so a report written in 2030
+        // knows what counted as healthy in 2026.
+        measurement_label: item.measure?.label ?? null,
+        measurement_unit: item.measure?.unit ?? null,
+        measurement_low: item.measure?.low ?? null,
+        measurement_high: item.measure?.high ?? null,
       })),
     );
   }
