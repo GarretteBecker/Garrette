@@ -5,6 +5,11 @@ import { isSupabaseConfigured } from './config';
 /** Public routes that never require a session. */
 const PUBLIC_PATHS = [
   '/login',
+  // Where an invited person creates their account. It HAS to be public:
+  // by definition they have no session yet, so gating it behind one means
+  // nobody you invite can ever get in. There is nothing to protect here —
+  // without a matching invite the database refuses the sign-up anyway.
+  '/join',
   '/auth',
   '/manifest.webmanifest',
   '/icon.svg',
@@ -68,7 +73,7 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname === '/login') {
+  if (user && (pathname === '/login' || pathname === '/join')) {
     const url = request.nextUrl.clone();
     url.pathname = '/';
     url.search = '';

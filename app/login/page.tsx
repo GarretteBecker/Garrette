@@ -4,6 +4,12 @@ import LoginForm from './login-form';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { BrandFooter } from '@/components/brand';
 
+// Checked at request time, not at build time. These pages ask whether the
+// database is connected; prerendering freezes that answer into the HTML,
+// so pasting the keys in afterwards would leave them saying "not connected"
+// until somebody thought to rebuild.
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   return (
     <main className="flex min-h-dvh flex-col bg-navy-700">

@@ -150,9 +150,41 @@ it ships to every browser. Anyone who views source has it. If invite-only
 were just a dashboard setting, one wrong click would open the doors. It is
 a trigger, so it holds regardless.
 
-**Belt and braces (worth doing anyway):** Supabase → Authentication →
-Providers → Email → turn **"Enable sign ups"** off. Then only people you
-create in the dashboard, or invite here, can get in at all.
+### ⚠️ Leave Supabase's "Enable sign ups" switched ON
+
+An earlier version of this page said to turn it off. **That was wrong** and
+it would break invites completely.
+
+`Enable sign ups` is what lets the app call sign-up at all. Turn it off and
+`/join` stops working, so nobody you invite can ever create their account.
+The invite check is the trigger — it does not need that switch off to work,
+and it keeps working with it on.
+
+### Do turn email confirmation ON
+
+Supabase → Authentication → Providers → Email → **Confirm email**.
+
+Here is why it matters. An invite is permission attached to an *email
+address*. If somebody knew a colleague had a pending invite, they could try
+to sign up as that address first and take the account. Requiring the person
+to click a link in that inbox is what proves the address is really theirs.
+
+**This needs working email.** Supabase's built-in sender is rate-limited and
+not meant for production, so set up your own SMTP under
+**Authentication → Emails → SMTP Settings** before you invite real members.
+Until then, confirm accounts by hand in Authentication → Users.
+
+### How somebody actually joins
+
+1. You create the invite in **Team → Invite somebody**
+2. You tell them to go to **`/join`** (it is linked from the sign-in page as
+   *"Been invited but never set a password?"*)
+3. They enter **the exact address you invited**, choose a password
+4. The database checks the invite, gives them the role you chose, and links
+   a homeowner to their home
+
+Nothing is emailed automatically. You tell them, in whatever way you
+normally talk to them.
 
 ---
 

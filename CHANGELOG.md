@@ -1058,6 +1058,43 @@ grouped by stage down the page today, which works on a phone but is not the
 desktop board you asked for. And COI expiry now has columns
 (`coi_expires`, `workers_comp_expires`) but no screen yet.
 
+### Phase 26 — Redeeming an invite (the half that was missing)
+
+Phase 25 shipped an invite system with **nowhere to use it**. There was a
+sign-in page and no sign-up page, so an invite granted permission to create
+an account that nobody had any way to create. Caught while writing the
+next step, not by a user, but it would have blocked the first real member.
+
+**`/join`** — name, email, password. The role is never sent from this form;
+`handle_new_user` reads it off the invite. Anything a sign-up form says
+about itself is attacker-controlled, which was the 0007 lesson.
+
+**Two bugs found by actually loading the page:**
+
+1. **`/join` redirected to `/login`.** The proxy gated every path but a
+   short public list, so the one page an invited person needs was behind
+   the session they do not have yet. It is public now — and there is
+   nothing to protect, because without a matching invite the database
+   refuses the sign-up anyway.
+2. **`/login` and `/join` were statically prerendered**, which froze
+   "is the database connected?" into the HTML at build time. Paste the
+   Supabase keys in afterwards and the page would still say *"not
+   connected"* until somebody thought to rebuild. Both are request-time now.
+
+**A correction to `docs/going-live.md`.** It previously said to turn
+Supabase's *Enable sign ups* off as belt and braces. **That was wrong** —
+it would break `/join` completely and nobody invited could ever get in.
+Leave it on; the trigger is the enforcement and works with it on. The doc
+now says so, and says to turn *Confirm email* on instead, with the reason:
+an invite is permission attached to an email address, so requiring a click
+in that inbox is what proves the address is really theirs.
+
+**Verified end to end** on Postgres 16, as the exact sequence Garrette is
+about to run: invite written → account created → role came from the invite
+(not from `"role":"admin"` in the sign-up metadata) → invite marked
+consumed → he is admin, counts as staff, sees every property, can invite
+the office. And a stranger with no invite is still refused.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
@@ -64,6 +65,12 @@ export default function LoginForm() {
       ) : null}
 
       <SubmitButton />
+      <p className="text-center text-[13px] leading-relaxed text-slate-600">
+        Been invited but never set a password?{' '}
+        <Link href="/join" className="font-semibold text-brandgreen-700">
+          Set up your account
+        </Link>
+      </p>
     </form>
   );
 }
