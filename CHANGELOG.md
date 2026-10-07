@@ -1095,6 +1095,36 @@ about to run: invite written → account created → role came from the invite
 consumed → he is admin, counts as staff, sees every property, can invite
 the office. And a stranger with no invite is still refused.
 
+### Marketing — Water treatment landing page (WordPress / Elementor)
+
+Not part of the HomeKeeper app. A paste-ready landing page for the new
+whole-home water-treatment division, built for the existing
+WordPress + Elementor site: `marketing/water-treatment-lancaster-pa/`.
+
+- **`bm-water-treatment-elementor.html`** — the whole page in one Elementor
+  HTML widget: 14 sections (hero → problems → process → softeners →
+  softening + filtration → reverse osmosis → city vs. well → services →
+  why B&M → reviews → service area → FAQ → free-water-test form → final CTA).
+  Every style is scoped under `.bm-water-treatment` with brand settings at the
+  top, so it can't disturb the rest of the site. No libraries; icons are drawn
+  in code.
+- Every "Schedule Your Free Water Test" button glides to `#free-water-test`,
+  stopping 100px short so a sticky header can't cover it. Phone number lives in
+  one setting (`PHONE NUMBER SETTINGS`) for a future GHL tracking number.
+- Phone-only sticky **Call Now / Free Water Test** bar that leaves room for the
+  GHL chat bubble and hides itself at the top buttons, the form and the footer.
+- Clearly marked spots for the GHL form embed, four real photos and three real
+  Google reviews. Until the form is pasted in, visitors get a "schedule by
+  phone" box rather than an empty space. No fake form.
+- Claims kept to what B&M has confirmed: no health or contaminant claims, no
+  lab-test wording, no brands, certifications, warranties or install times. The
+  $3,895 starting price is always shown with its disclaimer.
+- FAQ schema matches the visible FAQ word for word; no LocalBusiness schema
+  (the SEO plugin may already supply it).
+- **`PUBLISHING.md`** — Elementor steps, page settings, SEO title and meta
+  description, the replace-before-publishing list, and a phone/desktop test
+  checklist.
+
 ### Known gaps
 
 - PDF is browser-print, not server-generated — see `docs/ASSUMPTIONS.md` §7

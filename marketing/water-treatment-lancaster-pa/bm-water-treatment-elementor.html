@@ -1,0 +1,2240 @@
+<!--
+==========================================================================
+  B&M HOME IMPROVEMENT SOLUTIONS — WATER TREATMENT LANDING PAGE
+  Paste this ENTIRE file into ONE Elementor "HTML" widget.
+  Your normal WordPress header and footer stay as they are.
+
+  QUICK EDIT GUIDE (use Ctrl+F / Cmd+F to find these words):
+    PHONE NUMBER SETTINGS ... change the phone number in one place
+    BRAND SETTINGS .......... colors, corner rounding, page width
+    REPLACE WITH REAL ....... photo spots and review spots
+    PASTE GOHIGHLEVEL ....... where your GHL form embed code goes
+    STICKY BAR .............. the phone-only "Call Now / Free Water Test" bar
+    FAQ SCHEMA .............. Google FAQ markup (safe to delete)
+==========================================================================
+-->
+
+<style>
+/* ==========================================================================
+   BRAND SETTINGS — change these values to restyle the whole page.
+   Everything on this page is scoped to .bm-water-treatment so it cannot
+   affect the rest of your website.
+   ========================================================================== */
+.bm-water-treatment {
+  --bmwt-primary: #1B2A4A;          /* Navy: headings, secondary buttons */
+  --bmwt-accent: #2E5E3A;           /* Green: main buttons, icons, highlights */
+  --bmwt-dark: #16233F;             /* Deep navy: dark section background */
+  --bmwt-light: #F4F6F8;            /* Light section background */
+  --bmwt-text: #2B3445;             /* Body text */
+  --bmwt-radius: 16px;              /* Card corner rounding */
+  --bmwt-container: 1200px;         /* Max content width */
+
+  /* Fine-tuning (usually leave alone) */
+  --bmwt-accent-hover: #244A2E;     /* Green button hover */
+  --bmwt-accent-on-dark: #3E7F4F;   /* Green buttons on navy backgrounds */
+  --bmwt-accent-soft: #E8F1EA;      /* Pale green behind icons */
+  --bmwt-primary-soft: #EBEFF5;     /* Pale navy panels */
+  --bmwt-muted: #556070;            /* Secondary text */
+  --bmwt-border: #E1E6ED;           /* Card borders */
+  --bmwt-white: #FFFFFF;
+  --bmwt-radius-sm: 10px;           /* Buttons and small panels */
+  --bmwt-shadow: 0 1px 2px rgba(17, 27, 48, .04), 0 12px 32px -18px rgba(17, 27, 48, .22);
+  --bmwt-focus: #1B2A4A;            /* Keyboard focus ring */
+  --bmwt-header-offset: 100px;      /* Room for a sticky site header when jumping to a section */
+  --bmwt-chat-clearance: 88px;      /* Room kept free for the chat bubble on phones (see STICKY BAR) */
+  --bmwt-gutter: clamp(20px, 4vw, 40px);
+  --bmwt-section-y: clamp(64px, 8vw, 112px);
+}
+
+/* ==========================================================================
+   BASE — light reset so theme/Elementor styles don't leak in
+   ========================================================================== */
+.bm-water-treatment,
+.bm-water-treatment *,
+.bm-water-treatment *::before,
+.bm-water-treatment *::after { box-sizing: border-box; }
+
+.bm-water-treatment {
+  color: var(--bmwt-text);
+  font-size: 17px;
+  line-height: 1.65;
+  text-align: left;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+.bm-water-treatment.bmwt-page {
+  width: 100%;
+  background: var(--bmwt-white);
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+.bm-water-treatment [hidden] { display: none !important; }
+.bm-water-treatment [id] { scroll-margin-top: var(--bmwt-header-offset); }
+.bm-water-treatment [tabindex="-1"]:focus { outline: none; }
+.bm-water-treatment .bmwt-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.bm-water-treatment .bmwt-mt { margin-top: 28px; }
+.bm-water-treatment .bmwt-nowrap { white-space: nowrap; }
+.bm-water-treatment p { margin: 0 0 1em; }
+.bm-water-treatment p:last-child { margin-bottom: 0; }
+.bm-water-treatment ul,
+.bm-water-treatment ol { margin: 0; padding: 0; list-style: none; }
+.bm-water-treatment li { margin: 0; padding: 0; }
+.bm-water-treatment li::marker { content: none; }
+.bm-water-treatment img { max-width: 100%; height: auto; border: 0; }
+.bm-water-treatment figure,
+.bm-water-treatment blockquote { margin: 0; padding: 0; border: 0; }
+.bm-water-treatment strong { font-weight: 700; }
+.bm-water-treatment a { color: var(--bmwt-accent); text-decoration: underline; text-underline-offset: 3px; }
+.bm-water-treatment a:hover { color: var(--bmwt-accent-hover); }
+.bm-water-treatment a:focus-visible,
+.bm-water-treatment button:focus-visible {
+  outline: 3px solid var(--bmwt-focus);
+  outline-offset: 3px;
+}
+
+/* Icons (inline SVG sprite) */
+.bm-water-treatment .bmwt-icon {
+  display: inline-block;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bm-water-treatment .bmwt-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--bmwt-accent-soft);
+  color: var(--bmwt-accent);
+}
+.bm-water-treatment .bmwt-icon-badge .bmwt-icon { width: 26px; height: 26px; }
+
+/* Layout */
+.bm-water-treatment .bmwt-container {
+  width: 100%;
+  max-width: calc(var(--bmwt-container) + var(--bmwt-gutter) * 2);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--bmwt-gutter);
+  padding-right: var(--bmwt-gutter);
+}
+.bm-water-treatment .bmwt-section {
+  position: relative;
+  padding-top: var(--bmwt-section-y);
+  padding-bottom: var(--bmwt-section-y);
+}
+.bm-water-treatment .bmwt-section--light { background: var(--bmwt-light); }
+.bm-water-treatment .bmwt-section--dark {
+  --bmwt-focus: #FFFFFF;
+  background: var(--bmwt-dark);
+  color: rgba(255, 255, 255, .86);
+}
+.bm-water-treatment .bmwt-section-head { max-width: 780px; margin-bottom: clamp(32px, 4vw, 52px); }
+.bm-water-treatment .bmwt-section-head--center { margin-left: auto; margin-right: auto; text-align: center; }
+.bm-water-treatment .bmwt-grid { display: grid; gap: clamp(16px, 2vw, 24px); }
+@media (min-width: 760px) {
+  .bm-water-treatment .bmwt-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bm-water-treatment .bmwt-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Typography */
+.bm-water-treatment .bmwt-h1,
+.bm-water-treatment .bmwt-h2,
+.bm-water-treatment .bmwt-h3,
+.bm-water-treatment .bmwt-h4 {
+  margin: 0;
+  padding: 0;
+  color: var(--bmwt-primary);
+  font-style: normal;
+  text-transform: none;
+  text-align: inherit;
+}
+.bm-water-treatment .bmwt-h2 {
+  margin-bottom: 16px;
+  font-size: clamp(28px, 1.5vw + 21px, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.bm-water-treatment .bmwt-h3 {
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+.bm-water-treatment .bmwt-h4 {
+  margin-bottom: 4px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: 0;
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-h2,
+.bm-water-treatment .bmwt-section--dark .bmwt-h3 { color: #FFFFFF; }
+.bm-water-treatment .bmwt-eyebrow {
+  margin: 0 0 14px;
+  color: var(--bmwt-accent);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-eyebrow { color: #A9D3B4; }
+.bm-water-treatment .bmwt-lead {
+  font-size: clamp(18px, .4vw + 16px, 20px);
+  line-height: 1.6;
+}
+.bm-water-treatment .bmwt-small { font-size: 15px; color: var(--bmwt-muted); }
+.bm-water-treatment .bmwt-label {
+  margin-bottom: 14px;
+  color: var(--bmwt-primary);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+.bm-water-treatment .bmwt-btn,
+.bm-water-treatment .bmwt-btn:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  margin: 0;
+  padding: 14px 26px;
+  border: 2px solid transparent;
+  border-radius: var(--bmwt-radius-sm);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  white-space: normal;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.bm-water-treatment .bmwt-btn .bmwt-icon { width: 20px; height: 20px; }
+.bm-water-treatment .bmwt-btn--primary,
+.bm-water-treatment .bmwt-btn--primary:visited {
+  background: var(--bmwt-accent);
+  border-color: var(--bmwt-accent);
+  color: #FFFFFF;
+  box-shadow: 0 8px 20px -10px rgba(46, 94, 58, .7);
+}
+.bm-water-treatment .bmwt-btn--primary:hover,
+.bm-water-treatment .bmwt-btn--primary:focus-visible {
+  background: var(--bmwt-accent-hover);
+  border-color: var(--bmwt-accent-hover);
+  color: #FFFFFF;
+  text-decoration: none;
+}
+.bm-water-treatment .bmwt-btn--secondary,
+.bm-water-treatment .bmwt-btn--secondary:visited {
+  background: #FFFFFF;
+  border-color: #C5CEDA;
+  color: var(--bmwt-primary);
+}
+.bm-water-treatment .bmwt-btn--secondary:hover,
+.bm-water-treatment .bmwt-btn--secondary:focus-visible {
+  background: #FFFFFF;
+  border-color: var(--bmwt-primary);
+  color: var(--bmwt-primary);
+  text-decoration: none;
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--primary,
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--primary:visited {
+  background: var(--bmwt-accent-on-dark);
+  border-color: var(--bmwt-accent-on-dark);
+  box-shadow: none;
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--primary:hover,
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--primary:focus-visible {
+  background: var(--bmwt-accent);
+  border-color: var(--bmwt-accent);
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--secondary,
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--secondary:visited {
+  background: transparent;
+  border-color: rgba(255, 255, 255, .5);
+  color: #FFFFFF;
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--secondary:hover,
+.bm-water-treatment .bmwt-section--dark .bmwt-btn--secondary:focus-visible {
+  background: rgba(255, 255, 255, .08);
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
+.bm-water-treatment .bmwt-btn-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.bm-water-treatment .bmwt-btn-row--center { justify-content: center; }
+.bm-water-treatment .bmwt-text-link,
+.bm-water-treatment .bmwt-text-link:visited {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bmwt-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+.bm-water-treatment .bmwt-text-link:hover { color: var(--bmwt-accent-hover); text-decoration: underline; }
+.bm-water-treatment .bmwt-text-link .bmwt-icon { width: 18px; height: 18px; }
+.bm-water-treatment .bmwt-phone-link,
+.bm-water-treatment .bmwt-phone-link:visited {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.bm-water-treatment .bmwt-phone-link:hover { color: inherit; text-decoration: none; }
+@media (max-width: 599px) {
+  .bm-water-treatment .bmwt-btn-row .bmwt-btn { width: 100%; }
+}
+
+/* ==========================================================================
+   SHARED COMPONENTS
+   ========================================================================== */
+.bm-water-treatment .bmwt-card {
+  background: #FFFFFF;
+  border: 1px solid var(--bmwt-border);
+  border-radius: var(--bmwt-radius);
+  padding: clamp(22px, 2.4vw, 32px);
+  box-shadow: var(--bmwt-shadow);
+}
+
+/* Check lists: green check in a soft circle */
+.bm-water-treatment .bmwt-checks { display: grid; gap: 12px; }
+.bm-water-treatment .bmwt-checks li {
+  position: relative;
+  padding-left: 34px;
+  line-height: 1.5;
+}
+.bm-water-treatment .bmwt-checks li::before,
+.bm-water-treatment .bmwt-checks li::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+.bm-water-treatment .bmwt-checks li::before { background: var(--bmwt-accent-soft); }
+.bm-water-treatment .bmwt-checks li::after {
+  background: var(--bmwt-accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 7 10 16l-4-4'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 7 10 16l-4-4'/%3E%3C/svg%3E") center / 14px 14px no-repeat;
+}
+.bm-water-treatment .bmwt-section--dark .bmwt-checks li::before { background: rgba(255, 255, 255, .12); }
+.bm-water-treatment .bmwt-section--dark .bmwt-checks li::after { background: #A9D3B4; }
+@media (min-width: 560px) {
+  .bm-water-treatment .bmwt-checks--2col { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 24px; }
+}
+
+/* Dot lists */
+.bm-water-treatment .bmwt-dots { display: grid; gap: 10px; }
+.bm-water-treatment .bmwt-dots li {
+  position: relative;
+  padding-left: 20px;
+  line-height: 1.5;
+}
+.bm-water-treatment .bmwt-dots li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: .62em;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bmwt-accent);
+}
+
+/* Chips */
+.bm-water-treatment .bmwt-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.bm-water-treatment .bmwt-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border: 1px solid var(--bmwt-border);
+  border-radius: 999px;
+  background: #FFFFFF;
+  color: var(--bmwt-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Photo spots — a real <img> covers the designed placeholder once its src is filled in */
+.bm-water-treatment .bmwt-media {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--bmwt-radius);
+  background: linear-gradient(160deg, #EEF2F7 0%, #E2E8F0 100%);
+  border: 1px solid var(--bmwt-border);
+}
+.bm-water-treatment .bmwt-media img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+}
+.bm-water-treatment .bmwt-media img[src=""],
+.bm-water-treatment .bmwt-media img:not([src]) { display: none; }
+.bm-water-treatment .bmwt-ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  color: var(--bmwt-primary);
+}
+.bm-water-treatment .bmwt-ph__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--bmwt-accent);
+  box-shadow: 0 10px 24px -14px rgba(17, 27, 48, .35);
+}
+.bm-water-treatment .bmwt-ph__icon .bmwt-icon { width: 34px; height: 34px; stroke-width: 1.5; }
+.bm-water-treatment .bmwt-ph__text {
+  max-width: 260px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Two-column feature layout (photo + content). Use --reverse to put the photo on the right. */
+.bm-water-treatment .bmwt-feature {
+  display: grid;
+  gap: 28px;
+  grid-template-areas: "head" "media" "body";
+}
+.bm-water-treatment .bmwt-feature__head { grid-area: head; }
+.bm-water-treatment .bmwt-feature__media { grid-area: media; }
+.bm-water-treatment .bmwt-feature__body { grid-area: body; }
+.bm-water-treatment .bmwt-feature__head .bmwt-section-head,
+.bm-water-treatment .bmwt-feature__head .bmwt-h2 { margin-bottom: 0; }
+.bm-water-treatment .bmwt-feature__head .bmwt-lead { margin-top: 16px; }
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-feature {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "media head" "media body";
+    column-gap: clamp(40px, 5vw, 72px);
+    row-gap: 28px;
+    align-items: start;
+  }
+  .bm-water-treatment .bmwt-feature--reverse {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+    grid-template-areas: "head media" "body media";
+  }
+  .bm-water-treatment .bmwt-feature__media {
+    position: sticky;
+    top: calc(var(--bmwt-header-offset) + 16px);
+  }
+  .bm-water-treatment .bmwt-feature__media .bmwt-media { aspect-ratio: 4 / 5; }
+}
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+.bm-water-treatment .bmwt-hero {
+  padding-top: clamp(36px, 6vw, 88px);
+  padding-bottom: clamp(56px, 7vw, 104px);
+  background: var(--bmwt-light);
+  border-bottom: 1px solid var(--bmwt-border);
+}
+.bm-water-treatment .bmwt-hero__grid {
+  display: grid;
+  gap: clamp(36px, 5vw, 64px);
+  align-items: center;
+}
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-hero__grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); }
+}
+.bm-water-treatment .bmwt-hero .bmwt-h1 { margin: 0 0 20px; }
+.bm-water-treatment .bmwt-hero__headline {
+  display: block;
+  color: var(--bmwt-primary);
+  font-size: clamp(36px, 2.8vw + 24px, 60px);
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.025em;
+}
+.bm-water-treatment .bmwt-hero__subhead {
+  display: block;
+  margin-top: 18px;
+  color: var(--bmwt-accent);
+  font-size: clamp(18px, .5vw + 16px, 21px);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.bm-water-treatment .bmwt-hero__text {
+  max-width: 580px;
+  margin-bottom: 28px;
+  font-size: clamp(17px, .3vw + 16px, 19px);
+}
+.bm-water-treatment .bmwt-hero__note {
+  margin: 14px 0 0;
+  color: var(--bmwt-muted);
+  font-size: 15px;
+}
+.bm-water-treatment .bmwt-hero__services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+  margin-top: 30px;
+  color: var(--bmwt-primary);
+  font-size: 16px;
+  font-weight: 600;
+}
+.bm-water-treatment .bmwt-trustline {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 26px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--bmwt-border);
+  color: var(--bmwt-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.bm-water-treatment .bmwt-trustline .bmwt-icon { width: 20px; height: 20px; margin-top: 1px; color: var(--bmwt-accent); }
+.bm-water-treatment .bmwt-sep { margin: 0 6px; color: var(--bmwt-accent); }
+.bm-water-treatment .bmwt-hero__media { position: relative; }
+.bm-water-treatment .bmwt-hero__media .bmwt-media { aspect-ratio: 4 / 3; box-shadow: var(--bmwt-shadow); }
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-hero__media .bmwt-media { aspect-ratio: 4 / 5; }
+}
+.bm-water-treatment .bmwt-hero__card {
+  position: relative;
+  z-index: 2;
+  max-width: 330px;
+  margin: -44px 16px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--bmwt-border);
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 18px 40px -20px rgba(17, 27, 48, .4);
+}
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-hero__card {
+    position: absolute;
+    left: -28px;
+    bottom: 32px;
+    margin: 0;
+  }
+}
+.bm-water-treatment .bmwt-hero__card-title {
+  margin: 0 0 10px;
+  color: var(--bmwt-primary);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.bm-water-treatment .bmwt-hero__card .bmwt-checks { gap: 8px; font-size: 15px; }
+
+/* ==========================================================================
+   WATER PROBLEMS
+   ========================================================================== */
+.bm-water-treatment .bmwt-problem .bmwt-icon-badge { margin-bottom: 18px; }
+.bm-water-treatment .bmwt-problem > p { color: var(--bmwt-muted); }
+.bm-water-treatment .bmwt-problem .bmwt-dots { margin-top: 16px; color: var(--bmwt-primary); font-weight: 600; }
+.bm-water-treatment .bmwt-callout {
+  display: grid;
+  gap: 20px 32px;
+  align-items: center;
+  margin-top: clamp(28px, 3vw, 40px);
+  padding: clamp(24px, 3vw, 36px);
+  border-radius: var(--bmwt-radius);
+  background: var(--bmwt-primary-soft);
+}
+@media (min-width: 900px) {
+  .bm-water-treatment .bmwt-callout { grid-template-columns: auto minmax(0, 1fr) auto; }
+}
+.bm-water-treatment .bmwt-callout .bmwt-icon-badge { background: #FFFFFF; }
+.bm-water-treatment .bmwt-callout__title {
+  margin: 0 0 6px;
+  color: var(--bmwt-primary);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* ==========================================================================
+   PROCESS
+   ========================================================================== */
+.bm-water-treatment .bmwt-steps {
+  --bmwt-step-gap: 28px;
+  display: grid;
+  gap: var(--bmwt-step-gap);
+  counter-reset: none;
+}
+.bm-water-treatment .bmwt-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  align-content: start;
+  gap: 18px;
+}
+.bm-water-treatment .bmwt-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--bmwt-accent);
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: var(--bmwt-accent);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+.bm-water-treatment .bmwt-step:last-child .bmwt-step__num { background: var(--bmwt-accent); color: #FFFFFF; }
+.bm-water-treatment .bmwt-step p { color: var(--bmwt-muted); font-size: 16px; }
+.bm-water-treatment .bmwt-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 25px;
+  top: 52px;
+  bottom: calc(var(--bmwt-step-gap) * -1);
+  width: 2px;
+  background: #CBD5CF;
+}
+@media (min-width: 1000px) {
+  .bm-water-treatment .bmwt-steps { grid-template-columns: repeat(5, minmax(0, 1fr)); --bmwt-step-gap: 24px; }
+  .bm-water-treatment .bmwt-step { grid-template-columns: 1fr; gap: 18px; }
+  .bm-water-treatment .bmwt-step:not(:last-child)::after {
+    left: 52px;
+    right: calc(var(--bmwt-step-gap) * -1);
+    top: 25px;
+    bottom: auto;
+    width: auto;
+    height: 2px;
+  }
+}
+
+/* ==========================================================================
+   WATER SOFTENERS
+   ========================================================================== */
+.bm-water-treatment .bmwt-mini-features {
+  display: grid;
+  gap: 22px 28px;
+  margin: 32px 0;
+  padding: 28px 0;
+  border-top: 1px solid var(--bmwt-border);
+  border-bottom: 1px solid var(--bmwt-border);
+}
+@media (min-width: 560px) {
+  .bm-water-treatment .bmwt-mini-features { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.bm-water-treatment .bmwt-mini-feature { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; }
+.bm-water-treatment .bmwt-mini-feature .bmwt-icon { color: var(--bmwt-accent); margin-top: 2px; }
+.bm-water-treatment .bmwt-mini-feature p { color: var(--bmwt-muted); font-size: 16px; line-height: 1.55; }
+
+/* Starting price panel */
+.bm-water-treatment .bmwt-price {
+  margin-bottom: 28px;
+  padding: 24px 26px;
+  border: 1px solid var(--bmwt-border);
+  border-left: 4px solid var(--bmwt-accent);
+  border-radius: var(--bmwt-radius-sm);
+  background: var(--bmwt-light);
+}
+.bm-water-treatment .bmwt-price__label {
+  margin: 0 0 4px;
+  color: var(--bmwt-primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+.bm-water-treatment .bmwt-price__amount {
+  margin: 0 0 12px;
+  color: var(--bmwt-primary);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.bm-water-treatment .bmwt-price__amount strong {
+  font-size: clamp(32px, 2vw + 22px, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.bm-water-treatment .bmwt-price__note {
+  margin: 0;
+  color: var(--bmwt-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* ==========================================================================
+   SOFTENER + FILTRATION
+   ========================================================================== */
+.bm-water-treatment .bmwt-split {
+  display: grid;
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+.bm-water-treatment .bmwt-split .bmwt-section-head { margin-bottom: 0; }
+.bm-water-treatment .bmwt-stack { display: grid; gap: 0; }
+.bm-water-treatment .bmwt-stack__plus {
+  display: flex;
+  justify-content: center;
+  margin: -12px 0;
+  position: relative;
+  z-index: 1;
+}
+.bm-water-treatment .bmwt-stack__plus span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bmwt-primary);
+  color: #FFFFFF;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 0 0 6px var(--bmwt-light);
+}
+.bm-water-treatment .bmwt-stack .bmwt-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: start; }
+.bm-water-treatment .bmwt-stack .bmwt-card p { color: var(--bmwt-muted); font-size: 15px; margin-bottom: 12px; }
+.bm-water-treatment .bmwt-note {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: var(--bmwt-radius-sm);
+  background: #FFFFFF;
+  border: 1px solid var(--bmwt-border);
+  color: var(--bmwt-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ==========================================================================
+   REVERSE OSMOSIS
+   ========================================================================== */
+.bm-water-treatment .bmwt-uses {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 4px 0 28px;
+}
+@media (min-width: 560px) {
+  .bm-water-treatment .bmwt-uses { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.bm-water-treatment .bmwt-use {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--bmwt-border);
+  border-radius: var(--bmwt-radius-sm);
+  background: #FFFFFF;
+  color: var(--bmwt-primary);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.bm-water-treatment .bmwt-use .bmwt-icon { color: var(--bmwt-accent); }
+
+/* ==========================================================================
+   CITY WATER VS WELL WATER
+   ========================================================================== */
+.bm-water-treatment .bmwt-source { display: flex; flex-direction: column; }
+.bm-water-treatment .bmwt-source__top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.bm-water-treatment .bmwt-source__top .bmwt-h3 { margin: 0; font-size: 24px; }
+.bm-water-treatment .bmwt-source > p { color: var(--bmwt-muted); }
+.bm-water-treatment .bmwt-source .bmwt-dots { margin: 6px 0 22px; color: var(--bmwt-primary); font-weight: 600; }
+.bm-water-treatment .bmwt-source__foot {
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--bmwt-border);
+  color: var(--bmwt-muted);
+  font-size: 15px;
+}
+.bm-water-treatment .bmwt-center-note {
+  max-width: 720px;
+  margin: clamp(28px, 3vw, 40px) auto 0;
+  color: var(--bmwt-primary);
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ==========================================================================
+   SERVICES GRID
+   ========================================================================== */
+.bm-water-treatment .bmwt-svc-group__top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--bmwt-border);
+}
+.bm-water-treatment .bmwt-svc-group__top .bmwt-h3 { margin: 0; }
+.bm-water-treatment .bmwt-svc {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--bmwt-border);
+}
+.bm-water-treatment .bmwt-svc:last-child { border-bottom: 0; padding-bottom: 0; }
+.bm-water-treatment .bmwt-svc p { margin: 0; color: var(--bmwt-muted); font-size: 15px; line-height: 1.5; }
+.bm-water-treatment .bmwt-cta-band {
+  display: grid;
+  gap: 20px 32px;
+  align-items: center;
+  margin-top: clamp(28px, 3vw, 40px);
+  padding: clamp(24px, 3.4vw, 40px);
+  border-radius: var(--bmwt-radius);
+  background: var(--bmwt-primary);
+  color: rgba(255, 255, 255, .86);
+  --bmwt-focus: #FFFFFF;
+}
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-cta-band { grid-template-columns: minmax(0, 1fr) auto; }
+}
+.bm-water-treatment .bmwt-cta-band__title {
+  margin: 0 0 6px;
+  color: #FFFFFF;
+  font-size: clamp(21px, 1vw + 16px, 26px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--primary,
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--primary:visited {
+  background: var(--bmwt-accent-on-dark);
+  border-color: var(--bmwt-accent-on-dark);
+  box-shadow: none;
+}
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--primary:hover,
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--primary:focus-visible {
+  background: var(--bmwt-accent);
+  border-color: var(--bmwt-accent);
+}
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--secondary,
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--secondary:visited {
+  background: transparent;
+  border-color: rgba(255, 255, 255, .5);
+  color: #FFFFFF;
+}
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--secondary:hover,
+.bm-water-treatment .bmwt-cta-band .bmwt-btn--secondary:focus-visible {
+  background: rgba(255, 255, 255, .08);
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   WHY B&M
+   ========================================================================== */
+.bm-water-treatment .bmwt-why__intro {
+  display: grid;
+  gap: 20px 56px;
+  margin-bottom: clamp(32px, 4vw, 52px);
+}
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-why__intro { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: end; }
+}
+.bm-water-treatment .bmwt-why__intro .bmwt-section-head { margin-bottom: 0; }
+.bm-water-treatment .bmwt-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--bmwt-border);
+  border-radius: var(--bmwt-radius);
+  background: #FFFFFF;
+  overflow: hidden;
+}
+.bm-water-treatment .bmwt-value {
+  padding: 18px 12px;
+  text-align: center;
+  color: var(--bmwt-primary);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.bm-water-treatment .bmwt-value + .bmwt-value { border-left: 1px solid var(--bmwt-border); }
+.bm-water-treatment .bmwt-value span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--bmwt-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.bm-water-treatment .bmwt-why-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+.bm-water-treatment .bmwt-why-item .bmwt-icon-badge { width: 46px; height: 46px; border-radius: 12px; }
+.bm-water-treatment .bmwt-why-item .bmwt-icon-badge .bmwt-icon { width: 23px; height: 23px; }
+.bm-water-treatment .bmwt-why-item .bmwt-h3 { font-size: 18px; margin-bottom: 4px; }
+.bm-water-treatment .bmwt-why-item p { color: var(--bmwt-muted); font-size: 15px; line-height: 1.55; }
+.bm-water-treatment .bmwt-credentials {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 24px;
+  margin-top: clamp(28px, 3vw, 40px);
+  color: var(--bmwt-muted);
+  font-size: 14px;
+  text-align: center;
+}
+.bm-water-treatment .bmwt-credentials span { display: inline-flex; align-items: center; gap: 8px; }
+.bm-water-treatment .bmwt-credentials .bmwt-icon { width: 18px; height: 18px; color: var(--bmwt-accent); }
+
+/* ==========================================================================
+   REVIEWS
+   ========================================================================== */
+.bm-water-treatment .bmwt-review { display: flex; flex-direction: column; height: 100%; }
+.bm-water-treatment .bmwt-review__mark {
+  display: block;
+  height: 40px;
+  margin-bottom: 8px;
+  color: var(--bmwt-accent);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 64px;
+  line-height: 1;
+}
+.bm-water-treatment .bmwt-review blockquote p {
+  color: var(--bmwt-text);
+  font-size: 17px;
+  line-height: 1.65;
+}
+.bm-water-treatment .bmwt-review figcaption {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--bmwt-border);
+}
+.bm-water-treatment .bmwt-review__name { display: block; color: var(--bmwt-primary); font-weight: 700; }
+.bm-water-treatment .bmwt-review__meta { display: block; color: var(--bmwt-muted); font-size: 14px; }
+.bm-water-treatment .bmwt-review blockquote { margin-bottom: 20px; }
+.bm-water-treatment .bmwt-reviews__foot { margin-top: clamp(28px, 3vw, 40px); text-align: center; }
+
+/* ==========================================================================
+   SERVICE AREA
+   ========================================================================== */
+.bm-water-treatment .bmwt-area { display: grid; gap: clamp(32px, 5vw, 64px); align-items: start; }
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-area { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+}
+.bm-water-treatment .bmwt-area .bmwt-section-head { margin-bottom: 0; }
+.bm-water-treatment .bmwt-county .bmwt-source__top { margin-bottom: 16px; }
+.bm-water-treatment .bmwt-county .bmwt-source__top .bmwt-h3 { font-size: 21px; }
+.bm-water-treatment .bmwt-county .bmwt-small { margin: 14px 0 0; }
+
+/* ==========================================================================
+   FAQ (accordion)
+   ========================================================================== */
+.bm-water-treatment .bmwt-faq {
+  max-width: 880px;
+  margin: 0 auto;
+  border-top: 1px solid var(--bmwt-border);
+}
+.bm-water-treatment .bmwt-faq__item { border-bottom: 1px solid var(--bmwt-border); }
+.bm-water-treatment .bmwt-faq__q { margin: 0; font-size: inherit; }
+.bm-water-treatment .bmwt-faq__btn,
+.bm-water-treatment .bmwt-faq__btn:hover,
+.bm-water-treatment .bmwt-faq__btn:focus,
+.bm-water-treatment .bmwt-faq__btn:active {
+  -webkit-appearance: none;
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  min-height: 64px;
+  margin: 0;
+  padding: 20px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--bmwt-primary);
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-align: left;
+  text-decoration: none;
+  text-transform: none;
+  white-space: normal;
+  cursor: pointer;
+}
+.bm-water-treatment .bmwt-faq__btn:hover { color: var(--bmwt-accent); }
+.bm-water-treatment .bmwt-faq__chev {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bmwt-primary-soft);
+  color: var(--bmwt-primary);
+  transition: transform .2s ease, background-color .2s ease;
+}
+.bm-water-treatment .bmwt-faq__chev .bmwt-icon { width: 18px; height: 18px; stroke-width: 2.2; }
+.bm-water-treatment .bmwt-faq__btn[aria-expanded="true"] .bmwt-faq__chev {
+  transform: rotate(180deg);
+  background: var(--bmwt-accent);
+  color: #FFFFFF;
+}
+.bm-water-treatment .bmwt-faq__a { padding: 0 56px 22px 4px; }
+.bm-water-treatment .bmwt-faq__a p { color: var(--bmwt-text); }
+@media (max-width: 599px) {
+  .bm-water-treatment .bmwt-faq__btn { font-size: 17px; }
+  .bm-water-treatment .bmwt-faq__a { padding-right: 4px; }
+}
+
+/* ==========================================================================
+   LEAD FORM
+   ========================================================================== */
+.bm-water-treatment .bmwt-lead-grid {
+  display: grid;
+  gap: 32px;
+  grid-template-areas: "intro" "form" "aside";
+}
+.bm-water-treatment .bmwt-lead-grid__intro { grid-area: intro; }
+.bm-water-treatment .bmwt-lead-grid__form { grid-area: form; }
+.bm-water-treatment .bmwt-lead-grid__aside { grid-area: aside; }
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-lead-grid {
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas: "intro form" "aside form";
+    column-gap: clamp(40px, 5vw, 72px);
+    align-items: start;
+  }
+}
+.bm-water-treatment .bmwt-lead-grid__intro .bmwt-section-head { margin-bottom: 24px; }
+.bm-water-treatment .bmwt-lead-grid__intro .bmwt-checks { color: #FFFFFF; font-weight: 600; }
+.bm-water-treatment .bmwt-expect {
+  margin-bottom: 24px;
+  padding: 20px 22px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: var(--bmwt-radius-sm);
+  background: rgba(255, 255, 255, .05);
+  font-size: 16px;
+}
+.bm-water-treatment .bmwt-expect strong { display: block; margin-bottom: 6px; color: #FFFFFF; }
+.bm-water-treatment .bmwt-lead-grid__aside .bmwt-media { border-color: rgba(255, 255, 255, .12); margin-bottom: 24px; aspect-ratio: 16 / 10; }
+.bm-water-treatment .bmwt-phone-box {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  padding: 20px 22px;
+  border-radius: var(--bmwt-radius-sm);
+  background: rgba(255, 255, 255, .07);
+}
+.bm-water-treatment .bmwt-phone-box p { margin: 0; color: #FFFFFF; font-weight: 600; line-height: 1.4; }
+.bm-water-treatment .bmwt-phone-box p span { display: block; color: rgba(255, 255, 255, .75); font-size: 15px; font-weight: 400; }
+.bm-water-treatment .bmwt-license {
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, .72);
+  font-size: 14px;
+}
+.bm-water-treatment .bmwt-form-card {
+  overflow: hidden;
+  border-radius: var(--bmwt-radius);
+  background: #FFFFFF;
+  color: var(--bmwt-text);
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, .55);
+}
+.bm-water-treatment .bmwt-form-card__head {
+  padding: 22px clamp(20px, 3vw, 32px);
+  border-bottom: 1px solid var(--bmwt-border);
+  background: var(--bmwt-light);
+}
+.bm-water-treatment .bmwt-form-card__head p { margin: 0; color: var(--bmwt-primary); font-weight: 700; font-size: 18px; line-height: 1.35; }
+.bm-water-treatment .bmwt-form-card__head span { display: block; color: var(--bmwt-muted); font-size: 14px; font-weight: 400; }
+.bm-water-treatment .bmwt-form-embed { padding: 8px clamp(8px, 1.5vw, 16px); }
+.bm-water-treatment .bmwt-form-embed iframe {
+  display: block;
+  width: 100% !important;
+  min-height: 420px;
+  border: 0;
+}
+/* The "schedule by phone" box shows ONLY until a GoHighLevel form is pasted in. */
+.bm-water-treatment .bmwt-form-card:has(iframe) .bmwt-form-fallback,
+.bm-water-treatment .bmwt-form-card.has-embed .bmwt-form-fallback { display: none; }
+.bm-water-treatment .bmwt-form-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: clamp(32px, 5vw, 56px) clamp(20px, 4vw, 40px);
+  text-align: center;
+}
+.bm-water-treatment .bmwt-form-fallback__title {
+  margin: 0;
+  color: var(--bmwt-primary);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.bm-water-treatment .bmwt-form-fallback p:not(.bmwt-form-fallback__title) { max-width: 380px; color: var(--bmwt-muted); }
+.bm-water-treatment .bmwt-form-card .bmwt-btn--primary,
+.bm-water-treatment .bmwt-form-card .bmwt-btn--primary:visited {
+  background: var(--bmwt-accent);
+  border-color: var(--bmwt-accent);
+}
+.bm-water-treatment .bmwt-form-card .bmwt-btn--primary:hover,
+.bm-water-treatment .bmwt-form-card .bmwt-btn--primary:focus-visible {
+  background: var(--bmwt-accent-hover);
+  border-color: var(--bmwt-accent-hover);
+}
+
+/* ==========================================================================
+   FINAL CTA
+   ========================================================================== */
+.bm-water-treatment .bmwt-final { text-align: center; }
+.bm-water-treatment .bmwt-final .bmwt-section-head { margin-bottom: 32px; }
+.bm-water-treatment .bmwt-final__trust {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 22px;
+  margin: 28px 0 0;
+  color: var(--bmwt-primary);
+  font-size: 15px;
+  font-weight: 600;
+}
+.bm-water-treatment .bmwt-final__trust span { display: inline-flex; align-items: center; gap: 8px; }
+.bm-water-treatment .bmwt-final__trust .bmwt-icon { width: 18px; height: 18px; color: var(--bmwt-accent); }
+.bm-water-treatment .bmwt-final .bmwt-hero__note { margin-top: 18px; }
+
+/* ==========================================================================
+   STICKY BAR — phones only (hidden at 768px and wider).
+   It appears while scrolling and hides itself near the hero buttons,
+   the form, and the bottom of the page, so it never covers the form.
+   It stops short of the bottom-right corner so the chat bubble stays usable.
+     • Chat bubble overlaps the bar?  Increase --bmwt-chat-clearance (top of this CSS).
+     • No chat bubble?                Set --bmwt-chat-clearance to 12px.
+     • Turn the bar OFF completely:   delete the two slashes and stars around the
+                                      next line so it reads  .bm-water-treatment.bmwt-sticky { display: none !important; }
+   ========================================================================== */
+/* .bm-water-treatment.bmwt-sticky { display: none !important; } */
+.bm-water-treatment.bmwt-sticky {
+  position: fixed;
+  left: 12px;
+  right: calc(var(--bmwt-chat-clearance) + env(safe-area-inset-right, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 9990;
+  display: flex;
+  gap: 6px;
+  max-width: 420px;
+  padding: 6px;
+  border: 1px solid var(--bmwt-border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .97);
+  box-shadow: 0 12px 32px -10px rgba(17, 27, 48, .45);
+  transform: translateY(calc(100% + 30px));
+  visibility: hidden;
+  transition: transform .25s ease, visibility 0s linear .25s;
+}
+.bm-water-treatment.bmwt-sticky.is-visible {
+  transform: none;
+  visibility: visible;
+  transition: transform .25s ease;
+}
+.bm-water-treatment .bmwt-sticky__btn,
+.bm-water-treatment .bmwt-sticky__btn:visited,
+.bm-water-treatment .bmwt-sticky__btn:hover,
+.bm-water-treatment .bmwt-sticky__btn:focus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 48px;
+  margin: 0;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-align: center;
+  text-decoration: none;
+  text-transform: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.bm-water-treatment .bmwt-sticky__btn .bmwt-icon { width: 18px; height: 18px; }
+.bm-water-treatment .bmwt-sticky__btn--call,
+.bm-water-treatment .bmwt-sticky__btn--call:visited,
+.bm-water-treatment .bmwt-sticky__btn--call:hover,
+.bm-water-treatment .bmwt-sticky__btn--call:focus {
+  flex: 0 0 auto;
+  background: var(--bmwt-primary);
+  color: #FFFFFF;
+}
+.bm-water-treatment .bmwt-sticky__btn--test,
+.bm-water-treatment .bmwt-sticky__btn--test:visited,
+.bm-water-treatment .bmwt-sticky__btn--test:hover,
+.bm-water-treatment .bmwt-sticky__btn--test:focus {
+  flex: 1 1 auto;
+  background: var(--bmwt-accent);
+  color: #FFFFFF;
+}
+@media (max-width: 379px) {
+  .bm-water-treatment .bmwt-sticky__btn--call .bmwt-icon { display: none; }
+}
+@media (max-width: 359px) {
+  .bm-water-treatment .bmwt-sticky__btn,
+  .bm-water-treatment .bmwt-sticky__btn:hover,
+  .bm-water-treatment .bmwt-sticky__btn:focus { font-size: 14px; padding: 6px 10px; }
+}
+@media (min-width: 768px) {
+  .bm-water-treatment.bmwt-sticky { display: none; }
+}
+
+/* Respect "reduce motion" settings */
+@media (prefers-reduced-motion: reduce) {
+  .bm-water-treatment *,
+  .bm-water-treatment.bmwt-sticky { transition: none !important; }
+}
+</style>
+
+<!-- ICON SPRITE (drawn in code — no icon library or image files to load) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+  <symbol id="bmwt-i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="bmwt-i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
+  <symbol id="bmwt-i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="bmwt-i-droplet" viewBox="0 0 24 24"><path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.3 0z"/></symbol>
+  <symbol id="bmwt-i-flask" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.5l-5.4 8.9A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.4-2.6L14 9.5V3"/><path d="M7.4 15h9.2"/></symbol>
+  <symbol id="bmwt-i-message" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 20.5l1.5-4.6a8.4 8.4 0 0 1-.9-3.9A8.5 8.5 0 0 1 12.5 3.5h.5a8.5 8.5 0 0 1 8 8z"/></symbol>
+  <symbol id="bmwt-i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
+  <symbol id="bmwt-i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+  <symbol id="bmwt-i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol>
+  <symbol id="bmwt-i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="bmwt-i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></symbol>
+  <symbol id="bmwt-i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="bmwt-i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9"/></symbol>
+  <symbol id="bmwt-i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+  <symbol id="bmwt-i-building" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M16 9h2a2 2 0 0 1 2 2v10"/><path d="M8 7h4M8 11h4M8 15h4"/><path d="M2 21h20"/></symbol>
+  <symbol id="bmwt-i-well" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5"/><path d="M6 8v13M18 8v13"/><path d="M3 21h18"/><path d="M12 9v4"/><path d="M10 13h4v3h-4z"/></symbol>
+  <symbol id="bmwt-i-glass" viewBox="0 0 24 24"><path d="M6 3h12l-1.6 16.2a2 2 0 0 1-2 1.8H9.6a2 2 0 0 1-2-1.8z"/><path d="M6.7 10h10.6"/></symbol>
+  <symbol id="bmwt-i-pot" viewBox="0 0 24 24"><path d="M2 11h20"/><path d="M4 11v6a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-6"/><path d="M9 7V5M12 7V4M15 7V5"/></symbol>
+  <symbol id="bmwt-i-coffee" viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path d="M7 2v3M11 2v3M15 2v3"/></symbol>
+  <symbol id="bmwt-i-ice" viewBox="0 0 24 24"><path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5 4.2 16.5"/></symbol>
+  <symbol id="bmwt-i-faucet" viewBox="0 0 24 24"><path d="M7 4h6M10 4v4"/><path d="M3 8h11a4 4 0 0 1 4 4v1h-3.5v-1a.5.5 0 0 0-.5-.5H3"/><path d="M16.3 16.5v.5M16.3 20v.5"/></symbol>
+  <symbol id="bmwt-i-glass-panel" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="9" cy="8.5" r="1"/><circle cx="14.5" cy="12" r="1"/><circle cx="9.5" cy="15.5" r="1"/></symbol>
+  <symbol id="bmwt-i-gauge" viewBox="0 0 24 24"><path d="M3.3 18A10 10 0 1 1 20.7 18"/><path d="m12 13 4-4"/><circle cx="12" cy="13" r="1"/></symbol>
+  <symbol id="bmwt-i-badge" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="m9 8.8 2 2 4-4"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></symbol>
+  <symbol id="bmwt-i-map" viewBox="0 0 24 24"><path d="M2 6v15l7-3 6 3 7-3V3l-7 3-6-3z"/><path d="M9 3v15M15 6v15"/></symbol>
+  <symbol id="bmwt-i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="bmwt-i-external" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="bmwt-i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+</svg>
+
+<div class="bm-water-treatment bmwt-page" id="bmwt-page">
+
+  <!-- ======================================================================
+       HERO
+       ====================================================================== -->
+  <section class="bmwt-hero" id="bmwt-hero" aria-labelledby="bmwt-hero-title">
+    <div class="bmwt-container bmwt-hero__grid">
+      <div class="bmwt-hero__content">
+        <p class="bmwt-eyebrow">Whole-Home Water Treatment <span aria-hidden="true">&bull;</span> Lancaster &amp; York, PA</p>
+        <h1 class="bmwt-h1" id="bmwt-hero-title">
+          <span class="bmwt-hero__headline">Better Water Starts With Knowing What’s In It.</span>
+          <span class="bmwt-hero__subhead">Whole-Home Water Treatment &amp; Water Softener Systems in Lancaster, PA</span>
+        </h1>
+        <p class="bmwt-hero__text">Hard water, scale buildup, chlorine taste or odor? B&amp;M provides professional water testing and whole-home water treatment systems designed around your home’s actual water conditions.</p>
+
+        <div class="bmwt-btn-row" id="bmwt-hero-ctas">
+          <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
+          <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+            Call B&amp;M Today
+          </a>
+        </div>
+        <p class="bmwt-hero__note">Free, no-obligation in-home water test <span aria-hidden="true">&middot;</span> <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a></p>
+
+        <ul class="bmwt-checks bmwt-hero__services" aria-label="Water treatment services">
+          <li>Water Softeners</li>
+          <li>Whole-Home Filtration</li>
+          <li>Reverse Osmosis</li>
+          <li>Professional Installation</li>
+        </ul>
+
+        <p class="bmwt-trustline">
+          <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>
+          <span>Veteran-Owned<span class="bmwt-sep" aria-hidden="true">&bull;</span>Locally Operated<span class="bmwt-sep" aria-hidden="true">&bull;</span>Serving Lancaster &amp; York Counties</span>
+        </p>
+      </div>
+
+      <div class="bmwt-hero__media">
+        <div class="bmwt-media">
+          <!-- REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO
+               1) Upload the photo in WordPress: Media > Add New.
+               2) Copy its "File URL" and paste it between the quotes in src="" below.
+               3) Update the alt text so it describes the photo.
+               The designed placeholder underneath is hidden automatically once the photo loads. -->
+          <img src="" alt="Whole-home water softener system installed by B&amp;M Home Improvement Solutions" width="1200" height="1500" loading="eager" decoding="async">
+          <div class="bmwt-ph" aria-hidden="true">
+            <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-droplet"></use></svg></span>
+            <p class="bmwt-ph__text">Whole-home water treatment for Lancaster &amp; York County homes</p>
+          </div>
+        </div>
+        <div class="bmwt-hero__card">
+          <p class="bmwt-hero__card-title">Free In-Home Water Test</p>
+          <ul class="bmwt-checks">
+            <li>No Obligation</li>
+            <li>Recommendations Based on Your Water Conditions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       WATER PROBLEMS
+       ====================================================================== -->
+  <section class="bmwt-section" id="water-problems" aria-labelledby="bmwt-problems-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <p class="bmwt-eyebrow">Common Water Problems</p>
+        <h2 class="bmwt-h2" id="bmwt-problems-title">Is Your Water Causing Problems Throughout Your Home?</h2>
+        <p class="bmwt-lead">Hard water and other water conditions show up in small, frustrating ways — on glass, fixtures, dishes, appliances, and in the water you drink. Here’s what homeowners notice most.</p>
+      </div>
+
+      <div class="bmwt-grid bmwt-grid--3">
+        <article class="bmwt-card bmwt-problem">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-faucet"></use></svg></span>
+          <h3 class="bmwt-h3">Scale &amp; Mineral Buildup</h3>
+          <p>Hard water leaves minerals behind wherever it flows and dries.</p>
+          <ul class="bmwt-dots">
+            <li>White scale on faucets</li>
+            <li>Mineral buildup</li>
+            <li>Fixture buildup</li>
+            <li>Appliance scale</li>
+          </ul>
+        </article>
+        <article class="bmwt-card bmwt-problem">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-glass-panel"></use></svg></span>
+          <h3 class="bmwt-h3">Spots &amp; Soap Residue</h3>
+          <p>Minerals show up on the surfaces you clean most often.</p>
+          <ul class="bmwt-dots">
+            <li>Hard water spots on shower glass</li>
+            <li>Spots on dishes</li>
+            <li>Soap residue</li>
+          </ul>
+        </article>
+        <article class="bmwt-card bmwt-problem">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-glass"></use></svg></span>
+          <h3 class="bmwt-h3">Taste, Odor &amp; Well Water</h3>
+          <p>Some concerns are about how your water tastes and smells.</p>
+          <ul class="bmwt-dots">
+            <li>Chlorine taste or odor</li>
+            <li>Unpleasant drinking water</li>
+            <li>Well-water concerns</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="bmwt-callout">
+        <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flask"></use></svg></span>
+        <div>
+          <p class="bmwt-callout__title">We start by understanding your water.</p>
+          <p>Before we recommend any equipment, we test and evaluate your home’s water conditions and talk through what you’re seeing. The right solution depends on your actual water — not a one-size-fits-all system.</p>
+        </div>
+        <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       PROCESS
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--light" id="our-process" aria-labelledby="bmwt-process-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <p class="bmwt-eyebrow">Our Process</p>
+        <h2 class="bmwt-h2" id="bmwt-process-title">We Start With Your Water — Not a Sales Pitch.</h2>
+        <p class="bmwt-lead">A straightforward, five-step process built around your home, your water, and your questions.</p>
+      </div>
+
+      <ol class="bmwt-steps">
+        <li class="bmwt-step">
+          <span class="bmwt-step__num" aria-hidden="true">1</span>
+          <div>
+            <h3 class="bmwt-h3">Test Your Water</h3>
+            <p>We come to your home for a free, no-obligation water test and evaluate your water conditions.</p>
+          </div>
+        </li>
+        <li class="bmwt-step">
+          <span class="bmwt-step__num" aria-hidden="true">2</span>
+          <div>
+            <h3 class="bmwt-h3">Discuss Your Concerns</h3>
+            <p>Tell us what you’re noticing — spots, scale, taste, odor, or anything else that bothers you.</p>
+          </div>
+        </li>
+        <li class="bmwt-step">
+          <span class="bmwt-step__num" aria-hidden="true">3</span>
+          <div>
+            <h3 class="bmwt-h3">Identify the Problem</h3>
+            <p>We connect what we found to what you’re experiencing and explain it in plain language.</p>
+          </div>
+        </li>
+        <li class="bmwt-step">
+          <span class="bmwt-step__num" aria-hidden="true">4</span>
+          <div>
+            <h3 class="bmwt-h3">Recommend the Right System</h3>
+            <p>We recommend equipment that fits your water, your home, and your household — with clear pricing.</p>
+          </div>
+        </li>
+        <li class="bmwt-step">
+          <span class="bmwt-step__num" aria-hidden="true">5</span>
+          <div>
+            <h3 class="bmwt-h3">Professionally Install It</h3>
+            <p>Our team installs your system carefully, walks you through it, and leaves your space clean.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       WATER SOFTENERS
+       ====================================================================== -->
+  <section class="bmwt-section" id="water-softeners" aria-labelledby="bmwt-softeners-title">
+    <div class="bmwt-container bmwt-feature">
+      <div class="bmwt-feature__head">
+        <p class="bmwt-eyebrow">Water Softeners</p>
+        <h2 class="bmwt-h2" id="bmwt-softeners-title">Whole-Home Water Softener Systems</h2>
+        <p class="bmwt-lead">A whole-home water softener is designed to reduce the hardness minerals — mainly calcium and magnesium — behind many everyday water frustrations. Because it treats water where it enters your home, softening can help reduce hardness-related problems throughout the house.</p>
+      </div>
+
+      <div class="bmwt-feature__media">
+        <div class="bmwt-media">
+          <!-- REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO (equipment close-up — use a different photo than the hero)
+               Paste the photo's WordPress "File URL" between the quotes in src="" and update the alt text. -->
+          <img src="" alt="Water softener equipment installed by B&amp;M in a Pennsylvania home" width="1200" height="1500" loading="lazy" decoding="async">
+          <div class="bmwt-ph" aria-hidden="true">
+            <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-droplet"></use></svg></span>
+            <p class="bmwt-ph__text">Whole-home water softener systems</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bmwt-feature__body">
+        <p class="bmwt-label">Softening can help reduce problems associated with hard water, including:</p>
+        <ul class="bmwt-checks bmwt-checks--2col">
+          <li>Scale buildup</li>
+          <li>Spotting</li>
+          <li>Soap residue</li>
+          <li>Fixture buildup</li>
+          <li>Mineral deposits</li>
+          <li>Appliance scale</li>
+        </ul>
+
+        <div class="bmwt-mini-features">
+          <div class="bmwt-mini-feature">
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flask"></use></svg>
+            <div>
+              <h3 class="bmwt-h4">Water Testing First</h3>
+              <p>We test and evaluate your water before recommending any system.</p>
+            </div>
+          </div>
+          <div class="bmwt-mini-feature">
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-gauge"></use></svg>
+            <div>
+              <h3 class="bmwt-h4">Professional Sizing</h3>
+              <p>Systems sized for your water conditions and your household’s water use.</p>
+            </div>
+          </div>
+          <div class="bmwt-mini-feature">
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-home"></use></svg>
+            <div>
+              <h3 class="bmwt-h4">City or Well Water</h3>
+              <p>Options for homes on public water or a private well, based on your test.</p>
+            </div>
+          </div>
+          <div class="bmwt-mini-feature">
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-wrench"></use></svg>
+            <div>
+              <h3 class="bmwt-h4">Professional Installation</h3>
+              <p>Careful, clean installation by B&amp;M, with a walkthrough when we’re done.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- STARTING PRICE — confirmed by B&M. Keep the disclaimer with the price. -->
+        <div class="bmwt-price">
+          <p class="bmwt-price__label">Whole-Home Water Softener Systems</p>
+          <p class="bmwt-price__amount">Starting at <strong>$3,895*</strong></p>
+          <p class="bmwt-price__note">*Starting price applies to qualifying standard residential installations. Final equipment recommendations and pricing depend on the home’s water conditions, plumbing, system requirements, and selected equipment. The starting price reflects a standard city-water softener installation and does not include filtration, reverse osmosis, well-water treatment, unusual plumbing modifications, or upgraded equipment.</p>
+        </div>
+
+        <div class="bmwt-btn-row">
+          <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Get My Water Tested</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SOFTENER + CARBON FILTRATION
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--light" id="softening-filtration" aria-labelledby="bmwt-filtration-title">
+    <div class="bmwt-container bmwt-split">
+      <div class="bmwt-section-head">
+        <p class="bmwt-eyebrow">Softening + Filtration</p>
+        <h2 class="bmwt-h2" id="bmwt-filtration-title">Softening + Whole-Home Filtration</h2>
+        <p class="bmwt-lead">Some households benefit from treating more than hardness.</p>
+        <p>A water softener addresses hardness and the scale it leaves behind. Whole-home carbon filtration is commonly used to help reduce chlorine and can help improve taste and odor. Together, they treat the water for your entire home — kitchen, bathrooms, laundry, and every faucet in between.</p>
+        <p class="bmwt-note">Filtration performance depends on the specific equipment and your water conditions. We’ll explain what each option is designed to do — and what it isn’t — before you decide.</p>
+      </div>
+
+      <div class="bmwt-stack">
+        <div class="bmwt-card">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-droplet"></use></svg></span>
+          <div>
+            <h3 class="bmwt-h3">Water Softener</h3>
+            <p>Designed to reduce the hardness minerals associated with:</p>
+            <ul class="bmwt-chips">
+              <li class="bmwt-chip">Hardness</li>
+              <li class="bmwt-chip">Scale</li>
+            </ul>
+          </div>
+        </div>
+        <div class="bmwt-stack__plus" aria-hidden="true"><span>+</span></div>
+        <div class="bmwt-card">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-layers"></use></svg></span>
+          <div>
+            <h3 class="bmwt-h3">Whole-Home Carbon Filtration</h3>
+            <p>Commonly used to help reduce:</p>
+            <ul class="bmwt-chips">
+              <li class="bmwt-chip">Chlorine</li>
+              <li class="bmwt-chip">Unwanted taste</li>
+              <li class="bmwt-chip">Odor</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       REVERSE OSMOSIS
+       ====================================================================== -->
+  <section class="bmwt-section" id="reverse-osmosis" aria-labelledby="bmwt-ro-title">
+    <div class="bmwt-container bmwt-feature bmwt-feature--reverse">
+      <div class="bmwt-feature__head">
+        <p class="bmwt-eyebrow">Reverse Osmosis</p>
+        <h2 class="bmwt-h2" id="bmwt-ro-title">Better Drinking Water Right From Your Kitchen</h2>
+        <p class="bmwt-lead">An under-sink reverse osmosis (RO) system delivers filtered drinking water from a dedicated faucet at your kitchen sink — for the water you drink and cook with every day.</p>
+      </div>
+
+      <div class="bmwt-feature__media">
+        <div class="bmwt-media">
+          <!-- REPLACE WITH REAL B&M RO INSTALLATION PHOTO (under-sink system or finished kitchen faucet)
+               Paste the photo's WordPress "File URL" between the quotes in src="" and update the alt text. -->
+          <img src="" alt="Under-sink reverse osmosis drinking water system installed by B&amp;M" width="1200" height="1500" loading="lazy" decoding="async">
+          <div class="bmwt-ph" aria-hidden="true">
+            <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-glass"></use></svg></span>
+            <p class="bmwt-ph__text">Under-sink reverse osmosis drinking water</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bmwt-feature__body">
+        <p class="bmwt-label">Great for:</p>
+        <ul class="bmwt-uses">
+          <li class="bmwt-use"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-glass"></use></svg>Drinking</li>
+          <li class="bmwt-use"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pot"></use></svg>Cooking</li>
+          <li class="bmwt-use"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-coffee"></use></svg>Coffee</li>
+          <li class="bmwt-use"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-ice"></use></svg>Ice</li>
+          <li class="bmwt-use"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-home"></use></svg>Everyday use</li>
+        </ul>
+        <p>Reverse osmosis is designed to reduce dissolved solids and can improve the taste of your drinking water. We’ll help you decide whether RO is a good fit — on its own or alongside a softener — and install it neatly under your sink.</p>
+        <p class="bmwt-note">Have a specific health-related water concern? Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p>
+        <div class="bmwt-btn-row bmwt-mt">
+          <a class="bmwt-btn bmwt-btn--secondary" href="#free-water-test">Ask About Reverse Osmosis</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       CITY WATER VS WELL WATER
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--light" id="city-vs-well-water" aria-labelledby="bmwt-source-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <p class="bmwt-eyebrow">City Water vs. Well Water</p>
+        <h2 class="bmwt-h2" id="bmwt-source-title">Your Water Source Matters.</h2>
+        <p class="bmwt-lead">Homes on public water and homes on private wells often face different concerns — and need different solutions.</p>
+      </div>
+
+      <div class="bmwt-grid bmwt-grid--2">
+        <article class="bmwt-card bmwt-source">
+          <div class="bmwt-source__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-building"></use></svg></span>
+            <h3 class="bmwt-h3">City Water</h3>
+          </div>
+          <p>Public water is treated by your water utility before it reaches your home. Many homeowners on city water still notice:</p>
+          <ul class="bmwt-dots">
+            <li>Hardness</li>
+            <li>Chlorine taste or odor</li>
+            <li>Unwanted taste or odor</li>
+            <li>Scale on fixtures and appliances</li>
+          </ul>
+          <p class="bmwt-source__foot">Common approaches include water softening, whole-home carbon filtration, or both — chosen based on your water test.</p>
+        </article>
+        <article class="bmwt-card bmwt-source">
+          <div class="bmwt-source__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-well"></use></svg></span>
+            <h3 class="bmwt-h3">Well Water</h3>
+          </div>
+          <p>Private wells vary widely from home to home, and testing is up to the homeowner. Common well-water concerns include:</p>
+          <ul class="bmwt-dots">
+            <li>Hardness</li>
+            <li>Minerals</li>
+            <li>Staining</li>
+            <li>Odors</li>
+          </ul>
+          <p class="bmwt-source__foot"><strong>Testing matters most with a well.</strong> We test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p>
+        </article>
+      </div>
+
+      <p class="bmwt-center-note">The right equipment depends on your actual water conditions — that’s why every recommendation starts with a water test.</p>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       WATER TREATMENT SERVICES
+       ====================================================================== -->
+  <section class="bmwt-section" id="water-treatment-services" aria-labelledby="bmwt-services-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <p class="bmwt-eyebrow">Water Treatment Services</p>
+        <h2 class="bmwt-h2" id="bmwt-services-title">Water Treatment Services for Lancaster &amp; York County Homes</h2>
+        <p class="bmwt-lead">From hard water treatment to whole house water filtration and reverse osmosis — every service starts with understanding your water.</p>
+      </div>
+
+      <div class="bmwt-grid bmwt-grid--3">
+        <div class="bmwt-card bmwt-svc-group">
+          <div class="bmwt-svc-group__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-droplet"></use></svg></span>
+            <h3 class="bmwt-h3">Water Softeners</h3>
+          </div>
+          <ul>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole Home Water Softener Systems</h4><p>Softening designed to reduce hardness at every faucet and fixture.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Water Softener Installation</h4><p>Professional installation, sized to your home and water conditions.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Water Softener Replacement</h4><p>Replace an aging or underperforming softener with a properly sized system.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">City Water Softener Systems</h4><p>Softening for homes on public water, based on your water test.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Well Water Softener Systems</h4><p>Softening for private wells after we test and evaluate your water.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Hard Water Treatment Systems</h4><p>Solutions for the scale, spotting, and buildup hard water leaves behind.</p></li>
+          </ul>
+        </div>
+        <div class="bmwt-card bmwt-svc-group">
+          <div class="bmwt-svc-group__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-layers"></use></svg></span>
+            <h3 class="bmwt-h3">Filtration &amp; Whole-Home Treatment</h3>
+          </div>
+          <ul>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole Home Water Treatment Systems</h4><p>Treatment plans built around your home’s water conditions.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Water Softener &amp; Carbon Filtration Systems</h4><p>Softening plus carbon filtration for hardness, chlorine taste, and odor.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole House Water Filtration Systems</h4><p>Filtration where water enters your home, so every tap is treated.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Water Filtration System Installation</h4><p>Clean, professional installation of whole-home filtration equipment.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Carbon Water Filtration Systems</h4><p>Commonly used to help reduce chlorine taste and odor.</p></li>
+          </ul>
+        </div>
+        <div class="bmwt-card bmwt-svc-group">
+          <div class="bmwt-svc-group__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flask"></use></svg></span>
+            <h3 class="bmwt-h3">Drinking Water &amp; Testing</h3>
+          </div>
+          <ul>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Reverse Osmosis Drinking Water Systems</h4><p>Under-sink RO for drinking, cooking, coffee, and ice.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Reverse Osmosis System Installation</h4><p>Neat under-sink installation with a dedicated drinking-water faucet.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Home Water Quality Testing</h4><p>A free, no-obligation in-home evaluation of your water conditions.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Hard Water Testing</h4><p>Find out whether hard water is behind the spots and buildup you’re seeing.</p></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- MID-PAGE CTA -->
+      <div class="bmwt-cta-band">
+        <div>
+          <p class="bmwt-cta-band__title">Not sure which system your home needs?</p>
+          <p>That’s exactly what the free in-home water test is for. We’ll evaluate your water and recommend the right next step — with no obligation.</p>
+        </div>
+        <div class="bmwt-btn-row">
+          <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
+          <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+            Call B&amp;M Today
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       WHY B&M
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--light" id="why-bm" aria-labelledby="bmwt-why-title">
+    <div class="bmwt-container">
+      <div class="bmwt-why__intro">
+        <div class="bmwt-section-head">
+          <p class="bmwt-eyebrow">Why B&amp;M</p>
+          <h2 class="bmwt-h2" id="bmwt-why-title">Why Homeowners Choose B&amp;M</h2>
+          <p class="bmwt-lead">B&amp;M Home Improvement Solutions is a local, veteran-owned home improvement company. Our water treatment division is built on the same three values that guide every project we take on.</p>
+        </div>
+        <div class="bmwt-values" role="list" aria-label="Our core values">
+          <div class="bmwt-value" role="listitem"><span>Value</span>Quality</div>
+          <div class="bmwt-value" role="listitem"><span>Value</span>Honesty</div>
+          <div class="bmwt-value" role="listitem"><span>Value</span>Communication</div>
+        </div>
+      </div>
+
+      <div class="bmwt-grid bmwt-grid--3">
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg></span>
+          <div><h3 class="bmwt-h3">Veteran-Owned</h3><p>A veteran-owned company that takes accountability seriously on every job.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pin"></use></svg></span>
+          <div><h3 class="bmwt-h3">Locally Operated</h3><p>A local company — not a national franchise or an out-of-state call center.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-wrench"></use></svg></span>
+          <div><h3 class="bmwt-h3">Professional Installation</h3><p>Careful, professional installs with attention to the details.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-shield"></use></svg></span>
+          <div><h3 class="bmwt-h3">Honest Recommendations</h3><p>Honesty is a core value. We recommend what your water actually calls for.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-message"></use></svg></span>
+          <div><h3 class="bmwt-h3">Clear Communication</h3><p>You’ll know what we found, what we recommend, and what it costs before work begins.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-badge"></use></svg></span>
+          <div><h3 class="bmwt-h3">Quality Workmanship</h3><p>Quality is a core value — neat, careful work and a clean job site.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-droplet"></use></svg></span>
+          <div><h3 class="bmwt-h3">Solutions Based on Your Water</h3><p>Every recommendation starts with testing and evaluating your home’s water conditions.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-map"></use></svg></span>
+          <div><h3 class="bmwt-h3">Lancaster &amp; York County Service</h3><p>Serving homeowners throughout Lancaster and York Counties.</p></div>
+        </div>
+        <div class="bmwt-card bmwt-why-item">
+          <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-home"></use></svg></span>
+          <div><h3 class="bmwt-h3">Established Home Improvement Experience</h3><p>Bathroom remodeling and shower replacement are our core work, so we see what hard water does to glass, tile, and fixtures firsthand.</p></div>
+        </div>
+      </div>
+
+      <div class="bmwt-credentials">
+        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>Veteran-Owned</span>
+        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-shield"></use></svg>Pennsylvania Home Improvement Contractor #PA154223</span>
+        <!-- OPTIONAL BADGE SPOT — add a manufacturer, warranty, or certification badge here ONLY once confirmed. Example:
+        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-badge"></use></svg>YOUR CONFIRMED BADGE TEXT</span>
+        -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       REVIEWS
+       These are B&M's general home-improvement reviews — NOT water-treatment
+       reviews. Never edit the wording of a real review.
+       To hide this section until reviews are ready, add the word  hidden
+       inside the opening tag:  <section hidden class="bmwt-section" ...>
+       ====================================================================== -->
+  <section class="bmwt-section" id="reviews" aria-labelledby="bmwt-reviews-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <p class="bmwt-eyebrow">Reviews</p>
+        <h2 class="bmwt-h2" id="bmwt-reviews-title">What Homeowners Say About B&amp;M</h2>
+        <p class="bmwt-lead">These reviews come from B&amp;M’s home improvement customers. Our water treatment division is new — and it’s held to the same standards of quality, honesty, and communication.</p>
+      </div>
+
+      <div class="bmwt-grid bmwt-grid--3">
+        <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (1 of 3): review text, reviewer name exactly as shown on Google, project type -->
+        <figure class="bmwt-card bmwt-review">
+          <span class="bmwt-review__mark" aria-hidden="true">“</span>
+          <blockquote><p>REPLACE WITH REAL B&amp;M GOOGLE REVIEW</p></blockquote>
+          <figcaption>
+            <span class="bmwt-review__name">Reviewer Name (as shown on Google)</span>
+            <span class="bmwt-review__meta">Project type, e.g. Bathroom Remodel · Google Review</span>
+          </figcaption>
+        </figure>
+        <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (2 of 3) -->
+        <figure class="bmwt-card bmwt-review">
+          <span class="bmwt-review__mark" aria-hidden="true">“</span>
+          <blockquote><p>REPLACE WITH REAL B&amp;M GOOGLE REVIEW</p></blockquote>
+          <figcaption>
+            <span class="bmwt-review__name">Reviewer Name (as shown on Google)</span>
+            <span class="bmwt-review__meta">Project type, e.g. Shower Replacement · Google Review</span>
+          </figcaption>
+        </figure>
+        <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (3 of 3) -->
+        <figure class="bmwt-card bmwt-review">
+          <span class="bmwt-review__mark" aria-hidden="true">“</span>
+          <blockquote><p>REPLACE WITH REAL B&amp;M GOOGLE REVIEW</p></blockquote>
+          <figcaption>
+            <span class="bmwt-review__name">Reviewer Name (as shown on Google)</span>
+            <span class="bmwt-review__meta">Project type · Google Review</span>
+          </figcaption>
+        </figure>
+      </div>
+
+      <div class="bmwt-reviews__foot">
+        <!-- GOOGLE REVIEWS LINK — built from your Google Place ID (ChIJG02nV1onxokR2DmjXxqGVHs).
+             To use a different link, replace everything between the quotes after href= -->
+        <a class="bmwt-btn bmwt-btn--secondary" href="https://www.google.com/maps/search/?api=1&amp;query=B%26M%20Home%20Improvement%20Solutions%20LLC&amp;query_place_id=ChIJG02nV1onxokR2DmjXxqGVHs" target="_blank" rel="noopener">
+          Read Our Google Reviews
+          <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-external"></use></svg>
+          <span class="bmwt-sr-only">(opens in a new tab)</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       SERVICE AREA
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--light" id="service-area" aria-labelledby="bmwt-area-title">
+    <div class="bmwt-container bmwt-area">
+      <div class="bmwt-section-head">
+        <p class="bmwt-eyebrow">Service Area</p>
+        <h2 class="bmwt-h2" id="bmwt-area-title">Local Water Treatment for Lancaster &amp; York Counties</h2>
+        <p class="bmwt-lead">B&amp;M is based in Columbia, right on the Susquehanna between Lancaster and York Counties — so homeowners on both sides of the river are close to home for us.</p>
+        <p>We provide water testing, water softener installation, whole house water filtration, and reverse osmosis systems for homeowners throughout Lancaster County and York County, Pennsylvania.</p>
+        <p>Don’t see your town listed? Call us at <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a> — if you’re in Lancaster or York County, we’d be glad to help.</p>
+      </div>
+
+      <div class="bmwt-grid">
+        <div class="bmwt-card bmwt-county">
+          <div class="bmwt-source__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pin"></use></svg></span>
+            <h3 class="bmwt-h3">Lancaster County</h3>
+          </div>
+          <ul class="bmwt-chips">
+            <li class="bmwt-chip">Lancaster</li>
+            <li class="bmwt-chip">Columbia</li>
+            <li class="bmwt-chip">Mountville</li>
+            <li class="bmwt-chip">Millersville</li>
+            <li class="bmwt-chip">Landisville</li>
+            <li class="bmwt-chip">Manheim</li>
+            <li class="bmwt-chip">Lititz</li>
+            <li class="bmwt-chip">Ephrata</li>
+            <li class="bmwt-chip">Elizabethtown</li>
+            <li class="bmwt-chip">Mount Joy</li>
+          </ul>
+          <p class="bmwt-small">…and surrounding Lancaster County communities.</p>
+        </div>
+        <div class="bmwt-card bmwt-county">
+          <div class="bmwt-source__top">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pin"></use></svg></span>
+            <h3 class="bmwt-h3">York County</h3>
+          </div>
+          <ul class="bmwt-chips">
+            <li class="bmwt-chip">York</li>
+            <li class="bmwt-chip">Wrightsville</li>
+            <li class="bmwt-chip">Hallam</li>
+            <li class="bmwt-chip">Red Lion</li>
+            <li class="bmwt-chip">Dallastown</li>
+            <li class="bmwt-chip">Dover</li>
+            <li class="bmwt-chip">East Prospect</li>
+          </ul>
+          <p class="bmwt-small">…and surrounding York County communities.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       FAQ
+       If you edit a question or answer here, make the same edit in the
+       FAQ SCHEMA block near the bottom (or delete that block).
+       ====================================================================== -->
+  <section class="bmwt-section" id="faq" aria-labelledby="bmwt-faq-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <p class="bmwt-eyebrow">FAQ</p>
+        <h2 class="bmwt-h2" id="bmwt-faq-title">Water Treatment Questions, Answered</h2>
+      </div>
+
+      <div class="bmwt-faq">
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q1" aria-expanded="true" aria-controls="bmwt-faq-a1"><span>How do I know if I have hard water?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a1"><p>Common signs include white scale on faucets and showerheads, spots on dishes and shower glass, soap residue, and mineral buildup on fixtures. A water test is the best way to know for sure, which is why every recommendation we make starts with one.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q2" aria-expanded="true" aria-controls="bmwt-faq-a2"><span>What does a water softener do?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a2"><p>A water softener is designed to reduce hardness minerals, mainly calcium and magnesium, before water reaches your fixtures and appliances. Reducing hardness can help limit scale buildup, spotting, and soap residue throughout your home.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q3" aria-expanded="true" aria-controls="bmwt-faq-a3"><span>Do I need a water softener or filtration system?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a3"><p>It depends on your water. Hardness is typically addressed with a softener, while concerns like chlorine taste or odor are typically addressed with filtration. Some homes benefit from both. We test and evaluate your water first, then recommend the approach that fits your home.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q4" aria-expanded="true" aria-controls="bmwt-faq-a4"><span>Can you treat city water?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a4"><p>Yes. Homes on city water often deal with hardness and chlorine taste or odor. We test your water and recommend a softener, filtration, or a combination based on what we find.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q5" aria-expanded="true" aria-controls="bmwt-faq-a5"><span>Can you treat well water?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a5"><p>Yes. Well water varies widely from home to home, so we test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q6" aria-expanded="true" aria-controls="bmwt-faq-a6"><span>What is whole-house carbon filtration?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a6"><p>A whole-house carbon filter treats water where it enters your home, so every faucet and shower receives filtered water. Carbon filtration is commonly used to help reduce chlorine taste and odor, and it is often paired with a water softener when a home has both hardness and taste or odor concerns.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q7" aria-expanded="true" aria-controls="bmwt-faq-a7"><span>What does reverse osmosis do?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a7"><p>Reverse osmosis is a drinking-water system, usually installed under the kitchen sink, that sends water through a series of filters and a fine membrane. It is designed to reduce dissolved solids and can improve the taste of water for drinking, cooking, coffee, and ice. It typically supplies a dedicated faucet at your sink.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q8" aria-expanded="true" aria-controls="bmwt-faq-a8"><span>How do you determine which system my home needs?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a8"><p>We test and evaluate your home’s water conditions, discuss the problems you’re experiencing, and use that information to help determine the appropriate next step. We also consider your water source, household size, and existing plumbing before recommending equipment.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q9" aria-expanded="true" aria-controls="bmwt-faq-a9"><span>How long does installation usually take?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a9"><p>Installation time depends on the system selected, existing plumbing, water conditions, and the work required. We’ll explain the installation plan and expected timeframe before work begins.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q10" aria-expanded="true" aria-controls="bmwt-faq-a10"><span>Do you provide water testing?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a10"><p>Yes. We offer a free, no-obligation in-home water test. We test and evaluate your home’s water conditions, discuss the problems you’re experiencing, and use that information to help determine the appropriate next step. Our in-home test is not a laboratory analysis, and certain water-quality concerns may require certified laboratory testing.</p></div>
+        </div>
+        <div class="bmwt-faq__item">
+          <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q11" aria-expanded="true" aria-controls="bmwt-faq-a11"><span>Do you service Lancaster and York Counties?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
+          <div class="bmwt-faq__a" id="bmwt-faq-a11"><p>Yes. We serve homeowners throughout Lancaster County and York County, Pennsylvania, including Lancaster, Columbia, Lititz, Ephrata, Elizabethtown, Mount Joy, York, Red Lion, and surrounding communities.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       LEAD FORM  —  every "Schedule Your Free Water Test" button jumps here
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--dark" id="free-water-test" tabindex="-1" aria-labelledby="bmwt-form-title">
+    <div class="bmwt-container bmwt-lead-grid">
+      <div class="bmwt-lead-grid__intro">
+        <div class="bmwt-section-head">
+          <p class="bmwt-eyebrow">Free In-Home Water Test</p>
+          <h2 class="bmwt-h2" id="bmwt-form-title">Schedule Your Free Water Test</h2>
+          <p class="bmwt-lead">Tell us a little about your home and what you’re experiencing with your water. We’ll help you determine the best next step.</p>
+        </div>
+        <ul class="bmwt-checks">
+          <li>Free In-Home Water Test</li>
+          <li>No Obligation</li>
+          <li>Recommendations Based on Your Water Conditions</li>
+        </ul>
+      </div>
+
+      <div class="bmwt-lead-grid__form">
+        <div class="bmwt-form-card" id="bmwt-form-card">
+          <div class="bmwt-form-card__head">
+            <p>Request your free in-home water test<span>We’ll follow up to schedule a convenient time.</span></p>
+          </div>
+          <div class="bmwt-form-embed">
+            <!-- ↓↓↓ DELETE THE NEXT LINE AND PASTE YOUR GOHIGHLEVEL FORM EMBED CODE IN ITS PLACE ↓↓↓
+                 (GoHighLevel: Sites > Forms > your form > Integrate > Embed > copy the code)
+                 The "Prefer to schedule by phone" box below hides itself once the form is in. -->
+            <!-- PASTE GOHIGHLEVEL FORM EMBED HERE -->
+          </div>
+          <div class="bmwt-form-fallback">
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-calendar"></use></svg></span>
+            <p class="bmwt-form-fallback__title">Prefer to schedule by phone?</p>
+            <p>Call B&amp;M and we’ll set up your free in-home water test at a time that works for you.</p>
+            <a class="bmwt-btn bmwt-btn--primary" href="tel:7174498789" data-bmwt-tel>
+              <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+              <span>Call <span data-bmwt-phone>717-449-8789</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="bmwt-lead-grid__aside">
+        <div class="bmwt-expect">
+          <strong>What to expect</strong>
+          We test and evaluate your home’s water conditions, discuss the problems you’re experiencing, and use that information to help determine the appropriate next step.
+        </div>
+        <div class="bmwt-media">
+          <!-- REPLACE WITH REAL B&M WATER TEST / HOMEOWNER PHOTO
+               Paste the photo's WordPress "File URL" between the quotes in src="" and update the alt text. -->
+          <img src="" alt="B&amp;M technician reviewing water test results with a homeowner" width="1600" height="1000" loading="lazy" decoding="async">
+          <div class="bmwt-ph" aria-hidden="true">
+            <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-flask"></use></svg></span>
+            <p class="bmwt-ph__text">Free in-home water test</p>
+          </div>
+        </div>
+        <div class="bmwt-phone-box">
+          <p>Prefer to talk to someone?<span>Call B&amp;M at <span class="bmwt-nowrap" data-bmwt-phone>717-449-8789</span></span></p>
+          <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+            Call B&amp;M Today
+          </a>
+        </div>
+        <p class="bmwt-license">Veteran-Owned <span aria-hidden="true">&middot;</span> Pennsylvania Home Improvement Contractor #PA154223</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       FINAL CTA
+       ====================================================================== -->
+  <section class="bmwt-section bmwt-section--light bmwt-final" id="bmwt-final" aria-labelledby="bmwt-final-title">
+    <div class="bmwt-container">
+      <div class="bmwt-section-head bmwt-section-head--center">
+        <h2 class="bmwt-h2" id="bmwt-final-title">Find Out What’s Really In Your Water.</h2>
+        <p class="bmwt-lead">The right water-treatment system starts with understanding your water. Schedule a water test with B&amp;M and we’ll help determine the right solution for your home.</p>
+      </div>
+      <div class="bmwt-btn-row bmwt-btn-row--center">
+        <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
+        <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
+          <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+          Call B&amp;M Today
+        </a>
+      </div>
+      <p class="bmwt-hero__note">Or call <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a></p>
+      <p class="bmwt-final__trust">
+        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>Veteran-Owned</span>
+        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-wrench"></use></svg>Professional Installation</span>
+        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pin"></use></svg>Lancaster &amp; York, PA</span>
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<!-- ========================================================================
+     STICKY BAR (phones only) — see "STICKY BAR" in the CSS to adjust or turn off
+     ======================================================================== -->
+<div class="bm-water-treatment bmwt-sticky" id="bmwt-sticky">
+  <a class="bmwt-sticky__btn bmwt-sticky__btn--call" href="tel:7174498789" data-bmwt-tel>
+    <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+    Call Now
+  </a>
+  <a class="bmwt-sticky__btn bmwt-sticky__btn--test" href="#free-water-test">Free Water Test</a>
+</div>
+
+<!-- ========================================================================
+     FAQ SCHEMA — tells Google about the FAQ above. It matches the visible FAQ
+     word for word. Safe to delete this whole <script> block if your SEO plugin
+     adds FAQ schema. (No business/LocalBusiness schema is included on purpose.)
+     ======================================================================== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I know if I have hard water?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Common signs include white scale on faucets and showerheads, spots on dishes and shower glass, soap residue, and mineral buildup on fixtures. A water test is the best way to know for sure, which is why every recommendation we make starts with one." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does a water softener do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A water softener is designed to reduce hardness minerals, mainly calcium and magnesium, before water reaches your fixtures and appliances. Reducing hardness can help limit scale buildup, spotting, and soap residue throughout your home." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a water softener or filtration system?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It depends on your water. Hardness is typically addressed with a softener, while concerns like chlorine taste or odor are typically addressed with filtration. Some homes benefit from both. We test and evaluate your water first, then recommend the approach that fits your home." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you treat city water?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Homes on city water often deal with hardness and chlorine taste or odor. We test your water and recommend a softener, filtration, or a combination based on what we find." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you treat well water?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Well water varies widely from home to home, so we test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is whole-house carbon filtration?",
+      "acceptedAnswer": { "@type": "Answer", "text": "A whole-house carbon filter treats water where it enters your home, so every faucet and shower receives filtered water. Carbon filtration is commonly used to help reduce chlorine taste and odor, and it is often paired with a water softener when a home has both hardness and taste or odor concerns." }
+    },
+    {
+      "@type": "Question",
+      "name": "What does reverse osmosis do?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Reverse osmosis is a drinking-water system, usually installed under the kitchen sink, that sends water through a series of filters and a fine membrane. It is designed to reduce dissolved solids and can improve the taste of water for drinking, cooking, coffee, and ice. It typically supplies a dedicated faucet at your sink." }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you determine which system my home needs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "We test and evaluate your home’s water conditions, discuss the problems you’re experiencing, and use that information to help determine the appropriate next step. We also consider your water source, household size, and existing plumbing before recommending equipment." }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does installation usually take?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Installation time depends on the system selected, existing plumbing, water conditions, and the work required. We’ll explain the installation plan and expected timeframe before work begins." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you provide water testing?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. We offer a free, no-obligation in-home water test. We test and evaluate your home’s water conditions, discuss the problems you’re experiencing, and use that information to help determine the appropriate next step. Our in-home test is not a laboratory analysis, and certain water-quality concerns may require certified laboratory testing." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you service Lancaster and York Counties?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. We serve homeowners throughout Lancaster County and York County, Pennsylvania, including Lancaster, Columbia, Lititz, Ephrata, Elizabethtown, Mount Joy, York, Red Lion, and surrounding communities." }
+    }
+  ]
+}
+</script>
+
+<script>
+/* ==========================================================================
+   B&M WATER TREATMENT — small page script (no libraries)
+   Does four things: phone number, smooth jump to the form,
+   FAQ open/close, and the phone-only sticky bar.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------------
+     PHONE NUMBER SETTINGS
+     Change these two lines to switch every phone button and number on the
+     page (for example, to a GoHighLevel tracking number for ads).
+       BMWT_PHONE_DISPLAY = how the number is shown on the page
+       BMWT_PHONE_DIAL    = digits only, used by the tap-to-call links
+     Your main number stays in the page code as a backup for Google.
+     ------------------------------------------------------------------------ */
+  var BMWT_PHONE_DISPLAY = '717-449-8789';
+  var BMWT_PHONE_DIAL = '7174498789';
+
+  var page = document.getElementById('bmwt-page');
+  if (!page) return;
+  var forEach = function (list, fn) { Array.prototype.forEach.call(list, fn); };
+
+  /* 1. Phone number */
+  forEach(document.querySelectorAll('.bm-water-treatment [data-bmwt-tel]'), function (el) {
+    el.setAttribute('href', 'tel:' + BMWT_PHONE_DIAL);
+  });
+  forEach(document.querySelectorAll('.bm-water-treatment [data-bmwt-phone]'), function (el) {
+    el.textContent = BMWT_PHONE_DISPLAY;
+  });
+
+  /* 2. Smooth jump for on-page links (e.g. #free-water-test).
+        The sticky-header offset comes from scroll-margin-top in the CSS. */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.addEventListener('click', function (event) {
+    var link = event.target.closest ? event.target.closest('.bm-water-treatment a[href^="#"]') : null;
+    if (!link) return;
+    var id = link.getAttribute('href').slice(1);
+    var target = id && document.getElementById(id);
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    if (target.hasAttribute('tabindex')) {
+      try { target.focus({ preventScroll: true }); } catch (e) { /* older browsers */ }
+    }
+  });
+
+  /* 3. FAQ accordion. Answers are open if this script never runs. */
+  forEach(page.querySelectorAll('.bmwt-faq__btn'), function (button) {
+    var panel = document.getElementById(button.getAttribute('aria-controls'));
+    if (!panel) return;
+    button.setAttribute('aria-expanded', 'false');
+    panel.hidden = true;
+    button.addEventListener('click', function () {
+      var isOpen = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+      panel.hidden = isOpen;
+    });
+  });
+
+  /* Hide the "schedule by phone" box once a GoHighLevel form is pasted in
+     (backup for browsers without CSS :has support). */
+  var formCard = document.getElementById('bmwt-form-card');
+  if (formCard && formCard.querySelector('iframe, form')) formCard.classList.add('has-embed');
+
+  /* 4. Sticky bar (phones only). Hidden while the hero buttons or the form
+        are on screen, and from the final section down so it never covers
+        the form or your site footer. */
+  var bar = document.getElementById('bmwt-sticky');
+  if (!bar) return;
+  var isEditor = document.body.classList.contains('elementor-editor-active');
+  if (!isEditor && bar.parentNode !== document.body) document.body.appendChild(bar);
+
+  var heroCtas = document.getElementById('bmwt-hero-ctas');
+  var formSection = document.getElementById('free-water-test');
+  var finalSection = document.getElementById('bmwt-final');
+  var ticking = false;
+
+  function inView(el, vh) {
+    if (!el) return false;
+    var r = el.getBoundingClientRect();
+    return r.top < vh && r.bottom > 0;
+  }
+  function update() {
+    ticking = false;
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    var atEnd = finalSection ? finalSection.getBoundingClientRect().top < vh : false;
+    var show = !inView(heroCtas, vh) && !inView(formSection, vh) && !atEnd;
+    bar.classList.toggle('is-visible', show);
+  }
+  function requestUpdate() {
+    if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+  }
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+  update();
+})();
+</script>
