@@ -62,7 +62,7 @@ Use **Ctrl+F** in the HTML box (or paste the code into Notepad/TextEdit first) t
 | `REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO` (2 spots: hero + softener section) | Upload the photo (**Media → Add New**), copy its **File URL**, paste it between the quotes in `src=""`, and update the `alt="…"` text to describe the photo. |
 | `REPLACE WITH REAL B&M RO INSTALLATION PHOTO` | Same as above. |
 | `REPLACE WITH REAL B&M WATER TEST / HOMEOWNER PHOTO` | Same as above. |
-| `REPLACE WITH REAL B&M GOOGLE REVIEW` (3 spots) | Paste a real review word for word, the reviewer's name exactly as Google shows it, and the project type. **The three cards are hidden on the live page until you're done** (you still see them in the Elementor editor). When all three are real, find `bmwt-reviews-grid" hidden` and delete the word `hidden`. Until then, visitors see the heading and the **Read Our Google Reviews** button. |
+| ~~Google reviews~~ | **Done.** Four real 5-star Google reviews are in, word for word (Jennifer N. featured; Jennifer R., Mike W., Tim B.). To swap one later, send the new review to Claude, or search `REVIEWS` in the code. |
 | `based in Columbia` | Confirm this line is how you want your home base described. Edit it if not. |
 
 Photos until replaced show a clean branded panel (icon + caption), not a broken image.

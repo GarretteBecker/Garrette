@@ -1115,8 +1115,10 @@ WordPress + Elementor site: `marketing/water-treatment-lancaster-pa/`.
   GHL chat bubble and hides itself at the top buttons, the form and the footer.
 - Clearly marked spots for the GHL form embed, four real photos and three real
   Google reviews. Until the form is pasted in, visitors get a "schedule by
-  phone" box rather than an empty space. No fake form. Review cards stay hidden
-  on the live page until real reviews are pasted in.
+  phone" box rather than an empty space. No fake form.
+- Reviews section now shows four real 5-star Google reviews, word for word
+  (one featured, three below), names shortened to first name + last initial.
+  They are general B&M reviews, and the section says so.
 - Reviewed independently for claims, accessibility, WordPress/Elementor
   compatibility and phone layout. Confirmed findings were fixed (e.g. "Communication"
   was cut off on phones, focus hidden under the sticky header, speed plugins

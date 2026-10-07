@@ -13,7 +13,8 @@
   QUICK EDIT GUIDE (use Ctrl+F / Cmd+F to find these words):
     PHONE NUMBER SETTINGS ... change the phone number in one place
     BRAND SETTINGS .......... colors, corner rounding, page width
-    REPLACE WITH REAL ....... photo spots and review spots
+    REPLACE WITH REAL ....... photo spots
+    REVIEWS ................. your Google reviews (word for word)
     PASTE GOHIGHLEVEL ....... where your GHL form embed code goes
     STICKY BAR .............. the phone-only "Call Now / Free Water Test" bar
     FAQ SCHEMA .............. Google FAQ markup (safe to delete)
@@ -991,15 +992,30 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
    REVIEWS
    ========================================================================== */
 .bm-water-treatment .bmwt-review { display: flex; flex-direction: column; height: 100%; }
-.bm-water-treatment .bmwt-review__mark {
-  display: block;
-  height: 40px;
-  margin-bottom: 8px;
-  color: var(--bmwt-accent);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 64px;
-  line-height: 1;
+.bm-water-treatment .bmwt-stars {
+  display: inline-flex;
+  gap: 2px;
+  margin-bottom: 14px;
+  color: #D9980F;
 }
+.bm-water-treatment .bmwt-stars .bmwt-icon { width: 18px; height: 18px; fill: currentColor; stroke: none; }
+.bm-water-treatment .bmwt-review--featured { margin-bottom: clamp(16px, 2vw, 24px); }
+.bm-water-treatment .bmwt-review--featured blockquote p { font-size: 18px; }
+.bm-water-treatment .bmwt-review__points {
+  display: grid;
+  gap: 16px 32px;
+  margin: 4px 0 1em;
+}
+@media (min-width: 900px) {
+  .bm-water-treatment .bmwt-review__points { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.bm-water-treatment .bmwt-review blockquote .bmwt-review__points p {
+  margin: 0;
+  padding-left: 16px;
+  border-left: 3px solid var(--bmwt-accent-soft);
+  font-size: 16px;
+}
+.bm-water-treatment .bmwt-review__points strong { display: block; margin-bottom: 4px; color: var(--bmwt-primary); }
 .bm-water-treatment .bmwt-review blockquote p {
   color: var(--bmwt-text);
   font-size: 17px;
@@ -1014,9 +1030,6 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
 .bm-water-treatment .bmwt-review__meta { display: block; color: var(--bmwt-muted); font-size: 14px; }
 .bm-water-treatment .bmwt-review blockquote { margin-bottom: 20px; }
 .bm-water-treatment .bmwt-reviews__foot { margin-top: clamp(28px, 3vw, 40px); text-align: center; }
-/* Review cards stay hidden on the live page until real reviews are in,
-   but still show inside the Elementor editor so you can see the slots. */
-.elementor-editor-active .bm-water-treatment .bmwt-reviews-grid[hidden] { display: grid !important; }
 
 /* ==========================================================================
    SERVICE AREA
@@ -1343,6 +1356,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   <symbol id="bmwt-i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
   <symbol id="bmwt-i-external" viewBox="0 0 24 24"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></symbol>
   <symbol id="bmwt-i-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="bmwt-i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></symbol>
 </svg>
 
 <div class="bm-water-treatment bmwt-page" id="bmwt-page">
@@ -1861,12 +1875,11 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
 
   <!-- ======================================================================
        REVIEWS
-       These are B&M's general home-improvement reviews — NOT water-treatment
-       reviews. Never edit the wording of a real review.
-       The three review cards are HIDDEN on the live page until you finish them
-       (you can still see them in the Elementor editor). When all three real
-       reviews are pasted in, delete the word  hidden  from the line
-       <div class="bmwt-grid bmwt-grid--3 bmwt-reviews-grid" hidden>
+       Real Google reviews from B&M's home improvement customers, copied word
+       for word (names shortened to first name + last initial). These are
+       general B&M reviews, NOT water-treatment reviews.
+       Never edit the wording of a real review. To swap one, replace the text
+       between <p> and </p> and the name/project lines under it.
        ====================================================================== -->
   <section class="bmwt-section" id="reviews" aria-labelledby="bmwt-reviews-title">
     <div class="bmwt-container">
@@ -1876,33 +1889,49 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
         <p class="bmwt-lead">Our Google reviews come from B&amp;M’s home improvement customers. Our water treatment division is new — and it’s held to the same standards of quality, honesty, and communication.</p>
       </div>
 
-      <!-- When all three real reviews are pasted in, delete the word hidden from the next line. -->
-      <div class="bmwt-grid bmwt-grid--3 bmwt-reviews-grid" hidden>
-        <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (1 of 3): review text, reviewer name exactly as shown on Google, project type -->
+      <!-- FEATURED GOOGLE REVIEW -->
+      <figure class="bmwt-card bmwt-review bmwt-review--featured">
+        <span class="bmwt-stars" role="img" aria-label="Rated 5 out of 5 on Google"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg></span>
+        <blockquote>
+          <p>Outstanding Experience with Garrette! If you want a renovation done right, hire him! We contracted Garrette to renovate our ground floor into a garden apartment for my parents.</p>
+          <p>Here is why he stands out:</p>
+          <div class="bmwt-review__points">
+            <p><strong>True Collaboration:</strong> He didn't just build; Garrette partnered with us. He listened to our design goals and gave expert guidance to make them happen.</p>
+            <p><strong>Excellent Communication:</strong> We always knew exactly what was happening and when. This was crucial since I work from home. Messages were always answered or returned promptly.</p>
+            <p><strong>Meticulous Attention to Detail:</strong> Every corner, joint, and finish is perfect. Garrette has an eye for precision and did not compromise on quality.</p>
+          </div>
+          <p>The final craftsmanship exceeded our expectations. We (and my parents!) are completely in love with the final result and will certainly be using Garrette for all of our future projects!</p>
+        </blockquote>
+        <figcaption>
+          <span class="bmwt-review__name">Jennifer N.</span>
+          <span class="bmwt-review__meta">Remodeling · Google Review</span>
+        </figcaption>
+      </figure>
+
+      <!-- MORE GOOGLE REVIEWS -->
+      <div class="bmwt-grid bmwt-grid--3">
         <figure class="bmwt-card bmwt-review">
-          <span class="bmwt-review__mark" aria-hidden="true">“</span>
-          <blockquote><p>REPLACE WITH REAL B&amp;M GOOGLE REVIEW</p></blockquote>
+          <span class="bmwt-stars" role="img" aria-label="Rated 5 out of 5 on Google"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg></span>
+          <blockquote><p>They were extremely easy to work with and did a fantastic job. They also got the job done faster than the estimated time. They truly took the anxiety out of the whole process.</p></blockquote>
           <figcaption>
-            <span class="bmwt-review__name">Reviewer Name (as shown on Google)</span>
-            <span class="bmwt-review__meta">Project type, e.g. Bathroom Remodel · Google Review</span>
+            <span class="bmwt-review__name">Jennifer R.</span>
+            <span class="bmwt-review__meta">Google Review</span>
           </figcaption>
         </figure>
-        <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (2 of 3) -->
         <figure class="bmwt-card bmwt-review">
-          <span class="bmwt-review__mark" aria-hidden="true">“</span>
-          <blockquote><p>REPLACE WITH REAL B&amp;M GOOGLE REVIEW</p></blockquote>
+          <span class="bmwt-stars" role="img" aria-label="Rated 5 out of 5 on Google"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg></span>
+          <blockquote><p>We recently had some tile grout repairs done. Their work was amazing. Absolutely loved how everything came out. Would highly recommend to anyone looking to have either kitchen or bathroom work completed.</p></blockquote>
           <figcaption>
-            <span class="bmwt-review__name">Reviewer Name (as shown on Google)</span>
-            <span class="bmwt-review__meta">Project type, e.g. Shower Replacement · Google Review</span>
+            <span class="bmwt-review__name">Mike W.</span>
+            <span class="bmwt-review__meta">Tile Grout Repair · Google Review</span>
           </figcaption>
         </figure>
-        <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (3 of 3) -->
         <figure class="bmwt-card bmwt-review">
-          <span class="bmwt-review__mark" aria-hidden="true">“</span>
-          <blockquote><p>REPLACE WITH REAL B&amp;M GOOGLE REVIEW</p></blockquote>
+          <span class="bmwt-stars" role="img" aria-label="Rated 5 out of 5 on Google"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-star"></use></svg></span>
+          <blockquote><p>Working with Garrett and his crew was a pleasure. Easy to work with, professional and does great work!</p></blockquote>
           <figcaption>
-            <span class="bmwt-review__name">Reviewer Name (as shown on Google)</span>
-            <span class="bmwt-review__meta">Project type · Google Review</span>
+            <span class="bmwt-review__name">Tim B.</span>
+            <span class="bmwt-review__meta">Google Review</span>
           </figcaption>
         </figure>
       </div>
