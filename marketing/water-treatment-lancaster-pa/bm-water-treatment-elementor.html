@@ -4,6 +4,12 @@
   Paste this ENTIRE file into ONE Elementor "HTML" widget.
   Your normal WordPress header and footer stay as they are.
 
+  BEFORE YOU PASTE (full steps in PUBLISHING.md):
+    1) Page Settings (gear icon): Page Layout = Elementor Full Width, Hide Title = On.
+    2) Click the container that holds this widget: Content Width = Full Width,
+       Gap = 0, and Advanced > Padding = 0 on all sides (Desktop, Tablet AND Mobile).
+    3) Paste while logged in as an Administrator.
+
   QUICK EDIT GUIDE (use Ctrl+F / Cmd+F to find these words):
     PHONE NUMBER SETTINGS ... change the phone number in one place
     BRAND SETTINGS .......... colors, corner rounding, page width
@@ -40,7 +46,7 @@
   --bmwt-radius-sm: 10px;           /* Buttons and small panels */
   --bmwt-shadow: 0 1px 2px rgba(17, 27, 48, .04), 0 12px 32px -18px rgba(17, 27, 48, .22);
   --bmwt-focus: #1B2A4A;            /* Keyboard focus ring */
-  --bmwt-header-offset: 100px;      /* Room for a sticky site header when jumping to a section */
+  --bmwt-header-offset: 100px;      /* Room for a sticky site header (also change the 100px in the html:has rule under BASE) */
   --bmwt-chat-clearance: 88px;      /* Room kept free for the chat bubble on phones (see STICKY BAR) */
   --bmwt-gutter: clamp(20px, 4vw, 40px);
   --bmwt-section-y: clamp(64px, 8vw, 112px);
@@ -69,7 +75,16 @@
   overflow-x: clip;
 }
 .bm-water-treatment [hidden] { display: none !important; }
-.bm-water-treatment [id] { scroll-margin-top: var(--bmwt-header-offset); }
+/* Keeps section jumps AND keyboard focus clear of a sticky site header (top)
+   and the phone sticky bar (bottom). Applies only on pages with this widget. */
+html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
+@media (max-width: 767px) {
+  html:has(.bm-water-treatment.bmwt-page) { scroll-padding-bottom: 96px; }
+}
+/* Older browsers without :has() use a per-section offset instead */
+@supports not selector(:has(*)) {
+  .bm-water-treatment [id] { scroll-margin-top: var(--bmwt-header-offset); }
+}
 .bm-water-treatment [tabindex="-1"]:focus { outline: none; }
 .bm-water-treatment .bmwt-sr-only {
   position: absolute !important;
@@ -89,10 +104,23 @@
 .bm-water-treatment ul,
 .bm-water-treatment ol { margin: 0; padding: 0; list-style: none; }
 .bm-water-treatment li { margin: 0; padding: 0; }
+.bm-water-treatment ul li,
+.bm-water-treatment ol li { list-style: none; }
 .bm-water-treatment li::marker { content: none; }
 .bm-water-treatment img { max-width: 100%; height: auto; border: 0; }
-.bm-water-treatment figure,
-.bm-water-treatment blockquote { margin: 0; padding: 0; border: 0; }
+.bm-water-treatment figure { margin: 0; padding: 0; border: 0; }
+.bm-water-treatment blockquote {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+  font-style: normal;
+  quotes: none;
+}
+.bm-water-treatment blockquote p { font-style: normal; }
+.bm-water-treatment blockquote::before,
+.bm-water-treatment blockquote::after { content: none; }
 .bm-water-treatment strong { font-weight: 700; }
 .bm-water-treatment a { color: var(--bmwt-accent); text-decoration: underline; text-underline-offset: 3px; }
 .bm-water-treatment a:hover { color: var(--bmwt-accent-hover); }
@@ -160,9 +188,15 @@
 .bm-water-treatment .bmwt-h1,
 .bm-water-treatment .bmwt-h2,
 .bm-water-treatment .bmwt-h3,
-.bm-water-treatment .bmwt-h4 {
+.bm-water-treatment .bmwt-h4,
+.bm-water-treatment .bmwt-faq__q,
+.bm-water-treatment .bmwt-callout__title,
+.bm-water-treatment .bmwt-cta-band__title,
+.bm-water-treatment .bmwt-form-fallback__title {
   margin: 0;
   padding: 0;
+  font-family: inherit;
+  letter-spacing: 0;
   color: var(--bmwt-primary);
   font-style: normal;
   text-transform: none;
@@ -314,6 +348,14 @@
 .bm-water-treatment .bmwt-phone-link:hover { color: inherit; text-decoration: none; }
 @media (max-width: 599px) {
   .bm-water-treatment .bmwt-btn-row .bmwt-btn { width: 100%; }
+  .bm-water-treatment .bmwt-btn,
+  .bm-water-treatment .bmwt-btn:visited { padding-left: 16px; padding-right: 16px; text-wrap: balance; }
+  .bm-water-treatment .bmwt-callout,
+  .bm-water-treatment .bmwt-cta-band { padding-left: 20px; padding-right: 20px; }
+}
+@media (max-width: 379px) {
+  .bm-water-treatment .bmwt-btn,
+  .bm-water-treatment .bmwt-btn:visited { font-size: 16px; }
 }
 
 /* ==========================================================================
@@ -540,7 +582,7 @@
   line-height: 1.5;
 }
 .bm-water-treatment .bmwt-trustline .bmwt-icon { width: 20px; height: 20px; margin-top: 1px; color: var(--bmwt-accent); }
-.bm-water-treatment .bmwt-sep { margin: 0 6px; color: var(--bmwt-accent); }
+.bm-water-treatment .bmwt-sep { margin: 0 2px 0 0; color: var(--bmwt-accent); }
 .bm-water-treatment .bmwt-hero__media { position: relative; }
 .bm-water-treatment .bmwt-hero__media .bmwt-media { aspect-ratio: 4 / 3; box-shadow: var(--bmwt-shadow); }
 @media (min-width: 960px) {
@@ -698,7 +740,7 @@
   line-height: 1.2;
 }
 .bm-water-treatment .bmwt-price__amount strong {
-  font-size: clamp(32px, 2vw + 22px, 40px);
+  font-size: clamp(26px, 1vw + 22px, 32px);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -781,6 +823,9 @@
   line-height: 1.3;
 }
 .bm-water-treatment .bmwt-use .bmwt-icon { color: var(--bmwt-accent); }
+@media (max-width: 559px) {
+  .bm-water-treatment .bmwt-use:last-child { grid-column: 1 / -1; }
+}
 
 /* ==========================================================================
    CITY WATER VS WELL WATER
@@ -912,11 +957,22 @@
   letter-spacing: .1em;
   text-transform: uppercase;
 }
+@media (max-width: 559px) {
+  .bm-water-treatment .bmwt-values { grid-template-columns: 1fr; }
+  .bm-water-treatment .bmwt-value + .bmwt-value { border-left: 0; border-top: 1px solid var(--bmwt-border); }
+}
+@media (min-width: 960px) and (max-width: 1239px) {
+  .bm-water-treatment .bmwt-why__intro { grid-template-columns: 1fr; }
+}
 .bm-water-treatment .bmwt-why-item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
 .bm-water-treatment .bmwt-why-item .bmwt-icon-badge { width: 46px; height: 46px; border-radius: 12px; }
 .bm-water-treatment .bmwt-why-item .bmwt-icon-badge .bmwt-icon { width: 23px; height: 23px; }
 .bm-water-treatment .bmwt-why-item .bmwt-h3 { font-size: 18px; margin-bottom: 4px; }
 .bm-water-treatment .bmwt-why-item p { color: var(--bmwt-muted); font-size: 15px; line-height: 1.55; }
+@media (min-width: 760px) and (max-width: 1199px) {
+  .bm-water-treatment .bmwt-why-item { grid-template-columns: minmax(0, 1fr); align-content: start; gap: 14px; }
+  .bm-water-treatment .bmwt-svc-group__top { flex-direction: column; align-items: flex-start; }
+}
 .bm-water-treatment .bmwt-credentials {
   display: flex;
   flex-wrap: wrap;
@@ -958,6 +1014,9 @@
 .bm-water-treatment .bmwt-review__meta { display: block; color: var(--bmwt-muted); font-size: 14px; }
 .bm-water-treatment .bmwt-review blockquote { margin-bottom: 20px; }
 .bm-water-treatment .bmwt-reviews__foot { margin-top: clamp(28px, 3vw, 40px); text-align: center; }
+/* Review cards stay hidden on the live page until real reviews are in,
+   but still show inside the Elementor editor so you can see the slots. */
+.elementor-editor-active .bm-water-treatment .bmwt-reviews-grid[hidden] { display: grid !important; }
 
 /* ==========================================================================
    SERVICE AREA
@@ -1010,6 +1069,7 @@
   text-transform: none;
   white-space: normal;
   cursor: pointer;
+  transition: color .15s ease;
 }
 .bm-water-treatment .bmwt-faq__btn:hover { color: var(--bmwt-accent); }
 .bm-water-treatment .bmwt-faq__chev {
@@ -1087,6 +1147,7 @@
   font-size: 14px;
 }
 .bm-water-treatment .bmwt-form-card {
+  --bmwt-focus: var(--bmwt-primary);
   overflow: hidden;
   border-radius: var(--bmwt-radius);
   background: #FFFFFF;
@@ -1107,9 +1168,13 @@
   min-height: 420px;
   border: 0;
 }
-/* The "schedule by phone" box shows ONLY until a GoHighLevel form is pasted in. */
-.bm-water-treatment .bmwt-form-card:has(iframe) .bmwt-form-fallback,
+/* The "schedule by phone" box shows ONLY until a GoHighLevel form is pasted in.
+   (Two separate rules on purpose: a browser that doesn't understand :has() would skip a combined rule.) */
 .bm-water-treatment .bmwt-form-card.has-embed .bmwt-form-fallback { display: none; }
+.bm-water-treatment .bmwt-form-card:has(iframe) .bmwt-form-fallback { display: none; }
+/* Until the form is in, hide the form heading and the duplicate call box beside it */
+.bm-water-treatment .bmwt-form-card:not(.has-embed):not(:has(iframe)) .bmwt-form-card__head { display: none; }
+.bm-water-treatment .bmwt-lead-grid:not(:has(iframe)) .bmwt-phone-box { display: none; }
 .bm-water-treatment .bmwt-form-fallback {
   display: flex;
   flex-direction: column;
@@ -1125,7 +1190,7 @@
   font-weight: 800;
   line-height: 1.3;
 }
-.bm-water-treatment .bmwt-form-fallback p:not(.bmwt-form-fallback__title) { max-width: 380px; color: var(--bmwt-muted); }
+.bm-water-treatment .bmwt-form-fallback p { max-width: 380px; color: var(--bmwt-muted); }
 .bm-water-treatment .bmwt-form-card .bmwt-btn--primary,
 .bm-water-treatment .bmwt-form-card .bmwt-btn--primary:visited {
   background: var(--bmwt-accent);
@@ -1172,7 +1237,7 @@
   left: 12px;
   right: calc(var(--bmwt-chat-clearance) + env(safe-area-inset-right, 0px));
   bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  z-index: 9990;
+  z-index: 98; /* below a sticky site header (Elementor uses 99) so open menus cover this bar */
   display: flex;
   gap: 6px;
   max-width: 420px;
@@ -1255,7 +1320,6 @@
   <symbol id="bmwt-i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol>
   <symbol id="bmwt-i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
   <symbol id="bmwt-i-droplet" viewBox="0 0 24 24"><path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.3 0z"/></symbol>
-  <symbol id="bmwt-i-flask" viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v6.5l-5.4 8.9A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.4-2.6L14 9.5V3"/><path d="M7.4 15h9.2"/></symbol>
   <symbol id="bmwt-i-message" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.9-.9L3 20.5l1.5-4.6a8.4 8.4 0 0 1-.9-3.9A8.5 8.5 0 0 1 12.5 3.5h.5a8.5 8.5 0 0 1 8 8z"/></symbol>
   <symbol id="bmwt-i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></symbol>
   <symbol id="bmwt-i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
@@ -1305,7 +1369,7 @@
         </div>
         <p class="bmwt-hero__note">Free, no-obligation in-home water test <span aria-hidden="true">&middot;</span> <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a></p>
 
-        <ul class="bmwt-checks bmwt-hero__services" aria-label="Water treatment services">
+        <ul class="bmwt-checks bmwt-hero__services" role="list" aria-label="Water treatment services">
           <li>Water Softeners</li>
           <li>Whole-Home Filtration</li>
           <li>Reverse Osmosis</li>
@@ -1314,7 +1378,7 @@
 
         <p class="bmwt-trustline">
           <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>
-          <span>Veteran-Owned<span class="bmwt-sep" aria-hidden="true">&bull;</span>Locally Operated<span class="bmwt-sep" aria-hidden="true">&bull;</span>Serving Lancaster &amp; York Counties</span>
+          <span><span class="bmwt-nowrap">Veteran-Owned</span>&nbsp;<span class="bmwt-sep" aria-hidden="true">&bull;</span> <span class="bmwt-nowrap">Locally Operated</span>&nbsp;<span class="bmwt-sep" aria-hidden="true">&bull;</span> Serving Lancaster &amp; <span class="bmwt-nowrap">York Counties</span></span>
         </p>
       </div>
 
@@ -1324,8 +1388,9 @@
                1) Upload the photo in WordPress: Media > Add New.
                2) Copy its "File URL" and paste it between the quotes in src="" below.
                3) Update the alt text so it describes the photo.
-               The designed placeholder underneath is hidden automatically once the photo loads. -->
-          <img src="" alt="Whole-home water softener system installed by B&amp;M Home Improvement Solutions" width="1200" height="1500" loading="eager" decoding="async">
+               The designed placeholder underneath is hidden automatically once the photo loads.
+               Keep the extra attributes (skip-lazy, data-no-lazy): they stop speed plugins from delaying this top photo. -->
+          <img src="" alt="Whole-home water softener system installed by B&amp;M Home Improvement Solutions" width="1200" height="1500" loading="eager" fetchpriority="high" decoding="async" class="skip-lazy" data-no-lazy="1">
           <div class="bmwt-ph" aria-hidden="true">
             <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-droplet"></use></svg></span>
             <p class="bmwt-ph__text">Whole-home water treatment for Lancaster &amp; York County homes</p>
@@ -1388,9 +1453,9 @@
       </div>
 
       <div class="bmwt-callout">
-        <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flask"></use></svg></span>
+        <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-clipboard"></use></svg></span>
         <div>
-          <p class="bmwt-callout__title">We start by understanding your water.</p>
+          <h3 class="bmwt-callout__title">We start by understanding your water.</h3>
           <p>Before we recommend any equipment, we test and evaluate your home’s water conditions and talk through what you’re seeing. The right solution depends on your actual water — not a one-size-fits-all system.</p>
         </div>
         <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
@@ -1409,40 +1474,40 @@
         <p class="bmwt-lead">A straightforward, five-step process built around your home, your water, and your questions.</p>
       </div>
 
-      <ol class="bmwt-steps">
+      <ol class="bmwt-steps" role="list">
         <li class="bmwt-step">
           <span class="bmwt-step__num" aria-hidden="true">1</span>
           <div>
-            <h3 class="bmwt-h3">Test Your Water</h3>
+            <h3 class="bmwt-h3"><span class="bmwt-sr-only">Step 1: </span>Test Your Water</h3>
             <p>We come to your home for a free, no-obligation water test and evaluate your water conditions.</p>
           </div>
         </li>
         <li class="bmwt-step">
           <span class="bmwt-step__num" aria-hidden="true">2</span>
           <div>
-            <h3 class="bmwt-h3">Discuss Your Concerns</h3>
+            <h3 class="bmwt-h3"><span class="bmwt-sr-only">Step 2: </span>Discuss Your Concerns</h3>
             <p>Tell us what you’re noticing — spots, scale, taste, odor, or anything else that bothers you.</p>
           </div>
         </li>
         <li class="bmwt-step">
           <span class="bmwt-step__num" aria-hidden="true">3</span>
           <div>
-            <h3 class="bmwt-h3">Identify the Problem</h3>
+            <h3 class="bmwt-h3"><span class="bmwt-sr-only">Step 3: </span>Identify the Problem</h3>
             <p>We connect what we found to what you’re experiencing and explain it in plain language.</p>
           </div>
         </li>
         <li class="bmwt-step">
           <span class="bmwt-step__num" aria-hidden="true">4</span>
           <div>
-            <h3 class="bmwt-h3">Recommend the Right System</h3>
-            <p>We recommend equipment that fits your water, your home, and your household — with clear pricing.</p>
+            <h3 class="bmwt-h3"><span class="bmwt-sr-only">Step 4: </span>Recommend the Right System</h3>
+            <p>We recommend the approach that fits your water, your home, and your household — with clear pricing and no obligation.</p>
           </div>
         </li>
         <li class="bmwt-step">
           <span class="bmwt-step__num" aria-hidden="true">5</span>
           <div>
-            <h3 class="bmwt-h3">Professionally Install It</h3>
-            <p>Our team installs your system carefully, walks you through it, and leaves your space clean.</p>
+            <h3 class="bmwt-h3"><span class="bmwt-sr-only">Step 5: </span>Professionally Install It</h3>
+            <p>If you move forward, we explain the installation plan and timeframe first, then install your system carefully and walk you through it.</p>
           </div>
         </li>
       </ol>
@@ -1485,7 +1550,7 @@
 
         <div class="bmwt-mini-features">
           <div class="bmwt-mini-feature">
-            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flask"></use></svg>
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-clipboard"></use></svg>
             <div>
               <h3 class="bmwt-h4">Water Testing First</h3>
               <p>We test and evaluate your water before recommending any system.</p>
@@ -1537,7 +1602,7 @@
         <p class="bmwt-eyebrow">Softening + Filtration</p>
         <h2 class="bmwt-h2" id="bmwt-filtration-title">Softening + Whole-Home Filtration</h2>
         <p class="bmwt-lead">Some households benefit from treating more than hardness.</p>
-        <p>A water softener addresses hardness and the scale it leaves behind. Whole-home carbon filtration is commonly used to help reduce chlorine and can help improve taste and odor. Together, they treat the water for your entire home — kitchen, bathrooms, laundry, and every faucet in between.</p>
+        <p>A water softener addresses hardness and the scale it leaves behind. Whole-home carbon filtration is commonly used to help reduce chlorine and can help improve taste and odor. Installed where water enters your home, they’re designed to treat the water supplying your kitchen, bathrooms, and laundry.</p>
         <p class="bmwt-note">Filtration performance depends on the specific equipment and your water conditions. We’ll explain what each option is designed to do — and what it isn’t — before you decide.</p>
       </div>
 
@@ -1546,7 +1611,7 @@
           <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-droplet"></use></svg></span>
           <div>
             <h3 class="bmwt-h3">Water Softener</h3>
-            <p>Designed to reduce the hardness minerals associated with:</p>
+            <p>Designed to address:</p>
             <ul class="bmwt-chips">
               <li class="bmwt-chip">Hardness</li>
               <li class="bmwt-chip">Scale</li>
@@ -1603,7 +1668,7 @@
           <li class="bmwt-use"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-home"></use></svg>Everyday use</li>
         </ul>
         <p>Reverse osmosis is designed to reduce dissolved solids and can improve the taste of your drinking water. We’ll help you decide whether RO is a good fit — on its own or alongside a softener — and install it neatly under your sink.</p>
-        <p class="bmwt-note">Have a specific health-related water concern? Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p>
+        <p class="bmwt-note">Reverse osmosis isn’t the right fit for every home or every concern. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p>
         <div class="bmwt-btn-row bmwt-mt">
           <a class="bmwt-btn bmwt-btn--secondary" href="#free-water-test">Ask About Reverse Osmosis</a>
         </div>
@@ -1632,7 +1697,7 @@
           <ul class="bmwt-dots">
             <li>Hardness</li>
             <li>Chlorine taste or odor</li>
-            <li>Unwanted taste or odor</li>
+            <li>Other taste or odor concerns</li>
             <li>Scale on fixtures and appliances</li>
           </ul>
           <p class="bmwt-source__foot">Common approaches include water softening, whole-home carbon filtration, or both — chosen based on your water test.</p>
@@ -1642,14 +1707,14 @@
             <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-well"></use></svg></span>
             <h3 class="bmwt-h3">Well Water</h3>
           </div>
-          <p>Private wells vary widely from home to home, and testing is up to the homeowner. Common well-water concerns include:</p>
+          <p>Private wells vary widely from home to home. Common well-water concerns include:</p>
           <ul class="bmwt-dots">
             <li>Hardness</li>
             <li>Minerals</li>
             <li>Staining</li>
             <li>Odors</li>
           </ul>
-          <p class="bmwt-source__foot"><strong>Testing matters most with a well.</strong> We test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p>
+          <p class="bmwt-source__foot"><strong>With a well, evaluation comes first.</strong> We test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p>
         </article>
       </div>
 
@@ -1675,7 +1740,7 @@
             <h3 class="bmwt-h3">Water Softeners</h3>
           </div>
           <ul>
-            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole Home Water Softener Systems</h4><p>Softening designed to reduce hardness at every faucet and fixture.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole Home Water Softener Systems</h4><p>Softening designed to reduce hardness in the water supplying your fixtures and appliances.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Water Softener Installation</h4><p>Professional installation, sized to your home and water conditions.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Water Softener Replacement</h4><p>Replace an aging or underperforming softener with a properly sized system.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">City Water Softener Systems</h4><p>Softening for homes on public water, based on your water test.</p></li>
@@ -1691,20 +1756,20 @@
           <ul>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Whole Home Water Treatment Systems</h4><p>Treatment plans built around your home’s water conditions.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Water Softener &amp; Carbon Filtration Systems</h4><p>Softening plus carbon filtration for hardness, chlorine taste, and odor.</p></li>
-            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole House Water Filtration Systems</h4><p>Filtration where water enters your home, so every tap is treated.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Whole House Water Filtration Systems</h4><p>Filtration installed where water enters your home, designed to treat the water supplying your fixtures.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Water Filtration System Installation</h4><p>Clean, professional installation of whole-home filtration equipment.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Carbon Water Filtration Systems</h4><p>Commonly used to help reduce chlorine taste and odor.</p></li>
           </ul>
         </div>
         <div class="bmwt-card bmwt-svc-group">
           <div class="bmwt-svc-group__top">
-            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flask"></use></svg></span>
-            <h3 class="bmwt-h3">Drinking Water &amp; Testing</h3>
+            <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-clipboard"></use></svg></span>
+            <h3 class="bmwt-h3">Reverse Osmosis &amp; Water Testing</h3>
           </div>
           <ul>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Reverse Osmosis Drinking Water Systems</h4><p>Under-sink RO for drinking, cooking, coffee, and ice.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Reverse Osmosis System Installation</h4><p>Neat under-sink installation with a dedicated drinking-water faucet.</p></li>
-            <li class="bmwt-svc"><h4 class="bmwt-h4">Home Water Quality Testing</h4><p>A free, no-obligation in-home evaluation of your water conditions.</p></li>
+            <li class="bmwt-svc"><h4 class="bmwt-h4">Home Water Quality Testing</h4><p>A free, no-obligation in-home evaluation of your water conditions — not a laboratory analysis.</p></li>
             <li class="bmwt-svc"><h4 class="bmwt-h4">Hard Water Testing</h4><p>Find out whether hard water is behind the spots and buildup you’re seeing.</p></li>
           </ul>
         </div>
@@ -1713,7 +1778,7 @@
       <!-- MID-PAGE CTA -->
       <div class="bmwt-cta-band">
         <div>
-          <p class="bmwt-cta-band__title">Not sure which system your home needs?</p>
+          <h3 class="bmwt-cta-band__title">Not sure which system your home needs?</h3>
           <p>That’s exactly what the free in-home water test is for. We’ll evaluate your water and recommend the right next step — with no obligation.</p>
         </div>
         <div class="bmwt-btn-row">
@@ -1784,11 +1849,11 @@
         </div>
       </div>
 
-      <div class="bmwt-credentials">
-        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>Veteran-Owned</span>
-        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-shield"></use></svg>Pennsylvania Home Improvement Contractor #PA154223</span>
+      <div class="bmwt-credentials" role="list">
+        <span role="listitem"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>Veteran-Owned</span>
+        <span role="listitem"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-shield"></use></svg>PA HIC #154223</span>
         <!-- OPTIONAL BADGE SPOT — add a manufacturer, warranty, or certification badge here ONLY once confirmed. Example:
-        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-badge"></use></svg>YOUR CONFIRMED BADGE TEXT</span>
+        <span role="listitem"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-badge"></use></svg>YOUR CONFIRMED BADGE TEXT</span>
         -->
       </div>
     </div>
@@ -1798,18 +1863,21 @@
        REVIEWS
        These are B&M's general home-improvement reviews — NOT water-treatment
        reviews. Never edit the wording of a real review.
-       To hide this section until reviews are ready, add the word  hidden
-       inside the opening tag:  <section hidden class="bmwt-section" ...>
+       The three review cards are HIDDEN on the live page until you finish them
+       (you can still see them in the Elementor editor). When all three real
+       reviews are pasted in, delete the word  hidden  from the line
+       <div class="bmwt-grid bmwt-grid--3 bmwt-reviews-grid" hidden>
        ====================================================================== -->
   <section class="bmwt-section" id="reviews" aria-labelledby="bmwt-reviews-title">
     <div class="bmwt-container">
       <div class="bmwt-section-head bmwt-section-head--center">
         <p class="bmwt-eyebrow">Reviews</p>
         <h2 class="bmwt-h2" id="bmwt-reviews-title">What Homeowners Say About B&amp;M</h2>
-        <p class="bmwt-lead">These reviews come from B&amp;M’s home improvement customers. Our water treatment division is new — and it’s held to the same standards of quality, honesty, and communication.</p>
+        <p class="bmwt-lead">Our Google reviews come from B&amp;M’s home improvement customers. Our water treatment division is new — and it’s held to the same standards of quality, honesty, and communication.</p>
       </div>
 
-      <div class="bmwt-grid bmwt-grid--3">
+      <!-- When all three real reviews are pasted in, delete the word hidden from the next line. -->
+      <div class="bmwt-grid bmwt-grid--3 bmwt-reviews-grid" hidden>
         <!-- REPLACE WITH REAL B&M GOOGLE REVIEW (1 of 3): review text, reviewer name exactly as shown on Google, project type -->
         <figure class="bmwt-card bmwt-review">
           <span class="bmwt-review__mark" aria-hidden="true">“</span>
@@ -1860,7 +1928,7 @@
         <p class="bmwt-eyebrow">Service Area</p>
         <h2 class="bmwt-h2" id="bmwt-area-title">Local Water Treatment for Lancaster &amp; York Counties</h2>
         <p class="bmwt-lead">B&amp;M is based in Columbia, right on the Susquehanna between Lancaster and York Counties — so homeowners on both sides of the river are close to home for us.</p>
-        <p>We provide water testing, water softener installation, whole house water filtration, and reverse osmosis systems for homeowners throughout Lancaster County and York County, Pennsylvania.</p>
+        <p>We provide free in-home water tests, water softener installation, whole house water filtration, and reverse osmosis systems for homeowners throughout Lancaster County and York County, Pennsylvania.</p>
         <p>Don’t see your town listed? Call us at <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a> — if you’re in Lancaster or York County, we’d be glad to help.</p>
       </div>
 
@@ -1935,11 +2003,11 @@
         </div>
         <div class="bmwt-faq__item">
           <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q5" aria-expanded="true" aria-controls="bmwt-faq-a5"><span>Can you treat well water?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
-          <div class="bmwt-faq__a" id="bmwt-faq-a5"><p>Yes. Well water varies widely from home to home, so we test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p></div>
+          <div class="bmwt-faq__a" id="bmwt-faq-a5"><p>In many cases, yes. Well water varies widely from home to home, so we test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended.</p></div>
         </div>
         <div class="bmwt-faq__item">
           <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q6" aria-expanded="true" aria-controls="bmwt-faq-a6"><span>What is whole-house carbon filtration?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
-          <div class="bmwt-faq__a" id="bmwt-faq-a6"><p>A whole-house carbon filter treats water where it enters your home, so every faucet and shower receives filtered water. Carbon filtration is commonly used to help reduce chlorine taste and odor, and it is often paired with a water softener when a home has both hardness and taste or odor concerns.</p></div>
+          <div class="bmwt-faq__a" id="bmwt-faq-a6"><p>A whole-house carbon filter is installed where water enters your home and is designed to filter the water supplying your faucets and showers. Carbon filtration is commonly used to help reduce chlorine taste and odor, and it is often paired with a water softener when a home has both hardness and taste or odor concerns.</p></div>
         </div>
         <div class="bmwt-faq__item">
           <h3 class="bmwt-faq__q"><button class="bmwt-faq__btn" type="button" id="bmwt-faq-q7" aria-expanded="true" aria-controls="bmwt-faq-a7"><span>What does reverse osmosis do?</span><span class="bmwt-faq__chev" aria-hidden="true"><svg class="bmwt-icon" focusable="false"><use href="#bmwt-i-chevron"></use></svg></span></button></h3>
@@ -1996,7 +2064,7 @@
           </div>
           <div class="bmwt-form-fallback">
             <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-calendar"></use></svg></span>
-            <p class="bmwt-form-fallback__title">Prefer to schedule by phone?</p>
+            <h3 class="bmwt-form-fallback__title">Prefer to schedule by phone?</h3>
             <p>Call B&amp;M and we’ll set up your free in-home water test at a time that works for you.</p>
             <a class="bmwt-btn bmwt-btn--primary" href="tel:7174498789" data-bmwt-tel>
               <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
@@ -2016,7 +2084,7 @@
                Paste the photo's WordPress "File URL" between the quotes in src="" and update the alt text. -->
           <img src="" alt="B&amp;M technician reviewing water test results with a homeowner" width="1600" height="1000" loading="lazy" decoding="async">
           <div class="bmwt-ph" aria-hidden="true">
-            <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-flask"></use></svg></span>
+            <span class="bmwt-ph__icon"><svg class="bmwt-icon"><use href="#bmwt-i-clipboard"></use></svg></span>
             <p class="bmwt-ph__text">Free in-home water test</p>
           </div>
         </div>
@@ -2049,11 +2117,11 @@
         </a>
       </div>
       <p class="bmwt-hero__note">Or call <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a></p>
-      <p class="bmwt-final__trust">
-        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>Veteran-Owned</span>
-        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-wrench"></use></svg>Professional Installation</span>
-        <span><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pin"></use></svg>Lancaster &amp; York, PA</span>
-      </p>
+      <div class="bmwt-final__trust" role="list">
+        <span role="listitem"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-flag"></use></svg>Veteran-Owned</span>
+        <span role="listitem"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-wrench"></use></svg>Professional Installation</span>
+        <span role="listitem"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-pin"></use></svg>Lancaster &amp; York, PA</span>
+      </div>
     </div>
   </section>
 
@@ -2062,7 +2130,7 @@
 <!-- ========================================================================
      STICKY BAR (phones only) — see "STICKY BAR" in the CSS to adjust or turn off
      ======================================================================== -->
-<div class="bm-water-treatment bmwt-sticky" id="bmwt-sticky">
+<div class="bm-water-treatment bmwt-sticky" id="bmwt-sticky" role="region" aria-label="Quick contact">
   <a class="bmwt-sticky__btn bmwt-sticky__btn--call" href="tel:7174498789" data-bmwt-tel>
     <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
     Call Now
@@ -2103,12 +2171,12 @@
     {
       "@type": "Question",
       "name": "Can you treat well water?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Well water varies widely from home to home, so we test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended." }
+      "acceptedAnswer": { "@type": "Answer", "text": "In many cases, yes. Well water varies widely from home to home, so we test and evaluate the water conditions first, then determine the appropriate next step. Certain water-quality concerns may require certified laboratory testing before an appropriate treatment solution can be recommended." }
     },
     {
       "@type": "Question",
       "name": "What is whole-house carbon filtration?",
-      "acceptedAnswer": { "@type": "Answer", "text": "A whole-house carbon filter treats water where it enters your home, so every faucet and shower receives filtered water. Carbon filtration is commonly used to help reduce chlorine taste and odor, and it is often paired with a water softener when a home has both hardness and taste or odor concerns." }
+      "acceptedAnswer": { "@type": "Answer", "text": "A whole-house carbon filter is installed where water enters your home and is designed to filter the water supplying your faucets and showers. Carbon filtration is commonly used to help reduce chlorine taste and odor, and it is often paired with a water softener when a home has both hardness and taste or odor concerns." }
     },
     {
       "@type": "Question",
@@ -2139,7 +2207,9 @@
 }
 </script>
 
-<script>
+<!-- The data- attributes below tell Cloudflare and LiteSpeed not to delay this script.
+     WP Rocket / Perfmatters "Delay JavaScript": add  bmwt-page  to the excluded list. -->
+<script data-cfasync="false" data-no-optimize="1" data-no-defer="1">
 /* ==========================================================================
    B&M WATER TREATMENT — small page script (no libraries)
    Does four things: phone number, smooth jump to the form,
@@ -2155,6 +2225,8 @@
        BMWT_PHONE_DISPLAY = how the number is shown on the page
        BMWT_PHONE_DIAL    = digits only, used by the tap-to-call links
      Your main number stays in the page code as a backup for Google.
+     If your MAIN number ever changes for good, also use Find & Replace on
+     717-449-8789 and 7174498789 throughout this code.
      ------------------------------------------------------------------------ */
   var BMWT_PHONE_DISPLAY = '717-449-8789';
   var BMWT_PHONE_DIAL = '7174498789';
@@ -2172,7 +2244,9 @@
   });
 
   /* 2. Smooth jump for on-page links (e.g. #free-water-test).
-        The sticky-header offset comes from scroll-margin-top in the CSS. */
+        The sticky-header offset comes from scroll-padding-top in the CSS.
+        On phones and tablets the form section is tall, so the jump goes
+        straight to the form card instead of the section heading. */
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.addEventListener('click', function (event) {
     var link = event.target.closest ? event.target.closest('.bm-water-treatment a[href^="#"]') : null;
@@ -2181,13 +2255,22 @@
     var target = id && document.getElementById(id);
     if (!target) return;
     event.preventDefault();
-    target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    var scrollTarget = target;
+    if (id === 'free-water-test' && window.innerWidth < 960) {
+      scrollTarget = document.getElementById('bmwt-form-card') || target;
+    }
+    scrollTarget.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     if (target.hasAttribute('tabindex')) {
       try { target.focus({ preventScroll: true }); } catch (e) { /* older browsers */ }
     }
   });
 
-  /* 3. FAQ accordion. Answers are open if this script never runs. */
+  /* 3. FAQ accordion. Answers are open if this script never runs.
+        If a speed plugin runs this script late (after the visitor has already
+        scrolled past the FAQ), keep the form exactly where they see it. */
+  var faq = document.getElementById('faq');
+  var keep = faq && faq.getBoundingClientRect().top < 0 ? document.getElementById('free-water-test') : null;
+  var keepTop = keep ? keep.getBoundingClientRect().top : 0;
   forEach(page.querySelectorAll('.bmwt-faq__btn'), function (button) {
     var panel = document.getElementById(button.getAttribute('aria-controls'));
     if (!panel) return;
@@ -2199,15 +2282,21 @@
       panel.hidden = isOpen;
     });
   });
+  if (keep) window.scrollBy(0, keep.getBoundingClientRect().top - keepTop);
 
   /* Hide the "schedule by phone" box once a GoHighLevel form is pasted in
      (backup for browsers without CSS :has support). */
   var formCard = document.getElementById('bmwt-form-card');
-  if (formCard && formCard.querySelector('iframe, form')) formCard.classList.add('has-embed');
+  if (formCard && formCard.querySelector('iframe, form')) {
+    formCard.classList.add('has-embed');
+    var fallback = formCard.querySelector('.bmwt-form-fallback');
+    if (fallback) fallback.style.display = 'none';
+  }
 
   /* 4. Sticky bar (phones only). Hidden while the hero buttons or the form
         are on screen, and from the final section down so it never covers
-        the form or your site footer. */
+        the form or your site footer. Visibility is also set inline so
+        "remove unused CSS" features in speed plugins can't break it. */
   var bar = document.getElementById('bmwt-sticky');
   if (!bar) return;
   var isEditor = document.body.classList.contains('elementor-editor-active');
@@ -2229,6 +2318,9 @@
     var atEnd = finalSection ? finalSection.getBoundingClientRect().top < vh : false;
     var show = !inView(heroCtas, vh) && !inView(formSection, vh) && !atEnd;
     bar.classList.toggle('is-visible', show);
+    bar.style.transform = show ? 'none' : '';
+    bar.style.visibility = show ? 'visible' : '';
+    bar.style.transitionDelay = show ? '0s' : '';
   }
   function requestUpdate() {
     if (!ticking) { ticking = true; window.requestAnimationFrame(update); }

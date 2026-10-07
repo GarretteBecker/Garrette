@@ -58,11 +58,11 @@ Use **Ctrl+F** in the HTML box (or paste the code into Notepad/TextEdit first) t
 
 | Find this | What to do |
 |---|---|
-| `PASTE GOHIGHLEVEL FORM EMBED HERE` | Delete that line and paste your GHL form embed code in its place (GHL: **Sites → Forms → your form → Integrate → Embed**). Until you do, visitors see a "Prefer to schedule by phone?" box with a Call button, so the page still works. |
+| `PASTE GOHIGHLEVEL FORM EMBED HERE` | Delete that line and paste your GHL form embed code in its place (GHL: **Sites → Forms → your form → Integrate → Embed**). Until you do, visitors see a "Prefer to schedule by phone?" box with a Call button, so the page still works. Once the form is in, that box hides itself automatically. |
 | `REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO` (2 spots: hero + softener section) | Upload the photo (**Media → Add New**), copy its **File URL**, paste it between the quotes in `src=""`, and update the `alt="…"` text to describe the photo. |
 | `REPLACE WITH REAL B&M RO INSTALLATION PHOTO` | Same as above. |
 | `REPLACE WITH REAL B&M WATER TEST / HOMEOWNER PHOTO` | Same as above. |
-| `REPLACE WITH REAL B&M GOOGLE REVIEW` (3 spots) | Paste a real review word for word, the reviewer's name exactly as Google shows it, and the project type. **Or hide the section** until you have them (instructions in the comment above the section). |
+| `REPLACE WITH REAL B&M GOOGLE REVIEW` (3 spots) | Paste a real review word for word, the reviewer's name exactly as Google shows it, and the project type. **The three cards are hidden on the live page until you're done** (you still see them in the Elementor editor). When all three are real, find `bmwt-reviews-grid" hidden` and delete the word `hidden`. Until then, visitors see the heading and the **Read Our Google Reviews** button. |
 | `based in Columbia` | Confirm this line is how you want your home base described. Edit it if not. |
 
 Photos until replaced show a clean branded panel (icon + caption), not a broken image.
@@ -96,6 +96,7 @@ and under 400 KB. Compress before uploading (e.g. squoosh.app or TinyPNG).
 - [ ] Page loads with your normal header and footer; no second header or footer.
 - [ ] Colored section backgrounds run edge to edge (if they stop short, redo step 8).
 - [ ] Every **Schedule Your Free Water Test** button glides down to the form, and the form heading isn't hidden under your header.
+- [ ] Press **Tab** a few times: each button and link shows a visible outline.
 - [ ] FAQ questions open and close; the arrow flips.
 - [ ] **Read Our Google Reviews** opens your Google listing in a new tab.
 - [ ] No sideways scrolling.
@@ -106,10 +107,12 @@ and under 400 KB. Compress before uploading (e.g. squoosh.app or TinyPNG).
 - [ ] After you scroll past the top buttons, the **Call Now / Free Water Test** bar appears at the bottom.
 - [ ] The bar does **not** cover the chat bubble, and the chat bubble still opens.
 - [ ] The bar disappears when you reach the form and at the bottom of the page.
-- [ ] **Free Water Test** in the bar jumps to the form.
+- [ ] **Free Water Test** in the bar (and every Schedule button) jumps straight to the form box.
 - [ ] Once the GHL form is in: submit a test entry and confirm it lands in GoHighLevel.
 
 **If something doesn't work**
 - FAQ won't open, or the phone bar never appears: a caching/speed plugin is probably delaying
-  JavaScript. In its "Delay JavaScript" settings, add `bmwt` to the exclusions, then clear the cache.
+  JavaScript. In WP Rocket or Perfmatters, add `bmwt-page` under *Delay JavaScript → Excluded
+  JavaScript*. If WP Rocket's *Remove Unused CSS* is on, add `(.*)bmwt(.*)` to its *CSS Safelist*.
+  Then clear the cache. (Cloudflare and LiteSpeed are already handled inside the code.)
 - The page looks squeezed in the middle: the container still has padding or is set to "Boxed" (step 8).

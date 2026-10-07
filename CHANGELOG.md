@@ -1115,7 +1115,14 @@ WordPress + Elementor site: `marketing/water-treatment-lancaster-pa/`.
   GHL chat bubble and hides itself at the top buttons, the form and the footer.
 - Clearly marked spots for the GHL form embed, four real photos and three real
   Google reviews. Until the form is pasted in, visitors get a "schedule by
-  phone" box rather than an empty space. No fake form.
+  phone" box rather than an empty space. No fake form. Review cards stay hidden
+  on the live page until real reviews are pasted in.
+- Reviewed independently for claims, accessibility, WordPress/Elementor
+  compatibility and phone layout. Confirmed findings were fixed (e.g. "Communication"
+  was cut off on phones, focus hidden under the sticky header, speed plugins
+  delaying the script, softer wording around testing and whole-home coverage),
+  except where they would have changed copy B&M wrote itself; those are kept as
+  written and flagged for the owner.
 - Claims kept to what B&M has confirmed: no health or contaminant claims, no
   lab-test wording, no brands, certifications, warranties or install times. The
   $3,895 starting price is always shown with its disclaimer.
