@@ -1123,6 +1123,12 @@ WordPress + Elementor site: `marketing/water-treatment-lancaster-pa/`.
   the code, compressed from 438 KB to 36 KB, square frame so nothing is
   cropped) with an "Example system" tag, so it isn't presented as a B&M
   install. Photos found online were left off (no permission to use them).
+- B&M's GoHighLevel "Water Treatment Form" (inline embed) is in, twice: at the
+  top of the page (beside the headline on desktop, right under it on phones)
+  and in the form section, so visitors who don't want to call can sign up
+  without scrolling. The lower copy has its own id and loads only when a
+  visitor scrolls near it. If GHL's script doesn't size a copy within a few
+  seconds, it falls back to the form's own height so it's never cut off.
 - Reviewed independently for claims, accessibility, WordPress/Elementor
   compatibility and phone layout. Confirmed findings were fixed (e.g. "Communication"
   was cut off on phones, focus hidden under the sticky header, speed plugins

@@ -15,7 +15,7 @@
     BRAND SETTINGS .......... colors, corner rounding, page width
     REPLACE WITH REAL ....... photo spots
     REVIEWS ................. your Google reviews (word for word)
-    PASTE GOHIGHLEVEL ....... where your GHL form embed code goes (top of page + form section)
+    GOHIGHLEVEL FORM EMBED .. your GHL form (top of page + form section)
     STICKY BAR .............. the phone-only "Call Now / Free Water Test" bar
     FAQ SCHEMA .............. Google FAQ markup (safe to delete)
 ==========================================================================
@@ -580,6 +580,9 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
 }
 @media (min-width: 960px) {
   .bm-water-treatment .bmwt-hero__form { margin-bottom: 0; }
+  .bm-water-treatment .bmwt-hero.has-form .bmwt-hero__grid { grid-template-rows: auto 1fr; }
+  .bm-water-treatment .bmwt-hero.has-form .bmwt-hero__intro,
+  .bm-water-treatment .bmwt-hero.has-form .bmwt-hero__form { align-self: start; }
 }
 .bm-water-treatment .bmwt-hero .bmwt-h1 { margin: 0 0 20px; }
 .bm-water-treatment .bmwt-hero__headline {
@@ -1430,8 +1433,27 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
             <p>Get your free in-home water test<span>No obligation. We’ll follow up to schedule a convenient time.</span></p>
           </div>
           <div class="bmwt-form-embed">
-            <!-- ↓↓↓ DELETE THE NEXT LINE AND PASTE YOUR GOHIGHLEVEL FORM EMBED CODE IN ITS PLACE ↓↓↓ -->
-            <!-- PASTE GOHIGHLEVEL FORM EMBED HERE (TOP OF PAGE) -->
+            <!-- GOHIGHLEVEL FORM EMBED (TOP OF PAGE): "Water Treatment Form" from B&M's GoHighLevel account.
+                 To change forms, replace this <iframe> and the <script> line under it with the new embed code. -->
+            <iframe
+              src="https://api.leadconnectorhq.com/widget/form/E02BDmeijEgxYKNW1ztN"
+              style="width:100%;height:100%;border:none;border-radius:8px"
+              id="inline-E02BDmeijEgxYKNW1ztN"
+              data-layout="{'id':'INLINE'}"
+              data-trigger-type="alwaysShow"
+              data-trigger-value=""
+              data-activation-type="alwaysActivated"
+              data-activation-value=""
+              data-deactivation-type="neverDeactivate"
+              data-deactivation-value=""
+              data-form-name="Water Treatment Form"
+              data-height="1013"
+              data-layout-iframe-id="inline-E02BDmeijEgxYKNW1ztN"
+              data-form-id="E02BDmeijEgxYKNW1ztN"
+              data-cookie-consent="true"
+              data-cookie-consent-provider="auto"
+              title="Water Treatment Form"></iframe>
+            <script src="https://link.msgsndr.com/js/form_embed.js"></script>
           </div>
         </div>
       </div>
@@ -2153,12 +2175,28 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
             <p>Request your free in-home water test<span>We’ll follow up to schedule a convenient time.</span></p>
           </div>
           <div class="bmwt-form-embed">
-            <!-- ↓↓↓ DELETE THE NEXT LINE AND PASTE YOUR GOHIGHLEVEL FORM EMBED CODE IN ITS PLACE ↓↓↓
-                 (GoHighLevel: Sites > Forms > your form > Integrate > Embed > copy the code)
-                 Tip: duplicate the form in GoHighLevel and use one copy here and one at the top of the
-                 page, so GHL shows you which spot brings in more leads.
-                 The "Prefer to schedule by phone" box below hides itself once the form is in. -->
-            <!-- PASTE GOHIGHLEVEL FORM EMBED HERE -->
+            <!-- GOHIGHLEVEL FORM EMBED (FORM SECTION): same "Water Treatment Form" as the top of the page.
+                 It has its own id (…-section) so both copies can live on one page, and it waits to load
+                 until a visitor scrolls near it. To use a second GHL form here instead, replace this <iframe>. -->
+            <iframe
+              src="https://api.leadconnectorhq.com/widget/form/E02BDmeijEgxYKNW1ztN"
+              style="width:100%;height:100%;border:none;border-radius:8px"
+              id="inline-E02BDmeijEgxYKNW1ztN-section"
+              data-layout="{'id':'INLINE'}"
+              data-trigger-type="alwaysShow"
+              data-trigger-value=""
+              data-activation-type="alwaysActivated"
+              data-activation-value=""
+              data-deactivation-type="neverDeactivate"
+              data-deactivation-value=""
+              data-form-name="Water Treatment Form"
+              data-height="1013"
+              data-layout-iframe-id="inline-E02BDmeijEgxYKNW1ztN-section"
+              data-form-id="E02BDmeijEgxYKNW1ztN"
+              data-cookie-consent="true"
+              data-cookie-consent-provider="auto"
+              title="Water Treatment Form"
+              loading="lazy"></iframe>
           </div>
           <div class="bmwt-form-fallback">
             <span class="bmwt-icon-badge"><svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-calendar"></use></svg></span>
@@ -2392,6 +2430,14 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
     });
   });
   if (keep) window.scrollBy(0, keep.getBoundingClientRect().top - keepTop);
+
+  /* If GoHighLevel's script hasn't sized a form copy after a few seconds,
+     give it the form's own height (data-height) so it never shows cut off. */
+  window.setTimeout(function () {
+    forEach(page.querySelectorAll('.bmwt-form-embed iframe[data-height]'), function (frame) {
+      if (!/px$/.test(frame.style.height)) frame.style.height = frame.getAttribute('data-height') + 'px';
+    });
+  }, 3000);
 
   /* Hide the "schedule by phone" box once a GoHighLevel form is pasted in
      (backup for browsers without CSS :has support). */
