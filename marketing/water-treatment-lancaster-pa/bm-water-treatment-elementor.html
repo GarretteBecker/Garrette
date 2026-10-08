@@ -578,11 +578,17 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   border: 1px solid var(--bmwt-border);
   box-shadow: 0 24px 48px -28px rgba(17, 27, 48, .45);
 }
+@media (max-width: 959px) {
+  .bm-water-treatment .bmwt-hero__form { margin-top: 28px; }
+}
 @media (min-width: 960px) {
   .bm-water-treatment .bmwt-hero__form { margin-bottom: 0; }
   .bm-water-treatment .bmwt-hero.has-form .bmwt-hero__grid { grid-template-rows: auto 1fr; }
+  .bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) .bmwt-hero__grid { grid-template-rows: auto 1fr; }
   .bm-water-treatment .bmwt-hero.has-form .bmwt-hero__intro,
   .bm-water-treatment .bmwt-hero.has-form .bmwt-hero__form { align-self: start; }
+  .bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) .bmwt-hero__intro,
+  .bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) .bmwt-hero__form { align-self: start; }
 }
 .bm-water-treatment .bmwt-hero .bmwt-h1 { margin: 0 0 20px; }
 .bm-water-treatment .bmwt-hero__headline {
@@ -1424,17 +1430,27 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
           <span class="bmwt-hero__subhead">Whole-Home Water Treatment &amp; Water Softener Systems in Lancaster, PA</span>
         </h1>
         <p class="bmwt-hero__text">Hard water, scale buildup, chlorine taste or odor? B&amp;M provides professional water testing and whole-home water treatment systems designed around your home’s actual water conditions.</p>
+
+        <div class="bmwt-btn-row" id="bmwt-hero-ctas">
+          <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
+          <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
+            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
+            Call B&amp;M Today
+          </a>
+        </div>
       </div>
 
       <!-- TOP-OF-PAGE FORM (hidden until a GoHighLevel form is pasted in; then it replaces the hero photo) -->
-      <div class="bmwt-hero__form" id="bmwt-hero-form" tabindex="-1">
+      <div class="bmwt-hero__form" id="bmwt-hero-form" tabindex="-1" role="region" aria-label="Get your free in-home water test">
         <div class="bmwt-form-card">
           <div class="bmwt-form-card__head">
             <p>Get your free in-home water test<span>No obligation. We’ll follow up to schedule a convenient time.</span></p>
           </div>
           <div class="bmwt-form-embed">
             <!-- GOHIGHLEVEL FORM EMBED (TOP OF PAGE): "Water Treatment Form" from B&M's GoHighLevel account.
-                 To change forms, replace this <iframe> and the <script> line under it with the new embed code. -->
+                 To change forms, replace ONLY this <iframe>. GoHighLevel's script line is already at the very
+                 bottom of this code. Don't paste a second copy. Each spot needs its own iframe id: never
+                 paste the exact same embed code in both spots (the second copy would never resize). -->
             <iframe
               src="https://api.leadconnectorhq.com/widget/form/E02BDmeijEgxYKNW1ztN"
               style="width:100%;height:100%;border:none;border-radius:8px"
@@ -1452,20 +1468,12 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
               data-form-id="E02BDmeijEgxYKNW1ztN"
               data-cookie-consent="true"
               data-cookie-consent-provider="auto"
-              title="Water Treatment Form"></iframe>
-            <script src="https://link.msgsndr.com/js/form_embed.js"></script>
+              title="Free water test request form"></iframe>
           </div>
         </div>
       </div>
 
       <div class="bmwt-hero__rest">
-        <div class="bmwt-btn-row" id="bmwt-hero-ctas">
-          <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
-          <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
-            <svg class="bmwt-icon" aria-hidden="true" focusable="false"><use href="#bmwt-i-phone"></use></svg>
-            Call B&amp;M Today
-          </a>
-        </div>
         <p class="bmwt-hero__note">Free, no-obligation in-home water test <span aria-hidden="true">&middot;</span> <a class="bmwt-phone-link" href="tel:7174498789" data-bmwt-tel data-bmwt-phone>717-449-8789</a></p>
 
         <ul class="bmwt-checks bmwt-hero__services" role="list" aria-label="Water treatment services">
@@ -1484,6 +1492,8 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
       <div class="bmwt-hero__media">
         <div class="bmwt-media">
           <!-- REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO
+               NOTE: while the top-of-page form is in, this photo is hidden on every screen size but would
+               still download. Leave src="" empty unless you take the top form out.
                1) Upload the photo in WordPress: Media > Add New.
                2) Copy its "File URL" and paste it between the quotes in src="" below.
                3) Update the alt text so it describes the photo.
@@ -2177,7 +2187,8 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
           <div class="bmwt-form-embed">
             <!-- GOHIGHLEVEL FORM EMBED (FORM SECTION): same "Water Treatment Form" as the top of the page.
                  It has its own id (…-section) so both copies can live on one page, and it waits to load
-                 until a visitor scrolls near it. To use a second GHL form here instead, replace this <iframe>. -->
+                 until a visitor scrolls near it. To use a second GHL form here instead, replace this <iframe>
+                 (iframe only; GoHighLevel's script line is already at the very bottom of this code). -->
             <iframe
               src="https://api.leadconnectorhq.com/widget/form/E02BDmeijEgxYKNW1ztN"
               style="width:100%;height:100%;border:none;border-radius:8px"
@@ -2195,7 +2206,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
               data-form-id="E02BDmeijEgxYKNW1ztN"
               data-cookie-consent="true"
               data-cookie-consent-provider="auto"
-              title="Water Treatment Form"
+              title="Free water test request form"
               loading="lazy"></iframe>
           </div>
           <div class="bmwt-form-fallback">
@@ -2383,7 +2394,25 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   var heroSection = document.getElementById('bmwt-hero');
   var heroForm = document.getElementById('bmwt-hero-form');
   var heroHasForm = !!(heroForm && heroForm.querySelector('iframe, form'));
-  if (heroHasForm && heroSection) heroSection.classList.add('has-form');
+  if (heroHasForm && heroSection) {
+    heroSection.classList.add('has-form');
+    /* Inline backup so "remove unused CSS" in speed plugins can't undo the swap */
+    heroForm.style.display = 'block';
+    var heroMedia = heroSection.querySelector('.bmwt-hero__media');
+    var heroPrimary = heroSection.querySelector('#bmwt-hero-ctas .bmwt-btn--primary');
+    if (heroMedia) heroMedia.style.display = 'none';
+    if (heroPrimary) heroPrimary.style.display = 'none';
+  }
+  var bottomHasForm = !!document.querySelector('#bmwt-form-card iframe, #bmwt-form-card form');
+
+  /* Reserve each form's height right away (GoHighLevel's data-height), so the page
+     doesn't jump when the form loads. GoHighLevel then sets the exact height. */
+  function reserveFormHeights() {
+    forEach(page.querySelectorAll('.bmwt-form-embed iframe[data-height]'), function (frame) {
+      if (!/px$/.test(frame.style.height)) frame.style.height = frame.getAttribute('data-height') + 'px';
+    });
+  }
+  reserveFormHeights();
 
   /* 2. Smooth jump for on-page links (e.g. #free-water-test).
         The sticky-header offset comes from scroll-padding-top in the CSS.
@@ -2402,7 +2431,8 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
     var scrollTarget = target;
     if (id === 'free-water-test') {
       if (window.innerWidth < 960) scrollTarget = document.getElementById('bmwt-form-card') || target;
-      if (heroHasForm && Math.abs(heroForm.getBoundingClientRect().top) < Math.abs(scrollTarget.getBoundingClientRect().top)) {
+      var heroShown = heroHasForm && heroForm.getClientRects().length > 0;
+      if (heroShown && (!bottomHasForm || Math.abs(heroForm.getBoundingClientRect().top) < Math.abs(scrollTarget.getBoundingClientRect().top))) {
         scrollTarget = target = heroForm;
       }
     }
@@ -2431,13 +2461,8 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   });
   if (keep) window.scrollBy(0, keep.getBoundingClientRect().top - keepTop);
 
-  /* If GoHighLevel's script hasn't sized a form copy after a few seconds,
-     give it the form's own height (data-height) so it never shows cut off. */
-  window.setTimeout(function () {
-    forEach(page.querySelectorAll('.bmwt-form-embed iframe[data-height]'), function (frame) {
-      if (!/px$/.test(frame.style.height)) frame.style.height = frame.getAttribute('data-height') + 'px';
-    });
-  }, 3000);
+  /* Backup check a few seconds later, in case anything reset a form's height */
+  window.setTimeout(reserveFormHeights, 3000);
 
   /* Hide the "schedule by phone" box once a GoHighLevel form is pasted in
      (backup for browsers without CSS :has support). */
@@ -2485,3 +2510,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   update();
 })();
 </script>
+
+<!-- GOHIGHLEVEL FORM SCRIPT: one copy for the whole page, loaded last so nothing waits on it.
+     It sizes both forms above. Don't paste another copy with a new form code. -->
+<script src="https://link.msgsndr.com/js/form_embed.js" defer></script>
