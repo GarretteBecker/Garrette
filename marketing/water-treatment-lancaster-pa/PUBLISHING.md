@@ -58,7 +58,7 @@ Use **Ctrl+F** in the HTML box (or paste the code into Notepad/TextEdit first) t
 
 | Find this | What to do |
 |---|---|
-| `PASTE GOHIGHLEVEL FORM EMBED HERE` | Delete that line and paste your GHL form embed code in its place (GHL: **Sites → Forms → your form → Integrate → Embed**). Until you do, visitors see a "Prefer to schedule by phone?" box with a Call button, so the page still works. Once the form is in, that box hides itself automatically. |
+| `PASTE GOHIGHLEVEL FORM EMBED HERE` (2 spots: top of page + form section) | Send Claude your GHL form embed code (GHL: **Sites → Forms → your form → Integrate → Embed → Copy**). Best: duplicate the form in GHL first and send both codes, one for the top and one for the form section, so GHL shows which spot brings more leads. Until a form is in, the page works as it does today: the top shows the photo, and the form section shows a "Prefer to schedule by phone?" box. Once a form is in, the top form takes the photo's place and the phone box hides itself. |
 | `REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO` (2 spots: hero + softener section) | Upload the photo (**Media → Add New**), copy its **File URL**, paste it between the quotes in `src=""`, and update the `alt="…"` text to describe the photo. |
 | `REPLACE WITH REAL B&M RO INSTALLATION PHOTO` | **For now:** your vendor's dual-flow RO image is in, built into the code and tagged "Example system". Keep the vendor's OK (an email is enough) on file. Swap in a photo of your own install when you have one. |
 | `REPLACE WITH REAL B&M WATER TEST / HOMEOWNER PHOTO` | Same as above. |

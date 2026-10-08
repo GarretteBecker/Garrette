@@ -15,7 +15,7 @@
     BRAND SETTINGS .......... colors, corner rounding, page width
     REPLACE WITH REAL ....... photo spots
     REVIEWS ................. your Google reviews (word for word)
-    PASTE GOHIGHLEVEL ....... where your GHL form embed code goes
+    PASTE GOHIGHLEVEL ....... where your GHL form embed code goes (top of page + form section)
     STICKY BAR .............. the phone-only "Call Now / Free Water Test" bar
     FAQ SCHEMA .............. Google FAQ markup (safe to delete)
 ==========================================================================
@@ -546,12 +546,40 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   border-bottom: 1px solid var(--bmwt-border);
 }
 .bm-water-treatment .bmwt-hero__grid {
-  display: grid;
-  gap: clamp(36px, 5vw, 64px);
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+.bm-water-treatment .bmwt-hero__media { margin-top: clamp(36px, 5vw, 64px); }
+@media (min-width: 960px) {
+  .bm-water-treatment .bmwt-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    grid-template-areas: "intro side" "rest side";
+    column-gap: clamp(36px, 5vw, 64px);
+  }
+  .bm-water-treatment .bmwt-hero__intro { grid-area: intro; align-self: end; }
+  .bm-water-treatment .bmwt-hero__rest { grid-area: rest; align-self: start; }
+  .bm-water-treatment .bmwt-hero__media,
+  .bm-water-treatment .bmwt-hero__form { grid-area: side; align-self: center; margin-top: 0; }
+}
+
+/* TOP-OF-PAGE FORM — stays hidden until a GoHighLevel form is pasted into it.
+   Once it's in, it takes the photo's place and the hero "Schedule" button
+   hides (the form itself is the next step). Two separate rules on purpose:
+   a browser that doesn't understand :has() would skip a combined rule. */
+.bm-water-treatment .bmwt-hero__form { display: none; margin-bottom: 28px; }
+.bm-water-treatment .bmwt-hero.has-form .bmwt-hero__form { display: block; }
+.bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) .bmwt-hero__form { display: block; }
+.bm-water-treatment .bmwt-hero.has-form .bmwt-hero__media,
+.bm-water-treatment .bmwt-hero.has-form #bmwt-hero-ctas .bmwt-btn--primary { display: none; }
+.bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) .bmwt-hero__media,
+.bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) #bmwt-hero-ctas .bmwt-btn--primary { display: none; }
+.bm-water-treatment .bmwt-hero .bmwt-form-card {
+  border: 1px solid var(--bmwt-border);
+  box-shadow: 0 24px 48px -28px rgba(17, 27, 48, .45);
 }
 @media (min-width: 960px) {
-  .bm-water-treatment .bmwt-hero__grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); }
+  .bm-water-treatment .bmwt-hero__form { margin-bottom: 0; }
 }
 .bm-water-treatment .bmwt-hero .bmwt-h1 { margin: 0 0 20px; }
 .bm-water-treatment .bmwt-hero__headline {
@@ -571,7 +599,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   line-height: 1.4;
   letter-spacing: 0;
 }
-.bm-water-treatment .bmwt-hero__text {
+.bm-water-treatment .bmwt-hero__intro .bmwt-hero__text {
   max-width: 580px;
   margin-bottom: 28px;
   font-size: clamp(17px, .3vw + 16px, 19px);
@@ -1386,14 +1414,29 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
        ====================================================================== -->
   <section class="bmwt-hero" id="bmwt-hero" aria-labelledby="bmwt-hero-title">
     <div class="bmwt-container bmwt-hero__grid">
-      <div class="bmwt-hero__content">
+      <div class="bmwt-hero__intro">
         <p class="bmwt-eyebrow">Whole-Home Water Treatment <span aria-hidden="true">&bull;</span> Lancaster &amp; York, PA</p>
         <h1 class="bmwt-h1" id="bmwt-hero-title">
           <span class="bmwt-hero__headline">Better Water Starts With Knowing What’s In It.</span>
           <span class="bmwt-hero__subhead">Whole-Home Water Treatment &amp; Water Softener Systems in Lancaster, PA</span>
         </h1>
         <p class="bmwt-hero__text">Hard water, scale buildup, chlorine taste or odor? B&amp;M provides professional water testing and whole-home water treatment systems designed around your home’s actual water conditions.</p>
+      </div>
 
+      <!-- TOP-OF-PAGE FORM (hidden until a GoHighLevel form is pasted in; then it replaces the hero photo) -->
+      <div class="bmwt-hero__form" id="bmwt-hero-form" tabindex="-1">
+        <div class="bmwt-form-card">
+          <div class="bmwt-form-card__head">
+            <p>Get your free in-home water test<span>No obligation. We’ll follow up to schedule a convenient time.</span></p>
+          </div>
+          <div class="bmwt-form-embed">
+            <!-- ↓↓↓ DELETE THE NEXT LINE AND PASTE YOUR GOHIGHLEVEL FORM EMBED CODE IN ITS PLACE ↓↓↓ -->
+            <!-- PASTE GOHIGHLEVEL FORM EMBED HERE (TOP OF PAGE) -->
+          </div>
+        </div>
+      </div>
+
+      <div class="bmwt-hero__rest">
         <div class="bmwt-btn-row" id="bmwt-hero-ctas">
           <a class="bmwt-btn bmwt-btn--primary" href="#free-water-test">Schedule Your Free Water Test</a>
           <a class="bmwt-btn bmwt-btn--secondary" href="tel:7174498789" data-bmwt-tel>
@@ -2112,6 +2155,8 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
           <div class="bmwt-form-embed">
             <!-- ↓↓↓ DELETE THE NEXT LINE AND PASTE YOUR GOHIGHLEVEL FORM EMBED CODE IN ITS PLACE ↓↓↓
                  (GoHighLevel: Sites > Forms > your form > Integrate > Embed > copy the code)
+                 Tip: duplicate the form in GoHighLevel and use one copy here and one at the top of the
+                 page, so GHL shows you which spot brings in more leads.
                  The "Prefer to schedule by phone" box below hides itself once the form is in. -->
             <!-- PASTE GOHIGHLEVEL FORM EMBED HERE -->
           </div>
@@ -2296,10 +2341,18 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
     el.textContent = BMWT_PHONE_DISPLAY;
   });
 
+  /* Which forms are in? A pasted GoHighLevel form shows up as an iframe. */
+  var heroSection = document.getElementById('bmwt-hero');
+  var heroForm = document.getElementById('bmwt-hero-form');
+  var heroHasForm = !!(heroForm && heroForm.querySelector('iframe, form'));
+  if (heroHasForm && heroSection) heroSection.classList.add('has-form');
+
   /* 2. Smooth jump for on-page links (e.g. #free-water-test).
         The sticky-header offset comes from scroll-padding-top in the CSS.
         On phones and tablets the form section is tall, so the jump goes
-        straight to the form card instead of the section heading. */
+        straight to the form card instead of the section heading.
+        If the top-of-page form is in, "Schedule" buttons go to whichever
+        form is closer. */
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.addEventListener('click', function (event) {
     var link = event.target.closest ? event.target.closest('.bm-water-treatment a[href^="#"]') : null;
@@ -2309,8 +2362,11 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
     if (!target) return;
     event.preventDefault();
     var scrollTarget = target;
-    if (id === 'free-water-test' && window.innerWidth < 960) {
-      scrollTarget = document.getElementById('bmwt-form-card') || target;
+    if (id === 'free-water-test') {
+      if (window.innerWidth < 960) scrollTarget = document.getElementById('bmwt-form-card') || target;
+      if (heroHasForm && Math.abs(heroForm.getBoundingClientRect().top) < Math.abs(scrollTarget.getBoundingClientRect().top)) {
+        scrollTarget = target = heroForm;
+      }
     }
     scrollTarget.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
     if (target.hasAttribute('tabindex')) {
@@ -2339,16 +2395,16 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
 
   /* Hide the "schedule by phone" box once a GoHighLevel form is pasted in
      (backup for browsers without CSS :has support). */
-  var formCard = document.getElementById('bmwt-form-card');
-  if (formCard && formCard.querySelector('iframe, form')) {
-    formCard.classList.add('has-embed');
-    var fallback = formCard.querySelector('.bmwt-form-fallback');
+  forEach(page.querySelectorAll('.bmwt-form-card'), function (card) {
+    if (!card.querySelector('iframe, form')) return;
+    card.classList.add('has-embed');
+    var fallback = card.querySelector('.bmwt-form-fallback');
     if (fallback) fallback.style.display = 'none';
-  }
+  });
 
-  /* 4. Sticky bar (phones only). Hidden while the hero buttons or the form
-        are on screen, and from the final section down so it never covers
-        the form or your site footer. Visibility is also set inline so
+  /* 4. Sticky bar (phones only). Hidden while the hero buttons or either
+        form are on screen, and from the final section down so it never
+        covers a form or your site footer. Visibility is also set inline so
         "remove unused CSS" features in speed plugins can't break it. */
   var bar = document.getElementById('bmwt-sticky');
   if (!bar) return;
@@ -2369,7 +2425,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
     ticking = false;
     var vh = window.innerHeight || document.documentElement.clientHeight;
     var atEnd = finalSection ? finalSection.getBoundingClientRect().top < vh : false;
-    var show = !inView(heroCtas, vh) && !inView(formSection, vh) && !atEnd;
+    var show = !inView(heroCtas, vh) && !inView(formSection, vh) && !(heroHasForm && inView(heroForm, vh)) && !atEnd;
     bar.classList.toggle('is-visible', show);
     bar.style.transform = show ? 'none' : '';
     bar.style.visibility = show ? 'visible' : '';
