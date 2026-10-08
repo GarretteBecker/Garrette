@@ -32,6 +32,7 @@
   --bmwt-accent: #2E5E3A;           /* Green: main buttons, icons, highlights */
   --bmwt-dark: #16233F;             /* Deep navy: dark section background */
   --bmwt-light: #F4F6F8;            /* Light section background */
+  --bmwt-hero-bg: #E6ECF4;          /* Top section background (soft blue-gray) */
   --bmwt-text: #2B3445;             /* Body text */
   --bmwt-radius: 16px;              /* Card corner rounding */
   --bmwt-container: 1200px;         /* Max content width */
@@ -542,8 +543,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
 .bm-water-treatment .bmwt-hero {
   padding-top: clamp(36px, 6vw, 88px);
   padding-bottom: clamp(56px, 7vw, 104px);
-  background: var(--bmwt-light);
-  border-bottom: 1px solid var(--bmwt-border);
+  background: var(--bmwt-hero-bg);
 }
 .bm-water-treatment .bmwt-hero__grid {
   display: flex;
@@ -575,8 +575,8 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
 .bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) .bmwt-hero__media,
 .bm-water-treatment .bmwt-hero:has(.bmwt-hero__form iframe) #bmwt-hero-ctas .bmwt-btn--primary { display: none; }
 .bm-water-treatment .bmwt-hero .bmwt-form-card {
-  border: 1px solid var(--bmwt-border);
-  box-shadow: 0 24px 48px -28px rgba(17, 27, 48, .45);
+  border: 1px solid #D3DCE8;
+  box-shadow: 0 24px 50px -26px rgba(17, 27, 48, .38);
 }
 @media (max-width: 959px) {
   .bm-water-treatment .bmwt-hero__form { margin-top: 28px; }
@@ -639,6 +639,7 @@ html:has(.bm-water-treatment.bmwt-page) { scroll-padding-top: 100px; }
   font-weight: 600;
   line-height: 1.5;
 }
+.bm-water-treatment .bmwt-hero .bmwt-trustline { border-top-color: #D3DCE8; }
 .bm-water-treatment .bmwt-trustline .bmwt-icon { width: 20px; height: 20px; margin-top: 1px; color: var(--bmwt-accent); }
 .bm-water-treatment .bmwt-sep { margin: 0 2px 0 0; color: var(--bmwt-accent); }
 .bm-water-treatment .bmwt-hero__media { position: relative; }

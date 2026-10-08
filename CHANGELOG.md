@@ -1137,6 +1137,8 @@ WordPress + Elementor site: `marketing/water-treatment-lancaster-pa/`.
   - Schedule links ignore a form that isn't showing.
   - Inline backups survive "remove unused CSS"; the top form is a named region.
   - Notes on keeping the hero photo empty while the form is in.
+- Top section background is now a soft blue-gray (`--bmwt-hero-bg`, #E6ECF4).
+  The owner chose it over a full navy background, which felt too heavy.
 - Reviewed independently for claims, accessibility, WordPress/Elementor
   compatibility and phone layout. Confirmed findings were fixed (e.g. "Communication"
   was cut off on phones, focus hidden under the sticky header, speed plugins
