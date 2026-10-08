@@ -1119,6 +1119,10 @@ WordPress + Elementor site: `marketing/water-treatment-lancaster-pa/`.
 - Reviews section now shows four real 5-star Google reviews, word for word
   (one featured, three below), names shortened to first name + last initial.
   They are general B&M reviews, and the section says so.
+- Reverse osmosis section shows the vendor's dual-flow RO image (built into
+  the code, compressed from 438 KB to 36 KB, square frame so nothing is
+  cropped) with an "Example system" tag, so it isn't presented as a B&M
+  install. Photos found online were left off (no permission to use them).
 - Reviewed independently for claims, accessibility, WordPress/Elementor
   compatibility and phone layout. Confirmed findings were fixed (e.g. "Communication"
   was cut off on phones, focus hidden under the sticky header, speed plugins

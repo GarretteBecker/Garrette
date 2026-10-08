@@ -60,7 +60,7 @@ Use **Ctrl+F** in the HTML box (or paste the code into Notepad/TextEdit first) t
 |---|---|
 | `PASTE GOHIGHLEVEL FORM EMBED HERE` | Delete that line and paste your GHL form embed code in its place (GHL: **Sites → Forms → your form → Integrate → Embed**). Until you do, visitors see a "Prefer to schedule by phone?" box with a Call button, so the page still works. Once the form is in, that box hides itself automatically. |
 | `REPLACE WITH REAL B&M WATER SOFTENER INSTALLATION PHOTO` (2 spots: hero + softener section) | Upload the photo (**Media → Add New**), copy its **File URL**, paste it between the quotes in `src=""`, and update the `alt="…"` text to describe the photo. |
-| `REPLACE WITH REAL B&M RO INSTALLATION PHOTO` | Same as above. |
+| `REPLACE WITH REAL B&M RO INSTALLATION PHOTO` | **For now:** your vendor's dual-flow RO image is in, built into the code and tagged "Example system". Keep the vendor's OK (an email is enough) on file. Swap in a photo of your own install when you have one. |
 | `REPLACE WITH REAL B&M WATER TEST / HOMEOWNER PHOTO` | Same as above. |
 | ~~Google reviews~~ | **Done.** Four real 5-star Google reviews are in, word for word (Jennifer N. featured; Jennifer R., Mike W., Tim B.). To swap one later, send the new review to Claude, or search `REVIEWS` in the code. |
 | `based in Columbia` | Confirm this line is how you want your home base described. Edit it if not. |
